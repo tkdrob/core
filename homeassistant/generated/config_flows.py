@@ -28,6 +28,7 @@ FLOWS = [
     "aurora",
     "awair",
     "aurora_abb_powerone",
+    "avri",
     "axis",
     "azure_devops",
     "blebox",
