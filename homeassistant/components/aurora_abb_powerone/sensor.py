@@ -68,7 +68,7 @@ async def async_setup_entry(hass, config, async_add_entities) -> None:
             )
         else:
             _LOGGER.error("Unrecognised sensor parameter '%s'", sensor["parameter"])
-    _LOGGER.debug("async_setup_entry adding %d entitites", len(entities))
+    _LOGGER.debug("async_setup_entry adding %d entities", len(entities))
     async_add_entities(entities, True)
 
 
@@ -155,7 +155,8 @@ class AuroraSensor(AuroraDevice):
                     _LOGGER.info("Communication with %s back online", self._name)
                 else:
                     _LOGGER.warning(
-                        "Communication with %s lost", self._name,
+                        "Communication with %s lost",
+                        self._name,
                     )
             self.availableprev = self._available
             if self.client.serline.isOpen():
