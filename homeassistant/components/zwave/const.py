@@ -1,4 +1,6 @@
 """Z-Wave Constants."""
+from homeassistant.const import ATTR_NAME  # noqa: F401 pylint: disable=unused-import
+
 DOMAIN = "zwave"
 
 ATTR_NODE_ID = "node_id"
@@ -8,7 +10,6 @@ ATTR_INSTANCE = "instance"
 ATTR_GROUP = "group"
 ATTR_VALUE_ID = "value_id"
 ATTR_MESSAGES = "messages"
-ATTR_NAME = "name"
 ATTR_RETURN_ROUTES = "return_routes"
 ATTR_SCENE_ID = "scene_id"
 ATTR_SCENE_DATA = "scene_data"
