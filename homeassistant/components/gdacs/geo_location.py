@@ -39,9 +39,6 @@ ICONS = {
     "VO": "mdi:image-filter-hdr",
 }
 
-# An update of this entity is not making a web request, but uses internal data only.
-PARALLEL_UPDATES = 0
-
 SOURCE = "gdacs"
 
 

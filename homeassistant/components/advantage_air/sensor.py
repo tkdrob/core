@@ -11,8 +11,6 @@ ADVANTAGE_AIR_SET_COUNTDOWN_VALUE = "minutes"
 ADVANTAGE_AIR_SET_COUNTDOWN_UNIT = "min"
 ADVANTAGE_AIR_SERVICE_SET_TIME_TO = "set_time_to"
 
-PARALLEL_UPDATES = 0
-
 
 async def async_setup_entry(hass, config_entry, async_add_entities):
     """Set up AdvantageAir sensor platform."""

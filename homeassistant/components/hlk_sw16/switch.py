@@ -4,8 +4,6 @@ from homeassistant.components.switch import ToggleEntity
 from . import DATA_DEVICE_REGISTER, SW16Device
 from .const import DOMAIN
 
-PARALLEL_UPDATES = 0
-
 
 def devices_from_entities(hass, entry):
     """Parse configuration and add HLK-SW16 switch devices."""

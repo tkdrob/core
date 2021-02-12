@@ -22,7 +22,6 @@ _LOGGER = logging.getLogger(__name__)
 
 DOMAIN = "daikin"
 
-PARALLEL_UPDATES = 0
 MIN_TIME_BETWEEN_UPDATES = timedelta(seconds=60)
 
 COMPONENT_TYPES = ["climate", "sensor", "switch"]

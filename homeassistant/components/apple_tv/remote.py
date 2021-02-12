@@ -10,8 +10,6 @@ from .const import DOMAIN
 
 _LOGGER = logging.getLogger(__name__)
 
-PARALLEL_UPDATES = 0
-
 
 async def async_setup_entry(hass, config_entry, async_add_entities):
     """Load Apple TV remote based on a config entry."""

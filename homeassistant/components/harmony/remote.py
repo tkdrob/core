@@ -39,9 +39,6 @@ from .subscriber import HarmonyCallback
 
 _LOGGER = logging.getLogger(__name__)
 
-# We want to fire remote commands right away
-PARALLEL_UPDATES = 0
-
 ATTR_CHANNEL = "channel"
 
 HARMONY_SYNC_SCHEMA = vol.Schema({vol.Optional(ATTR_ENTITY_ID): cv.entity_ids})

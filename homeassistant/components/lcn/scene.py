@@ -17,8 +17,6 @@ from .const import (
 )
 from .helpers import get_connection
 
-PARALLEL_UPDATES = 0
-
 
 async def async_setup_platform(
     hass, hass_config, async_add_entities, discovery_info=None

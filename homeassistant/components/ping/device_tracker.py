@@ -23,7 +23,6 @@ from .const import PING_ATTEMPTS_COUNT, PING_TIMEOUT
 
 _LOGGER = logging.getLogger(__name__)
 
-PARALLEL_UPDATES = 0
 CONF_PING_COUNT = "count"
 
 PLATFORM_SCHEMA = PLATFORM_SCHEMA.extend(

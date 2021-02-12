@@ -27,9 +27,6 @@ ATTR_MMI = "mmi"
 ATTR_PUBLICATION_DATE = "publication_date"
 ATTR_QUALITY = "quality"
 
-# An update of this entity is not making a web request, but uses internal data only.
-PARALLEL_UPDATES = 0
-
 SOURCE = "geonetnz_quakes"
 
 

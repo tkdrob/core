@@ -49,8 +49,6 @@ from .const import (
 
 _LOGGER = logging.getLogger(__name__)
 
-PARALLEL_UPDATES = 0
-
 OBSERVATION_VALID_TIME = timedelta(minutes=20)
 FORECAST_VALID_TIME = timedelta(minutes=45)
 

@@ -23,8 +23,6 @@ from . import (
 
 _LOGGER = logging.getLogger(__name__)
 
-PARALLEL_UPDATES = 0
-
 TYPE_STANDARD = "standard"
 TYPE_INVERTED = "inverted"
 

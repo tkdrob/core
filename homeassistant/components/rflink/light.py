@@ -31,8 +31,6 @@ from . import (
 
 _LOGGER = logging.getLogger(__name__)
 
-PARALLEL_UPDATES = 0
-
 TYPE_DIMMABLE = "dimmable"
 TYPE_SWITCHABLE = "switchable"
 TYPE_HYBRID = "hybrid"

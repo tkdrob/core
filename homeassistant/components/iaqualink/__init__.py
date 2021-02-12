@@ -41,7 +41,6 @@ from .const import DOMAIN, UPDATE_INTERVAL
 _LOGGER = logging.getLogger(__name__)
 
 ATTR_CONFIG = "config"
-PARALLEL_UPDATES = 0
 
 CONFIG_SCHEMA = vol.Schema(
     {

@@ -47,8 +47,6 @@ from .const import DOMAIN
 
 _LOGGER = logging.getLogger(__name__)
 
-PARALLEL_UPDATES = 0
-
 SUPPORT_APPLE_TV = (
     SUPPORT_TURN_ON
     | SUPPORT_TURN_OFF

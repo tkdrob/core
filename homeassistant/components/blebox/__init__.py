@@ -19,8 +19,6 @@ _LOGGER = logging.getLogger(__name__)
 
 PLATFORMS = ["cover", "sensor", "switch", "air_quality", "light", "climate"]
 
-PARALLEL_UPDATES = 0
-
 
 async def async_setup(hass: HomeAssistant, config: dict):
     """Set up the BleBox devices component."""

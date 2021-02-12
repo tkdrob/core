@@ -5,7 +5,6 @@ from homeassistant.components.switch import SwitchEntity
 
 from . import ATTR_AVAILABLE, ATTR_MODE, DATA_HIVE, DOMAIN, HiveEntity, refresh_system
 
-PARALLEL_UPDATES = 0
 SCAN_INTERVAL = timedelta(seconds=15)
 
 

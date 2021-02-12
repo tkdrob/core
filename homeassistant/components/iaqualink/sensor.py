@@ -9,8 +9,6 @@ from homeassistant.helpers.typing import HomeAssistantType
 from . import AqualinkEntity
 from .const import DOMAIN as AQUALINK_DOMAIN
 
-PARALLEL_UPDATES = 0
-
 
 async def async_setup_entry(
     hass: HomeAssistantType, config_entry: ConfigEntry, async_add_entities

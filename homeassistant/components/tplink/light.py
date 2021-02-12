@@ -28,7 +28,6 @@ import homeassistant.util.dt as dt_util
 from . import CONF_LIGHT, DOMAIN as TPLINK_DOMAIN
 from .common import add_available_devices
 
-PARALLEL_UPDATES = 0
 SCAN_INTERVAL = timedelta(seconds=5)
 CURRENT_POWER_UPDATE_INTERVAL = timedelta(seconds=60)
 HISTORICAL_POWER_UPDATE_INTERVAL = timedelta(minutes=60)

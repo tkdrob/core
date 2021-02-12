@@ -30,8 +30,6 @@ SUPPORT_KULERSKY = SUPPORT_BRIGHTNESS | SUPPORT_COLOR | SUPPORT_WHITE_VALUE
 
 DISCOVERY_INTERVAL = timedelta(seconds=60)
 
-PARALLEL_UPDATES = 0
-
 
 def check_light(light: pykulersky.Light):
     """Attempt to connect to this light and read the color."""

@@ -18,8 +18,6 @@ from . import (
     SwitchableRflinkDevice,
 )
 
-PARALLEL_UPDATES = 0
-
 PLATFORM_SCHEMA = PLATFORM_SCHEMA.extend(
     {
         vol.Optional(

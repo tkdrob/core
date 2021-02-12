@@ -15,7 +15,6 @@ DEVICETYPE = {
     "motionsensor": DEVICE_CLASS_MOTION,
     "Connectivity": DEVICE_CLASS_CONNECTIVITY,
 }
-PARALLEL_UPDATES = 0
 SCAN_INTERVAL = timedelta(seconds=15)
 
 

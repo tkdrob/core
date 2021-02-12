@@ -18,8 +18,6 @@ from homeassistant.helpers.typing import HomeAssistantType
 from . import CONF_SWITCH, DOMAIN as TPLINK_DOMAIN
 from .common import add_available_devices
 
-PARALLEL_UPDATES = 0
-
 _LOGGER = logging.getLogger(__name__)
 
 ATTR_TOTAL_ENERGY_KWH = "total_energy_kwh"

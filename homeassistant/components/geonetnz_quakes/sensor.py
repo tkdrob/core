@@ -22,9 +22,6 @@ ATTR_REMOVED = "removed"
 DEFAULT_ICON = "mdi:pulse"
 DEFAULT_UNIT_OF_MEASUREMENT = "quakes"
 
-# An update of this entity is not making a web request, but uses internal data only.
-PARALLEL_UPDATES = 0
-
 
 async def async_setup_entry(hass, entry, async_add_entities):
     """Set up the GeoNet NZ Quakes Feed platform."""

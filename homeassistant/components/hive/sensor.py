@@ -7,7 +7,6 @@ from homeassistant.helpers.entity import Entity
 
 from . import ATTR_AVAILABLE, DATA_HIVE, DOMAIN, HiveEntity
 
-PARALLEL_UPDATES = 0
 SCAN_INTERVAL = timedelta(seconds=15)
 DEVICETYPE = {
     "Battery": {"unit": " % ", "type": DEVICE_CLASS_BATTERY},

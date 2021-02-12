@@ -21,9 +21,6 @@ ATTR_REMOVED = "removed"
 
 DEFAULT_UNIT_OF_MEASUREMENT = "alerts"
 
-# An update of this entity is not making a web request, but uses internal data only.
-PARALLEL_UPDATES = 0
-
 
 async def async_setup_entry(hass, entry, async_add_entities):
     """Set up the GDACS Feed platform."""

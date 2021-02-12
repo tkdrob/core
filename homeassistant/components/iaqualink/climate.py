@@ -26,8 +26,6 @@ from .const import CLIMATE_SUPPORTED_MODES, DOMAIN as AQUALINK_DOMAIN
 
 _LOGGER = logging.getLogger(__name__)
 
-PARALLEL_UPDATES = 0
-
 
 async def async_setup_entry(
     hass: HomeAssistantType, config_entry: ConfigEntry, async_add_entities
