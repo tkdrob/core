@@ -7,12 +7,12 @@ from rachiopy import Rachio
 from requests.exceptions import ConnectTimeout
 
 from homeassistant.config_entries import ConfigEntry
-from homeassistant.const import CONF_API_KEY
+from homeassistant.const import CONF_API_KEY, CONF_WEBHOOK_ID
 from homeassistant.core import HomeAssistant
 from homeassistant.exceptions import ConfigEntryNotReady
 from homeassistant.helpers import config_validation as cv
 
-from .const import CONF_CLOUDHOOK_URL, CONF_MANUAL_RUN_MINS, CONF_WEBHOOK_ID, DOMAIN
+from .const import CONF_CLOUDHOOK_URL, CONF_MANUAL_RUN_MINS, DOMAIN
 from .device import RachioPerson
 from .webhooks import (
     async_get_or_create_registered_webhook_id_and_url,
@@ -28,7 +28,6 @@ CONFIG_SCHEMA = cv.deprecated(DOMAIN)
 
 async def async_setup(hass: HomeAssistant, config: dict):
     """Set up the rachio component from YAML."""
-
     hass.data.setdefault(DOMAIN, {})
 
     return True
@@ -59,7 +58,6 @@ async def async_remove_entry(hass, entry):
 
 async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry):
     """Set up the Rachio config entry."""
-
     config = entry.data
     options = entry.options
 

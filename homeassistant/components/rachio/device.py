@@ -8,6 +8,7 @@ from homeassistant.const import EVENT_HOMEASSISTANT_STOP, HTTP_OK
 from homeassistant.helpers import config_validation as cv
 
 from .const import (
+    ATTR_DURATION,
     DOMAIN,
     KEY_DEVICES,
     KEY_ENABLED,
@@ -31,7 +32,6 @@ from .webhooks import LISTEN_EVENT_TYPES, WEBHOOK_CONST_ID
 _LOGGER = logging.getLogger(__name__)
 
 ATTR_DEVICES = "devices"
-ATTR_DURATION = "duration"
 PERMISSION_ERROR = "7"
 
 PAUSE_SERVICE_SCHEMA = vol.Schema(
