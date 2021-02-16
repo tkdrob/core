@@ -193,6 +193,7 @@ FLOWS = [
     "shelly",
     "shopping_list",
     "simplisafe",
+    "skybell",
     "smappee",
     "smart_meter_texas",
     "smarthab",

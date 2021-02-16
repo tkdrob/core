@@ -1,20 +1,24 @@
 """Support for the Skybell HD Doorbell."""
-import logging
+from logging import getLogger
 
 from requests.exceptions import ConnectTimeout, HTTPError
 from skybellpy import Skybell
-import voluptuous as vol
 
+from homeassistant.components.binary_sensor import DOMAIN as DOMAIN_BINARY_SENSOR
+from homeassistant.config_entries import ConfigEntry
 from homeassistant.const import (
     ATTR_ATTRIBUTION,
     CONF_PASSWORD,
     CONF_USERNAME,
     __version__,
 )
-import homeassistant.helpers.config_validation as cv
+from homeassistant.core import HomeAssistant
+from homeassistant.helpers.aiohttp_client import async_get_clientsession
 from homeassistant.helpers.entity import Entity
 
-_LOGGER = logging.getLogger(__name__)
+_LOGGER = getLogger(__name__)
+
+PLATFORMS = [DOMAIN_BINARY_SENSOR]
 
 ATTRIBUTION = "Data provided by Skybell.com"
 
@@ -27,28 +31,25 @@ DEFAULT_ENTITY_NAMESPACE = "skybell"
 
 AGENT_IDENTIFIER = f"HomeAssistant/{__version__}"
 
-CONFIG_SCHEMA = vol.Schema(
-    {
-        DOMAIN: vol.Schema(
-            {
-                vol.Required(CONF_USERNAME): cv.string,
-                vol.Required(CONF_PASSWORD): cv.string,
-            }
-        )
-    },
-    extra=vol.ALLOW_EXTRA,
-)
+
+async def async_setup(hass: HomeAssistant, config):
+    """Set up the Goal Zero Yeti component."""
+
+    hass.data[DOMAIN] = {}
+
+    return True
 
 
-def setup(hass, config):
-    """Set up the Skybell component."""
-    conf = config[DOMAIN]
-    username = conf.get(CONF_USERNAME)
-    password = conf.get(CONF_PASSWORD)
+async def async_setup_entry(hass, entry):
+    """Set up Goal Zero Yeti from a config entry."""
+    username = entry.data[CONF_USERNAME]
+    password = entry.data[CONF_PASSWORD]
 
     try:
         cache = hass.config.path(DEFAULT_CACHEDB)
         skybell = Skybell(
+            session=async_get_clientsession(hass),
+            loop=hass.loop,
             username=username,
             password=password,
             get_devices=True,
@@ -68,6 +69,13 @@ def setup(hass, config):
         )
         return False
     return True
+
+
+async def async_unload_entry(hass: HomeAssistant, entry: ConfigEntry):
+    """Unload a config entry."""
+    for component in PLATFORMS:
+        hass.config_entries.async_forward_entry_unload(entry, component)
+    hass.data[DOMAIN].pop(entry.entry_id)
 
 
 class SkybellDevice(Entity):
