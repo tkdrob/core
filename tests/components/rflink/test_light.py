@@ -4,7 +4,7 @@ Test setup of RFLink lights component/platform. State tracking and
 control of RFLink switch devices.
 
 """
-from homeassistant.components.light import ATTR_BRIGHTNESS
+from homeassistant.components.light import ATTR_BRIGHTNESS, DOMAIN
 from homeassistant.components.rflink import EVENT_BUTTON_PRESSED
 from homeassistant.const import (
     ATTR_ENTITY_ID,
@@ -17,8 +17,6 @@ from homeassistant.core import CoreState, State, callback
 
 from tests.common import mock_restore_cache
 from tests.components.rflink.test_init import mock_rflink
-
-DOMAIN = "light"
 
 CONFIG = {
     "rflink": {

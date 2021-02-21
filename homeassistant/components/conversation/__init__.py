@@ -12,13 +12,12 @@ from homeassistant.helpers import config_validation as cv, intent
 from homeassistant.loader import bind_hass
 
 from .agent import AbstractConversationAgent
+from .const import DOMAIN
 from .default_agent import DefaultAgent, async_register
 
 _LOGGER = logging.getLogger(__name__)
 
 ATTR_TEXT = "text"
-
-DOMAIN = "conversation"
 
 REGEX_TYPE = type(re.compile(""))
 DATA_AGENT = "conversation_agent"

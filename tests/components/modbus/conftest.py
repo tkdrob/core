@@ -1,6 +1,5 @@
 """The tests for the Modbus sensor component."""
 from datetime import timedelta
-import logging
 from unittest import mock
 
 import pytest
@@ -18,8 +17,6 @@ from homeassistant.setup import async_setup_component
 import homeassistant.util.dt as dt_util
 
 from tests.common import async_fire_time_changed
-
-_LOGGER = logging.getLogger(__name__)
 
 
 class ReadResult:

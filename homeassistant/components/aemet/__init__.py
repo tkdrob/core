@@ -1,6 +1,5 @@
 """The AEMET OpenData component."""
 import asyncio
-import logging
 
 from aemet_opendata.interface import AEMET
 
@@ -10,8 +9,6 @@ from homeassistant.core import HomeAssistant
 
 from .const import COMPONENTS, DOMAIN, ENTRY_NAME, ENTRY_WEATHER_COORDINATOR
 from .weather_update_coordinator import WeatherUpdateCoordinator
-
-_LOGGER = logging.getLogger(__name__)
 
 
 async def async_setup(hass: HomeAssistant, config: dict) -> bool:

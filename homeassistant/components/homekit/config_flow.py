@@ -5,6 +5,7 @@ import string
 import voluptuous as vol
 
 from homeassistant import config_entries
+from homeassistant.components.camera.const import DOMAIN as CAMERA_DOMAIN
 from homeassistant.config_entries import SOURCE_IMPORT
 from homeassistant.const import (
     ATTR_FRIENDLY_NAME,
@@ -88,9 +89,8 @@ DEFAULT_DOMAINS = [
     "water_heater",
 ]
 
-DOMAINS_PREFER_ACCESSORY_MODE = ["camera", "media_player"]
+DOMAINS_PREFER_ACCESSORY_MODE = [CAMERA_DOMAIN, "media_player"]
 
-CAMERA_DOMAIN = "camera"
 CAMERA_ENTITY_PREFIX = f"{CAMERA_DOMAIN}."
 
 _EMPTY_ENTITY_FILTER = {

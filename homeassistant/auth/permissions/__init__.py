@@ -1,5 +1,4 @@
 """Permissions for Home Assistant."""
-import logging
 from typing import Any, Callable, Optional
 
 import voluptuous as vol
@@ -12,8 +11,6 @@ from .types import PolicyType
 from .util import test_all
 
 POLICY_SCHEMA = vol.Schema({vol.Optional(CAT_ENTITIES): ENTITY_POLICY_SCHEMA})
-
-_LOGGER = logging.getLogger(__name__)
 
 
 class AbstractPermissions:

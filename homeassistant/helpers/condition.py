@@ -3,7 +3,6 @@ import asyncio
 from collections import deque
 from datetime import datetime, timedelta
 import functools as ft
-import logging
 import re
 import sys
 from typing import Any, Callable, Container, List, Optional, Set, Union, cast
@@ -53,8 +52,6 @@ import homeassistant.util.dt as dt_util
 
 FROM_CONFIG_FORMAT = "{}_from_config"
 ASYNC_FROM_CONFIG_FORMAT = "async_{}_from_config"
-
-_LOGGER = logging.getLogger(__name__)
 
 INPUT_ENTITY_ID = re.compile(
     r"^input_(?:select|text|number|boolean|datetime)\.(?!.+__)(?!_)[\da-z_]+(?<!_)$"

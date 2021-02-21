@@ -15,6 +15,8 @@ import pytest
 
 from homeassistant.components import camera
 from homeassistant.components.camera import STATE_IDLE
+from homeassistant.components.camera.const import DOMAIN as PLATFORM
+from homeassistant.components.nest.const import DOMAIN
 from homeassistant.exceptions import HomeAssistantError
 from homeassistant.setup import async_setup_component
 from homeassistant.util.dt import utcnow
@@ -23,7 +25,6 @@ from .common import async_setup_sdm_platform
 
 from tests.common import async_fire_time_changed
 
-PLATFORM = "camera"
 CAMERA_DEVICE_TYPE = "sdm.devices.types.CAMERA"
 DEVICE_ID = "some-device-id"
 DEVICE_TRAITS = {
@@ -42,7 +43,6 @@ DEVICE_TRAITS = {
     "sdm.devices.traits.CameraMotion": {},
 }
 DATETIME_FORMAT = "YY-MM-DDTHH:MM:SS"
-DOMAIN = "nest"
 MOTION_EVENT_ID = "FWWVQVUdGNUlTU2V4MGV2aTNXV..."
 
 # Tests can assert that image bytes came from an event or was decoded

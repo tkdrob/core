@@ -6,6 +6,7 @@ control of Rflink switch devices.
 """
 
 from homeassistant.components.rflink import EVENT_BUTTON_PRESSED
+from homeassistant.components.switch import DOMAIN
 from homeassistant.const import (
     ATTR_ENTITY_ID,
     SERVICE_TURN_OFF,
@@ -17,8 +18,6 @@ from homeassistant.core import CoreState, State, callback
 
 from tests.common import mock_restore_cache
 from tests.components.rflink.test_init import mock_rflink
-
-DOMAIN = "switch"
 
 CONFIG = {
     "rflink": {

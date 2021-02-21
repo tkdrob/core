@@ -12,6 +12,7 @@ from homeassistant.components.rflink import (
     EVENT_KEY_SENSOR,
     TMP_ENTITY,
 )
+from homeassistant.components.sensor import DOMAIN
 from homeassistant.const import (
     ATTR_UNIT_OF_MEASUREMENT,
     PERCENTAGE,
@@ -20,8 +21,6 @@ from homeassistant.const import (
 )
 
 from tests.components.rflink.test_init import mock_rflink
-
-DOMAIN = "sensor"
 
 CONFIG = {
     "rflink": {

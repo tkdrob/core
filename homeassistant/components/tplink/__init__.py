@@ -19,10 +19,9 @@ from .common import (
     async_discover_devices,
     get_static_devices,
 )
+from .const import DOMAIN
 
 _LOGGER = logging.getLogger(__name__)
-
-DOMAIN = "tplink"
 
 TPLINK_HOST_SCHEMA = vol.Schema({vol.Required(CONF_HOST): cv.string})
 
