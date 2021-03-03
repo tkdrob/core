@@ -61,7 +61,7 @@ async def async_setup_entry(hass, entry):
         try:
             await api.get_state()
         except exceptions.ConnectError as err:
-            raise UpdateFailed(f"Failed to communicating with API: {err}") from err
+            raise UpdateFailed("Failed to communicate with device") from err
 
     coordinator = DataUpdateCoordinator(
         hass,
