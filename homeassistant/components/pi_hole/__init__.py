@@ -102,6 +102,8 @@ async def async_setup_entry(hass, entry):
             tls=use_tls,
             api_token=api_key,
         )
+        await api.get_versions()
+        api.versions = api.data
         await api.get_data()
     except HoleError as ex:
         _LOGGER.warning("Failed to connect: %s", ex)
@@ -169,6 +171,9 @@ class PiHoleEntity(CoordinatorEntity):
         self.api = api
         self._name = name
         self._server_unique_id = server_unique_id
+        self.sw_version = None
+        if self.api.versions:
+            self.sw_version = f"Core: {self.api.versions['core_current']} Web: {self.api.versions['web_current']} FTL: {self.api.versions['FTL_current']}"
 
     @property
     def icon(self):
@@ -182,4 +187,5 @@ class PiHoleEntity(CoordinatorEntity):
             "identifiers": {(DOMAIN, self._server_unique_id)},
             "name": self._name,
             "manufacturer": "Pi-hole",
+            "sw_version": self.sw_version,
         }

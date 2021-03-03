@@ -26,6 +26,21 @@ ZERO_DATA = {
     "unique_domains": 0,
 }
 
+VERSIONS_DATA = {
+    "core_update": False,
+    "web_update": False,
+    "FTL_update": False,
+    "core_current": "v1.0.0",
+    "web_current": "v1.0",
+    "FTL_current": "v1.0",
+    "core_latest": "v1.0.0",
+    "web_latest": "v1.0",
+    "FTL_latest": "v1.0",
+    "core_branch": "master",
+    "web_branch": "master",
+    "FTL_branch": "master",
+}
+
 HOST = "1.2.3.4"
 PORT = 80
 LOCATION = "location"
@@ -72,11 +87,15 @@ SWITCH_ENTITY_ID = "switch.pi_hole"
 
 def _create_mocked_hole(raise_exception=False):
     mocked_hole = MagicMock()
+    type(mocked_hole).get_versions = AsyncMock(
+        side_effect=HoleError("") if raise_exception else None
+    )
     type(mocked_hole).get_data = AsyncMock(
         side_effect=HoleError("") if raise_exception else None
     )
     type(mocked_hole).enable = AsyncMock()
     type(mocked_hole).disable = AsyncMock()
+    mocked_hole.versions = VERSIONS_DATA
     mocked_hole.data = ZERO_DATA
     return mocked_hole
 
