@@ -1,26 +1,50 @@
 create:
+  name: Create
   description: Show a notification in the frontend.
   fields:
     message:
+      name: Message
       description: Message body of the notification. [Templates accepted]
       example: Please check your configuration.yaml.
+      selector:
+        text:
     title:
+      name: Title
       description: Optional title for your notification. [Optional, Templates accepted]
       example: Test notification
+      selector:
+        text:
     notification_id:
+      name: Notification ID
       description: Target ID of the notification, will replace a notification with the same ID. [Optional]
       example: 1234
+      selector:
+        number:
+          min: 1
+          max: 9999
 
 dismiss:
+  name: Dismiss
   description: Remove a notification from the frontend.
   fields:
     notification_id:
+      name: Notification ID
       description: Target ID of the notification, which should be removed. [Required]
       example: 1234
+      selector:
+        number:
+          min: 1
+          max: 9999
 
 mark_read:
+  name: Mark read
   description: Mark a notification read.
   fields:
     notification_id:
+      name: Notification ID
       description: Target ID of the notification, which should be mark read. [Required]
       example: 1234
+      selector:
+        number:
+          min: 1
+          max: 9999
