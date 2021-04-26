@@ -115,7 +115,6 @@ play_media:
       example: "https://home-assistant.io/images/cast/splash.png"
       selector:
         text:
-
     media_content_type:
       name: Content type
       description:
@@ -187,22 +186,31 @@ repeat_set:
             - "one"
 
 join:
+  name: Join
   description:
     Group players together. Only works on platforms with support for player
     groups.
-  name: Join
-  target:
   fields:
+    entity_id:
+      name: Entity
+      description: The player which will be the master.
+      required: true
+      selector:
+        entity:
+          domain: media_player
     group_members:
+      name: Group members
       description:
         The players which will be synced with the target player.
-      example:
-        - "media_player.multiroom_player2"
-        - "media_player.multiroom_player3"
+      required: true
+      selector:
+        target:
+          entity:
+            domain: media_player
 
 unjoin:
+  name: Unjoin
   description:
     Unjoin the player from a group. Only works on platforms with support for
     player groups.
-  name: Unjoin
   target:
