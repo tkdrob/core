@@ -42,6 +42,9 @@ from homeassistant.components.media_player.errors import BrowseError
 from homeassistant.config_entries import SOURCE_IMPORT
 from homeassistant.const import (
     ATTR_ENTITY_ID,
+    ATTR_IDENTIFIERS,
+    ATTR_MANUFACTURER,
+    ATTR_NAME,
     CONF_HOST,
     CONF_NAME,
     CONF_PASSWORD,
@@ -349,9 +352,9 @@ class KodiEntity(MediaPlayerEntity):
     def device_info(self):
         """Return device info for this device."""
         return {
-            "identifiers": {(DOMAIN, self.unique_id)},
-            "name": self.name,
-            "manufacturer": "Kodi",
+            ATTR_IDENTIFIERS: {(DOMAIN, self.unique_id)},
+            ATTR_NAME: self.name,
+            ATTR_MANUFACTURER: "Kodi",
         }
 
     @property

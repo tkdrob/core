@@ -8,6 +8,11 @@ from homeassistant.const import (
     ATTR_ATTRIBUTION,
     ATTR_BATTERY_CHARGING,
     ATTR_BATTERY_LEVEL,
+    ATTR_IDENTIFIERS,
+    ATTR_MANUFACTURER,
+    ATTR_MODEL,
+    ATTR_NAME,
+    ATTR_SW_VERSION,
     STATE_OFF,
     STATE_ON,
 )
@@ -117,11 +122,11 @@ class LogiCam(Camera):
     def device_info(self):
         """Return information about the device."""
         return {
-            "name": self._camera.name,
-            "identifiers": {(LOGI_CIRCLE_DOMAIN, self._camera.id)},
-            "model": self._camera.model_name,
-            "sw_version": self._camera.firmware,
-            "manufacturer": DEVICE_BRAND,
+            ATTR_NAME: self._camera.name,
+            ATTR_IDENTIFIERS: {(LOGI_CIRCLE_DOMAIN, self._camera.id)},
+            ATTR_MODEL: self._camera.model_name,
+            ATTR_SW_VERSION: self._camera.firmware,
+            ATTR_MANUFACTURER: DEVICE_BRAND,
         }
 
     @property

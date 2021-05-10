@@ -9,6 +9,12 @@ from typing import Any
 from pylitterbot import Robot
 from pylitterbot.exceptions import InvalidCommandException
 
+from homeassistant.const import (
+    ATTR_IDENTIFIERS,
+    ATTR_MANUFACTURER,
+    ATTR_MODEL,
+    ATTR_NAME,
+)
 from homeassistant.core import callback
 from homeassistant.helpers.entity import DeviceInfo
 from homeassistant.helpers.event import async_call_later
@@ -47,10 +53,10 @@ class LitterRobotEntity(CoordinatorEntity):
     def device_info(self) -> DeviceInfo:
         """Return the device information for a Litter-Robot."""
         return {
-            "identifiers": {(DOMAIN, self.robot.serial)},
-            "name": self.robot.name,
-            "manufacturer": "Litter-Robot",
-            "model": self.robot.model,
+            ATTR_IDENTIFIERS: {(DOMAIN, self.robot.serial)},
+            ATTR_NAME: self.robot.name,
+            ATTR_MANUFACTURER: "Litter-Robot",
+            ATTR_MODEL: self.robot.model,
         }
 
 

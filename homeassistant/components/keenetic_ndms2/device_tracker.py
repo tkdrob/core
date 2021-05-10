@@ -15,6 +15,7 @@ from homeassistant.components.device_tracker import (
 from homeassistant.components.device_tracker.config_entry import ScannerEntity
 from homeassistant.config_entries import SOURCE_IMPORT, ConfigEntry
 from homeassistant.const import (
+    ATTR_IDENTIFIERS,
     CONF_HOST,
     CONF_PASSWORD,
     CONF_PORT,
@@ -221,7 +222,7 @@ class KeeneticTracker(ScannerEntity):
         """Return a client description for device registry."""
         info = {
             "connections": {(CONNECTION_NETWORK_MAC, self._device.mac)},
-            "identifiers": {(DOMAIN, self._device.mac)},
+            ATTR_IDENTIFIERS: {(DOMAIN, self._device.mac)},
         }
 
         if self._device.name:

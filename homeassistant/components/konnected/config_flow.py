@@ -15,6 +15,7 @@ from homeassistant.components.binary_sensor import (
 )
 from homeassistant.components.ssdp import ATTR_UPNP_MANUFACTURER, ATTR_UPNP_MODEL_NAME
 from homeassistant.const import (
+    ATTR_MODEL,
     CONF_ACCESS_TOKEN,
     CONF_BINARY_SENSORS,
     CONF_DISCOVERY,
@@ -332,7 +333,7 @@ class KonnectedFlowHandler(config_entries.ConfigFlow, domain=DOMAIN):
             return self.async_show_form(
                 step_id="confirm",
                 description_placeholders={
-                    "model": KONN_PANEL_MODEL_NAMES[self.data[CONF_MODEL]],
+                    ATTR_MODEL: KONN_PANEL_MODEL_NAMES[self.data[CONF_MODEL]],
                     "id": self.unique_id,
                     "host": self.data[CONF_HOST],
                     "port": self.data[CONF_PORT],
@@ -430,7 +431,7 @@ class OptionsFlowHandler(config_entries.OptionsFlow):
                     }
                 ),
                 description_placeholders={
-                    "model": KONN_PANEL_MODEL_NAMES[self.model],
+                    ATTR_MODEL: KONN_PANEL_MODEL_NAMES[self.model],
                     "host": self.entry.data[CONF_HOST],
                 },
                 errors=errors,
@@ -466,7 +467,7 @@ class OptionsFlowHandler(config_entries.OptionsFlow):
                     }
                 ),
                 description_placeholders={
-                    "model": KONN_PANEL_MODEL_NAMES[self.model],
+                    ATTR_MODEL: KONN_PANEL_MODEL_NAMES[self.model],
                     "host": self.entry.data[CONF_HOST],
                 },
                 errors=errors,
@@ -524,7 +525,7 @@ class OptionsFlowHandler(config_entries.OptionsFlow):
                     }
                 ),
                 description_placeholders={
-                    "model": KONN_PANEL_MODEL_NAMES[self.model],
+                    ATTR_MODEL: KONN_PANEL_MODEL_NAMES[self.model],
                     "host": self.entry.data[CONF_HOST],
                 },
                 errors=errors,

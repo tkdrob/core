@@ -13,7 +13,13 @@ import async_timeout
 import voluptuous as vol
 
 from homeassistant.config_entries import ConfigEntry
-from homeassistant.const import CONF_CLIENT_ID, CONF_CLIENT_SECRET
+from homeassistant.const import (
+    ATTR_MANUFACTURER,
+    ATTR_MODEL,
+    ATTR_NAME,
+    CONF_CLIENT_ID,
+    CONF_CLIENT_SECRET,
+)
 from homeassistant.core import HomeAssistant
 from homeassistant.exceptions import ConfigEntryAuthFailed
 from homeassistant.helpers import (
@@ -187,7 +193,7 @@ class LyricDeviceEntity(LyricEntity):
         """Return device information about this Honeywell Lyric instance."""
         return {
             "connections": {(dr.CONNECTION_NETWORK_MAC, self._mac_id)},
-            "manufacturer": "Honeywell",
-            "model": self._device_model,
-            "name": self._device_name,
+            ATTR_MANUFACTURER: "Honeywell",
+            ATTR_MODEL: self._device_model,
+            ATTR_NAME: self._device_name,
         }

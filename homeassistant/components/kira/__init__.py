@@ -8,6 +8,7 @@ from voluptuous.error import Error as VoluptuousError
 import yaml
 
 from homeassistant.const import (
+    ATTR_NAME,
     CONF_CODE,
     CONF_DEVICE,
     CONF_HOST,
@@ -125,7 +126,11 @@ def setup(hass, config):
             module.registerCode(code_tuple, code.get(CONF_CODE))
 
         discovery.load_platform(
-            hass, platform, DOMAIN, {"name": module_name, "device": device_name}, config
+            hass,
+            platform,
+            DOMAIN,
+            {ATTR_NAME: module_name, "device": device_name},
+            config,
         )
 
     for idx, module_conf in enumerate(sensors):

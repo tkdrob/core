@@ -10,6 +10,11 @@ from ndms2_client.client import RouterInfo
 
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.const import (
+    ATTR_IDENTIFIERS,
+    ATTR_MANUFACTURER,
+    ATTR_MODEL,
+    ATTR_NAME,
+    ATTR_SW_VERSION,
     CONF_HOST,
     CONF_PASSWORD,
     CONF_PORT,
@@ -68,11 +73,11 @@ class KeeneticRouter:
     def device_info(self):
         """Return the host of this hub."""
         return {
-            "identifiers": {(DOMAIN, f"router-{self.config_entry.entry_id}")},
-            "manufacturer": self.manufacturer,
-            "model": self.model,
-            "name": self.name,
-            "sw_version": self.firmware,
+            ATTR_IDENTIFIERS: {(DOMAIN, f"router-{self.config_entry.entry_id}")},
+            ATTR_MANUFACTURER: self.manufacturer,
+            ATTR_MODEL: self.model,
+            ATTR_NAME: self.name,
+            ATTR_SW_VERSION: self.firmware,
         }
 
     @property

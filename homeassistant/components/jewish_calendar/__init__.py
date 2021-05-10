@@ -4,7 +4,7 @@ from __future__ import annotations
 import hdate
 import voluptuous as vol
 
-from homeassistant.const import CONF_LATITUDE, CONF_LONGITUDE, CONF_NAME
+from homeassistant.const import ATTR_NAME, CONF_LATITUDE, CONF_LONGITUDE, CONF_NAME
 import homeassistant.helpers.config_validation as cv
 from homeassistant.helpers.discovery import async_load_platform
 
@@ -120,7 +120,7 @@ async def async_setup(hass, config):
     )
     hass.data[DOMAIN] = {
         "location": location,
-        "name": name,
+        ATTR_NAME: name,
         "language": language,
         "candle_lighting_offset": candle_lighting_offset,
         "havdalah_offset": havdalah_offset,

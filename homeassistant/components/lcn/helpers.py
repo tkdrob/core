@@ -99,7 +99,7 @@ def import_lcn_config(lcn_config):
         "devices": [
             {
                 "address": (0, 7, False)
-                "name": "",
+                ATTR_NAME: "",
                 "hardware_serial": -1,
                 "software_serial": -1,
                 "hardware_type": -1
@@ -108,7 +108,7 @@ def import_lcn_config(lcn_config):
         "entities": [
             {
                 "address": (0, 7, False)
-                "name": "Light_Output1",
+                ATTR_NAME: "Light_Output1",
                 "resource": "output1",
                 "domain": "light",
                 "domain_data": {

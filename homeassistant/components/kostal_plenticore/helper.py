@@ -9,7 +9,16 @@ import logging
 from aiohttp.client_exceptions import ClientError
 from kostal.plenticore import PlenticoreApiClient, PlenticoreAuthenticationException
 
-from homeassistant.const import CONF_HOST, CONF_PASSWORD, EVENT_HOMEASSISTANT_STOP
+from homeassistant.const import (
+    ATTR_IDENTIFIERS,
+    ATTR_MANUFACTURER,
+    ATTR_MODEL,
+    ATTR_NAME,
+    ATTR_SW_VERSION,
+    CONF_HOST,
+    CONF_PASSWORD,
+    EVENT_HOMEASSISTANT_STOP,
+)
 from homeassistant.core import HomeAssistant
 from homeassistant.exceptions import ConfigEntryNotReady
 from homeassistant.helpers.aiohttp_client import async_get_clientsession
@@ -85,11 +94,11 @@ class Plenticore:
         prod2 = device_local["Branding:ProductName2"]
 
         self.device_info = {
-            "identifiers": {(DOMAIN, device_local["Properties:SerialNo"])},
-            "manufacturer": "Kostal",
-            "model": f"{prod1} {prod2}",
-            "name": settings["scb:network"]["Hostname"],
-            "sw_version": f'IOC: {device_local["Properties:VersionIOC"]}'
+            ATTR_IDENTIFIERS: {(DOMAIN, device_local["Properties:SerialNo"])},
+            ATTR_MANUFACTURER: "Kostal",
+            ATTR_MODEL: f"{prod1} {prod2}",
+            ATTR_NAME: settings["scb:network"]["Hostname"],
+            ATTR_SW_VERSION: f'IOC: {device_local["Properties:VersionIOC"]}'
             + f' MC: {device_local["Properties:VersionMC"]}',
         }
 

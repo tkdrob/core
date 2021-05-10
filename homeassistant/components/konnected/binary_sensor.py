@@ -2,6 +2,7 @@
 from homeassistant.components.binary_sensor import BinarySensorEntity
 from homeassistant.const import (
     ATTR_ENTITY_ID,
+    ATTR_IDENTIFIERS,
     ATTR_STATE,
     CONF_BINARY_SENSORS,
     CONF_DEVICES,
@@ -69,7 +70,7 @@ class KonnectedBinarySensor(BinarySensorEntity):
     def device_info(self):
         """Return the device info."""
         return {
-            "identifiers": {(KONNECTED_DOMAIN, self._device_id)},
+            ATTR_IDENTIFIERS: {(KONNECTED_DOMAIN, self._device_id)},
         }
 
     async def async_added_to_hass(self):

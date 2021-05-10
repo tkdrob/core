@@ -30,7 +30,14 @@ from homeassistant.components.light import (
     SUPPORT_TRANSITION,
     LightEntity,
 )
-from homeassistant.const import CONF_HOST, CONF_NAME, CONF_PORT, CONF_TYPE, STATE_ON
+from homeassistant.const import (
+    ATTR_NAME,
+    CONF_HOST,
+    CONF_NAME,
+    CONF_PORT,
+    CONF_TYPE,
+    STATE_ON,
+)
 import homeassistant.helpers.config_validation as cv
 from homeassistant.helpers.restore_state import RestoreEntity
 from homeassistant.util.color import color_hs_to_RGB, color_temperature_mired_to_kelvin
@@ -129,7 +136,7 @@ def rewrite_legacy(config):
                             "type": bridge_conf.get(
                                 "group_%d_type" % i, DEFAULT_LED_TYPE
                             ),
-                            "name": bridge_conf.get(name_key),
+                            ATTR_NAME: bridge_conf.get(name_key),
                         }
                     )
         new_bridges.append(

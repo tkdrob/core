@@ -1,6 +1,7 @@
 """Support for DHT and DS18B20 sensors attached to a Konnected device."""
 from homeassistant.components.sensor import SensorEntity
 from homeassistant.const import (
+    ATTR_IDENTIFIERS,
     CONF_DEVICES,
     CONF_NAME,
     CONF_SENSORS,
@@ -116,7 +117,7 @@ class KonnectedSensor(SensorEntity):
     @property
     def device_info(self):
         """Return the device info."""
-        return {"identifiers": {(KONNECTED_DOMAIN, self._device_id)}}
+        return {ATTR_IDENTIFIERS: {(KONNECTED_DOMAIN, self._device_id)}}
 
     async def async_added_to_hass(self):
         """Store entity_id and register state change callback."""

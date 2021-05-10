@@ -2,6 +2,7 @@
 import logging
 
 from homeassistant.const import (
+    ATTR_IDENTIFIERS,
     ATTR_STATE,
     CONF_DEVICES,
     CONF_NAME,
@@ -80,7 +81,7 @@ class KonnectedSwitch(ToggleEntity):
     def device_info(self):
         """Return the device info."""
         return {
-            "identifiers": {(KONNECTED_DOMAIN, self._device_id)},
+            ATTR_IDENTIFIERS: {(KONNECTED_DOMAIN, self._device_id)},
         }
 
     @property

@@ -1,13 +1,19 @@
 """Support for Kaiterra Temperature ahn Humidity Sensors."""
 from homeassistant.components.sensor import SensorEntity
-from homeassistant.const import CONF_DEVICE_ID, CONF_NAME, TEMP_CELSIUS, TEMP_FAHRENHEIT
+from homeassistant.const import (
+    ATTR_NAME,
+    CONF_DEVICE_ID,
+    CONF_NAME,
+    TEMP_CELSIUS,
+    TEMP_FAHRENHEIT,
+)
 from homeassistant.helpers.dispatcher import async_dispatcher_connect
 
 from .const import DISPATCHER_KAITERRA, DOMAIN
 
 SENSORS = [
-    {"name": "Temperature", "prop": "rtemp", "device_class": "temperature"},
-    {"name": "Humidity", "prop": "rhumid", "device_class": "humidity"},
+    {ATTR_NAME: "Temperature", "prop": "rtemp", "device_class": "temperature"},
+    {ATTR_NAME: "Humidity", "prop": "rhumid", "device_class": "humidity"},
 ]
 
 

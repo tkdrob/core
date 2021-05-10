@@ -313,7 +313,7 @@ def humanify(hass, events, entity_attr_cache, context_lookup):
 
                 data = {
                     "when": event.time_fired_isoformat,
-                    "name": _entity_name_from_event(
+                    ATTR_NAME: _entity_name_from_event(
                         entity_id, event, entity_attr_cache
                     ),
                     "state": event.state,
@@ -362,7 +362,7 @@ def humanify(hass, events, entity_attr_cache, context_lookup):
 
                 yield {
                     "when": event.time_fired_isoformat,
-                    "name": "Home Assistant",
+                    ATTR_NAME: "Home Assistant",
                     "message": "started",
                     "domain": HA_DOMAIN,
                 }
@@ -375,7 +375,7 @@ def humanify(hass, events, entity_attr_cache, context_lookup):
 
                 yield {
                     "when": event.time_fired_isoformat,
-                    "name": "Home Assistant",
+                    ATTR_NAME: "Home Assistant",
                     "message": action,
                     "domain": HA_DOMAIN,
                 }
@@ -390,7 +390,7 @@ def humanify(hass, events, entity_attr_cache, context_lookup):
 
                 data = {
                     "when": event.time_fired_isoformat,
-                    "name": event_data.get(ATTR_NAME),
+                    ATTR_NAME: event_data.get(ATTR_NAME),
                     "message": event_data.get(ATTR_MESSAGE),
                     "domain": domain,
                     "entity_id": entity_id,

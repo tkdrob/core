@@ -8,6 +8,7 @@ import voluptuous as vol
 
 from homeassistant import config_entries, core, exceptions
 from homeassistant.const import (
+    ATTR_NAME,
     CONF_HOST,
     CONF_NAME,
     CONF_PASSWORD,
@@ -142,7 +143,7 @@ class KodiConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
         if user_input is None:
             return self.async_show_form(
                 step_id="discovery_confirm",
-                description_placeholders={"name": self._name},
+                description_placeholders={ATTR_NAME: self._name},
             )
 
         return self._create_entry()

@@ -34,7 +34,14 @@ from homeassistant.components.light import (
     LightEntity,
     preprocess_turn_on_alternatives,
 )
-from homeassistant.const import ATTR_ENTITY_ID, ATTR_MODE, EVENT_HOMEASSISTANT_STOP
+from homeassistant.const import (
+    ATTR_ENTITY_ID,
+    ATTR_IDENTIFIERS,
+    ATTR_MANUFACTURER,
+    ATTR_MODE,
+    ATTR_NAME,
+    EVENT_HOMEASSISTANT_STOP,
+)
 from homeassistant.core import callback
 from homeassistant.helpers import entity_platform
 import homeassistant.helpers.config_validation as cv
@@ -456,10 +463,10 @@ class LIFXLight(LightEntity):
     def device_info(self):
         """Return information about the device."""
         info = {
-            "identifiers": {(LIFX_DOMAIN, self.unique_id)},
-            "name": self.name,
+            ATTR_IDENTIFIERS: {(LIFX_DOMAIN, self.unique_id)},
+            ATTR_NAME: self.name,
             "connections": {(dr.CONNECTION_NETWORK_MAC, self.bulb.mac_addr)},
-            "manufacturer": "LIFX",
+            ATTR_MANUFACTURER: "LIFX",
         }
 
         version = self.bulb.host_firmware_version

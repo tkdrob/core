@@ -11,7 +11,13 @@ from pylutron_caseta.smartbridge import Smartbridge
 import voluptuous as vol
 
 from homeassistant import config_entries
-from homeassistant.const import CONF_HOST
+from homeassistant.const import (
+    ATTR_IDENTIFIERS,
+    ATTR_MANUFACTURER,
+    ATTR_MODEL,
+    ATTR_NAME,
+    CONF_HOST,
+)
 from homeassistant.core import callback
 from homeassistant.exceptions import ConfigEntryNotReady
 from homeassistant.helpers import device_registry as dr
@@ -331,11 +337,11 @@ class LutronCasetaDevice(Entity):
     def device_info(self):
         """Return the device info."""
         return {
-            "identifiers": {(DOMAIN, self.serial)},
-            "name": self.name,
+            ATTR_IDENTIFIERS: {(DOMAIN, self.serial)},
+            ATTR_NAME: self.name,
             "suggested_area": self._device["name"].split("_")[0],
-            "manufacturer": MANUFACTURER,
-            "model": f"{self._device['model']} ({self._device['type']})",
+            ATTR_MANUFACTURER: MANUFACTURER,
+            ATTR_MODEL: f"{self._device['model']} ({self._device['type']})",
             "via_device": (DOMAIN, self._bridge_device["serial"]),
         }
 
