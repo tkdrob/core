@@ -6,6 +6,12 @@ from typing import Any
 from homeassistant.components.device_tracker import SOURCE_TYPE_GPS
 from homeassistant.components.device_tracker.config_entry import TrackerEntity
 from homeassistant.config_entries import ConfigEntry
+from homeassistant.const import (
+    ATTR_IDENTIFIERS,
+    ATTR_MANUFACTURER,
+    ATTR_MODEL,
+    ATTR_NAME,
+)
 from homeassistant.core import HomeAssistant, callback
 from homeassistant.helpers.dispatcher import async_dispatcher_connect
 from homeassistant.helpers.entity import DeviceInfo
@@ -116,10 +122,10 @@ class IcloudTrackerEntity(TrackerEntity):
     def device_info(self) -> DeviceInfo:
         """Return the device information."""
         return {
-            "identifiers": {(DOMAIN, self._device.unique_id)},
-            "name": self._device.name,
-            "manufacturer": "Apple",
-            "model": self._device.device_model,
+            ATTR_IDENTIFIERS: {(DOMAIN, self._device.unique_id)},
+            ATTR_NAME: self._device.name,
+            ATTR_MANUFACTURER: "Apple",
+            ATTR_MODEL: self._device.device_model,
         }
 
     async def async_added_to_hass(self):

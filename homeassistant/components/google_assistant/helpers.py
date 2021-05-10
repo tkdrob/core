@@ -12,6 +12,7 @@ from aiohttp.web import json_response
 from homeassistant.components import webhook
 from homeassistant.const import (
     ATTR_DEVICE_CLASS,
+    ATTR_NAME,
     ATTR_SUPPORTED_FEATURES,
     CLOUD_NEVER_EXPOSED_ENTITIES,
     CONF_NAME,
@@ -491,7 +492,7 @@ class GoogleEntity:
 
         device = {
             "id": state.entity_id,
-            "name": {"name": name},
+            ATTR_NAME: {ATTR_NAME: name},
             "attributes": {},
             "traits": [trait.name for trait in traits],
             "willReportState": self.config.should_report_state,

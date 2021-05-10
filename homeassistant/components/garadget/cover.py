@@ -6,6 +6,7 @@ import voluptuous as vol
 
 from homeassistant.components.cover import PLATFORM_SCHEMA, CoverEntity
 from homeassistant.const import (
+    ATTR_NAME,
     CONF_ACCESS_TOKEN,
     CONF_COVERS,
     CONF_DEVICE,
@@ -62,7 +63,7 @@ def setup_platform(hass, config, add_entities, discovery_info=None):
 
     for device_id, device_config in devices.items():
         args = {
-            "name": device_config.get(CONF_NAME),
+            ATTR_NAME: device_config.get(CONF_NAME),
             "device_id": device_config.get(CONF_DEVICE, device_id),
             "username": device_config.get(CONF_USERNAME),
             "password": device_config.get(CONF_PASSWORD),

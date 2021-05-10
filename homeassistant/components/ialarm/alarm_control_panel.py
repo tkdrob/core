@@ -6,6 +6,7 @@ from homeassistant.components.alarm_control_panel.const import (
     SUPPORT_ALARM_ARM_AWAY,
     SUPPORT_ALARM_ARM_HOME,
 )
+from homeassistant.const import ATTR_IDENTIFIERS, ATTR_MANUFACTURER, ATTR_NAME
 from homeassistant.helpers.update_coordinator import CoordinatorEntity
 
 from .const import DATA_COORDINATOR, DOMAIN
@@ -26,9 +27,9 @@ class IAlarmPanel(CoordinatorEntity, AlarmControlPanelEntity):
     def device_info(self):
         """Return device info for this device."""
         return {
-            "identifiers": {(DOMAIN, self.unique_id)},
-            "name": self.name,
-            "manufacturer": "Antifurto365 - Meian",
+            ATTR_IDENTIFIERS: {(DOMAIN, self.unique_id)},
+            ATTR_NAME: self.name,
+            ATTR_MANUFACTURER: "Antifurto365 - Meian",
         }
 
     @property

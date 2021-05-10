@@ -29,6 +29,7 @@ from homeassistant.const import (
     ATTR_DEVICE_CLASS,
     ATTR_ENTITY_ID,
     ATTR_MODE,
+    ATTR_NAME,
     ATTR_SUPPORTED_FEATURES,
     ATTR_TEMPERATURE,
     CAST_APP_ID_HOMEASSISTANT,
@@ -1390,7 +1391,7 @@ class ModesTrait(_Trait):
     def _generate(self, name, settings):
         """Generate a list of modes."""
         mode = {
-            "name": name,
+            ATTR_NAME: name,
             "name_values": [
                 {"name_synonym": self.SYNONYMS.get(name, [name]), "lang": "en"}
             ],

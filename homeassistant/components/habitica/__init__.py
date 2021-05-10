@@ -126,7 +126,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
         kwargs = call.data.get(ATTR_ARGS, {})
         data = await api(**kwargs)
         hass.bus.async_fire(
-            EVENT_API_CALL_SUCCESS, {"name": name, "path": path, "data": data}
+            EVENT_API_CALL_SUCCESS, {ATTR_NAME: name, "path": path, "data": data}
         )
 
     data = hass.data.setdefault(DOMAIN, {})

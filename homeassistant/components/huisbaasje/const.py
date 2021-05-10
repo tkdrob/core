@@ -9,6 +9,7 @@ from huisbaasje.const import (
 )
 
 from homeassistant.const import (
+    ATTR_NAME,
     DEVICE_CLASS_ENERGY,
     DEVICE_CLASS_POWER,
     ENERGY_KILO_WATT_HOUR,
@@ -45,32 +46,32 @@ SOURCE_TYPES = [
 
 SENSORS_INFO = [
     {
-        "name": "Huisbaasje Current Power",
+        ATTR_NAME: "Huisbaasje Current Power",
         "device_class": DEVICE_CLASS_POWER,
         "source_type": SOURCE_TYPE_ELECTRICITY,
     },
     {
-        "name": "Huisbaasje Current Power In",
+        ATTR_NAME: "Huisbaasje Current Power In",
         "device_class": DEVICE_CLASS_POWER,
         "source_type": SOURCE_TYPE_ELECTRICITY_IN,
     },
     {
-        "name": "Huisbaasje Current Power In Low",
+        ATTR_NAME: "Huisbaasje Current Power In Low",
         "device_class": DEVICE_CLASS_POWER,
         "source_type": SOURCE_TYPE_ELECTRICITY_IN_LOW,
     },
     {
-        "name": "Huisbaasje Current Power Out",
+        ATTR_NAME: "Huisbaasje Current Power Out",
         "device_class": DEVICE_CLASS_POWER,
         "source_type": SOURCE_TYPE_ELECTRICITY_OUT,
     },
     {
-        "name": "Huisbaasje Current Power Out Low",
+        ATTR_NAME: "Huisbaasje Current Power Out Low",
         "device_class": DEVICE_CLASS_POWER,
         "source_type": SOURCE_TYPE_ELECTRICITY_OUT_LOW,
     },
     {
-        "name": "Huisbaasje Energy Today",
+        ATTR_NAME: "Huisbaasje Energy Today",
         "device_class": DEVICE_CLASS_ENERGY,
         "unit_of_measurement": ENERGY_KILO_WATT_HOUR,
         "source_type": SOURCE_TYPE_ELECTRICITY,
@@ -78,7 +79,7 @@ SENSORS_INFO = [
         "precision": 1,
     },
     {
-        "name": "Huisbaasje Energy This Week",
+        ATTR_NAME: "Huisbaasje Energy This Week",
         "device_class": DEVICE_CLASS_ENERGY,
         "unit_of_measurement": ENERGY_KILO_WATT_HOUR,
         "source_type": SOURCE_TYPE_ELECTRICITY,
@@ -86,7 +87,7 @@ SENSORS_INFO = [
         "precision": 1,
     },
     {
-        "name": "Huisbaasje Energy This Month",
+        ATTR_NAME: "Huisbaasje Energy This Month",
         "device_class": DEVICE_CLASS_ENERGY,
         "unit_of_measurement": ENERGY_KILO_WATT_HOUR,
         "source_type": SOURCE_TYPE_ELECTRICITY,
@@ -94,7 +95,7 @@ SENSORS_INFO = [
         "precision": 1,
     },
     {
-        "name": "Huisbaasje Energy This Year",
+        ATTR_NAME: "Huisbaasje Energy This Year",
         "device_class": DEVICE_CLASS_ENERGY,
         "unit_of_measurement": ENERGY_KILO_WATT_HOUR,
         "source_type": SOURCE_TYPE_ELECTRICITY,
@@ -102,14 +103,14 @@ SENSORS_INFO = [
         "precision": 1,
     },
     {
-        "name": "Huisbaasje Current Gas",
+        ATTR_NAME: "Huisbaasje Current Gas",
         "unit_of_measurement": FLOW_CUBIC_METERS_PER_HOUR,
         "source_type": SOURCE_TYPE_GAS,
         "icon": "mdi:fire",
         "precision": 1,
     },
     {
-        "name": "Huisbaasje Gas Today",
+        ATTR_NAME: "Huisbaasje Gas Today",
         "unit_of_measurement": VOLUME_CUBIC_METERS,
         "source_type": SOURCE_TYPE_GAS,
         "sensor_type": SENSOR_TYPE_THIS_DAY,
@@ -117,7 +118,7 @@ SENSORS_INFO = [
         "precision": 1,
     },
     {
-        "name": "Huisbaasje Gas This Week",
+        ATTR_NAME: "Huisbaasje Gas This Week",
         "unit_of_measurement": VOLUME_CUBIC_METERS,
         "source_type": SOURCE_TYPE_GAS,
         "sensor_type": SENSOR_TYPE_THIS_WEEK,
@@ -125,7 +126,7 @@ SENSORS_INFO = [
         "precision": 1,
     },
     {
-        "name": "Huisbaasje Gas This Month",
+        ATTR_NAME: "Huisbaasje Gas This Month",
         "unit_of_measurement": VOLUME_CUBIC_METERS,
         "source_type": SOURCE_TYPE_GAS,
         "sensor_type": SENSOR_TYPE_THIS_MONTH,
@@ -133,7 +134,7 @@ SENSORS_INFO = [
         "precision": 1,
     },
     {
-        "name": "Huisbaasje Gas This Year",
+        ATTR_NAME: "Huisbaasje Gas This Year",
         "unit_of_measurement": VOLUME_CUBIC_METERS,
         "source_type": SOURCE_TYPE_GAS,
         "sensor_type": SENSOR_TYPE_THIS_YEAR,

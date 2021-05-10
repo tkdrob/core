@@ -4,8 +4,10 @@ from homeassistant.components.device_tracker.config_entry import TrackerEntity
 from homeassistant.const import (
     ATTR_BATTERY_LEVEL,
     ATTR_GPS_ACCURACY,
+    ATTR_IDENTIFIERS,
     ATTR_LATITUDE,
     ATTR_LONGITUDE,
+    ATTR_NAME,
 )
 from homeassistant.core import HomeAssistant, callback
 from homeassistant.helpers import device_registry
@@ -110,7 +112,10 @@ class GPSLoggerEntity(TrackerEntity, RestoreEntity):
     @property
     def device_info(self):
         """Return the device info."""
-        return {"name": self._name, "identifiers": {(GPL_DOMAIN, self._unique_id)}}
+        return {
+            ATTR_NAME: self._name,
+            ATTR_IDENTIFIERS: {(GPL_DOMAIN, self._unique_id)},
+        }
 
     @property
     def source_type(self):

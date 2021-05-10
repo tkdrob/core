@@ -6,7 +6,7 @@ import logging
 from aiohttp import ClientResponseError
 
 from homeassistant.components.sensor import SensorEntity
-from homeassistant.const import CONF_NAME, HTTP_TOO_MANY_REQUESTS
+from homeassistant.const import ATTR_NAME, CONF_NAME, HTTP_TOO_MANY_REQUESTS
 from homeassistant.util import Throttle
 
 from .const import DOMAIN
@@ -18,7 +18,7 @@ MIN_TIME_BETWEEN_UPDATES = timedelta(minutes=15)
 ST = SensorType = namedtuple("SensorType", ["name", "icon", "unit", "path"])
 
 SENSORS_TYPES = {
-    "name": ST("Name", None, "", ["profile", "name"]),
+    ATTR_NAME: ST("Name", None, "", ["profile", "name"]),
     "hp": ST("HP", "mdi:heart", "HP", ["stats", "hp"]),
     "maxHealth": ST("max HP", "mdi:heart", "HP", ["stats", "maxHealth"]),
     "mp": ST("Mana", "mdi:auto-fix", "MP", ["stats", "mp"]),

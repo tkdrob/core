@@ -4,6 +4,7 @@ from aiohomekit.model.services import ServicesTypes
 
 from homeassistant.components.sensor import SensorEntity
 from homeassistant.const import (
+    ATTR_NAME,
     CONCENTRATION_PARTS_PER_MILLION,
     DEVICE_CLASS_BATTERY,
     DEVICE_CLASS_HUMIDITY,
@@ -26,13 +27,13 @@ CO2_ICON = "mdi:molecule-co2"
 
 SIMPLE_SENSOR = {
     CharacteristicsTypes.Vendor.EVE_ENERGY_WATT: {
-        "name": "Real Time Energy",
+        ATTR_NAME: "Real Time Energy",
         "device_class": DEVICE_CLASS_POWER,
         "unit": "watts",
         "icon": "mdi:chart-line",
     },
     CharacteristicsTypes.Vendor.KOOGEEK_REALTIME_ENERGY: {
-        "name": "Real Time Energy",
+        ATTR_NAME: "Real Time Energy",
         "device_class": DEVICE_CLASS_POWER,
         "unit": "watts",
         "icon": "mdi:chart-line",

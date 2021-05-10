@@ -25,7 +25,14 @@ from homeassistant.components.light import DOMAIN as LIGHT_DOMAIN
 from homeassistant.components.sensor import DOMAIN as SENSOR_DOMAIN
 from homeassistant.components.switch import DOMAIN as SWITCH_DOMAIN
 from homeassistant.config_entries import ConfigEntry
-from homeassistant.const import CONF_PASSWORD, CONF_USERNAME
+from homeassistant.const import (
+    ATTR_IDENTIFIERS,
+    ATTR_MANUFACTURER,
+    ATTR_MODEL,
+    ATTR_NAME,
+    CONF_PASSWORD,
+    CONF_USERNAME,
+)
 from homeassistant.core import HomeAssistant
 from homeassistant.exceptions import ConfigEntryNotReady
 from homeassistant.helpers.aiohttp_client import async_get_clientsession
@@ -236,9 +243,9 @@ class AqualinkEntity(Entity):
     def device_info(self) -> DeviceInfo:
         """Return the device info."""
         return {
-            "identifiers": {(DOMAIN, self.unique_id)},
-            "name": self.name,
-            "model": self.dev.__class__.__name__.replace("Aqualink", ""),
-            "manufacturer": "Jandy",
+            ATTR_IDENTIFIERS: {(DOMAIN, self.unique_id)},
+            ATTR_NAME: self.name,
+            ATTR_MODEL: self.dev.__class__.__name__.replace("Aqualink", ""),
+            ATTR_MANUFACTURER: "Jandy",
             "via_device": (DOMAIN, self.dev.system.serial),
         }

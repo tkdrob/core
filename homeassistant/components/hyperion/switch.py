@@ -26,6 +26,12 @@ from hyperion.const import (
 
 from homeassistant.components.switch import SwitchEntity
 from homeassistant.config_entries import ConfigEntry
+from homeassistant.const import (
+    ATTR_IDENTIFIERS,
+    ATTR_MANUFACTURER,
+    ATTR_MODEL,
+    ATTR_NAME,
+)
 from homeassistant.core import HomeAssistant, callback
 from homeassistant.helpers.dispatcher import (
     async_dispatcher_connect,
@@ -186,10 +192,10 @@ class HyperionComponentSwitch(SwitchEntity):
     def device_info(self) -> DeviceInfo:
         """Return device information."""
         return {
-            "identifiers": {(DOMAIN, self._device_id)},
-            "name": self._instance_name,
-            "manufacturer": HYPERION_MANUFACTURER_NAME,
-            "model": HYPERION_MODEL_NAME,
+            ATTR_IDENTIFIERS: {(DOMAIN, self._device_id)},
+            ATTR_NAME: self._instance_name,
+            ATTR_MANUFACTURER: HYPERION_MANUFACTURER_NAME,
+            ATTR_MODEL: HYPERION_MODEL_NAME,
         }
 
     async def _async_send_set_component(self, value: bool) -> None:

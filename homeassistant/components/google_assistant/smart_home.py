@@ -3,7 +3,12 @@ import asyncio
 from itertools import product
 import logging
 
-from homeassistant.const import ATTR_ENTITY_ID, __version__
+from homeassistant.const import (
+    ATTR_ENTITY_ID,
+    ATTR_MANUFACTURER,
+    ATTR_MODEL,
+    __version__,
+)
 from homeassistant.util.decorator import Registry
 
 from .const import (
@@ -265,8 +270,8 @@ async def async_devices_identify(hass, data: RequestData, payload):
             "isProxy": True,
             "deviceInfo": {
                 "hwVersion": "UNKNOWN_HW_VERSION",
-                "manufacturer": "Home Assistant",
-                "model": "Home Assistant",
+                ATTR_MANUFACTURER: "Home Assistant",
+                ATTR_MODEL: "Home Assistant",
                 "swVersion": __version__,
             },
         }

@@ -7,7 +7,14 @@ from typing import Any
 from homematicip.aio.device import AsyncDevice
 from homematicip.aio.group import AsyncGroup
 
-from homeassistant.const import ATTR_ID
+from homeassistant.const import (
+    ATTR_ID,
+    ATTR_IDENTIFIERS,
+    ATTR_MANUFACTURER,
+    ATTR_MODEL,
+    ATTR_NAME,
+    ATTR_SW_VERSION,
+)
 from homeassistant.core import callback
 from homeassistant.helpers import device_registry as dr, entity_registry as er
 from homeassistant.helpers.entity import DeviceInfo, Entity
@@ -97,14 +104,14 @@ class HomematicipGenericEntity(Entity):
         # Only physical devices should be HA devices.
         if isinstance(self._device, AsyncDevice):
             return {
-                "identifiers": {
+                ATTR_IDENTIFIERS: {
                     # Serial numbers of Homematic IP device
                     (HMIPC_DOMAIN, self._device.id)
                 },
-                "name": self._device.label,
-                "manufacturer": self._device.oem,
-                "model": self._device.modelType,
-                "sw_version": self._device.firmwareVersion,
+                ATTR_NAME: self._device.label,
+                ATTR_MANUFACTURER: self._device.oem,
+                ATTR_MODEL: self._device.modelType,
+                ATTR_SW_VERSION: self._device.firmwareVersion,
                 # Link to the homematic ip access point.
                 "via_device": (HMIPC_DOMAIN, self._device.homeId),
             }

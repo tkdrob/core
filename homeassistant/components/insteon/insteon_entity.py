@@ -4,6 +4,13 @@ import logging
 
 from pyinsteon import devices
 
+from homeassistant.const import (
+    ATTR_IDENTIFIERS,
+    ATTR_MANUFACTURER,
+    ATTR_MODEL,
+    ATTR_NAME,
+    ATTR_SW_VERSION,
+)
 from homeassistant.core import callback
 from homeassistant.helpers.dispatcher import (
     async_dispatcher_connect,
@@ -83,11 +90,11 @@ class InsteonEntity(Entity):
     def device_info(self):
         """Return device information."""
         return {
-            "identifiers": {(DOMAIN, str(self._insteon_device.address))},
-            "name": f"{self._insteon_device.description} {self._insteon_device.address}",
-            "model": f"{self._insteon_device.model} ({self._insteon_device.cat!r}, 0x{self._insteon_device.subcat:02x})",
-            "sw_version": f"{self._insteon_device.firmware:02x} Engine Version: {self._insteon_device.engine_version}",
-            "manufacturer": "Smart Home",
+            ATTR_IDENTIFIERS: {(DOMAIN, str(self._insteon_device.address))},
+            ATTR_NAME: f"{self._insteon_device.description} {self._insteon_device.address}",
+            ATTR_MODEL: f"{self._insteon_device.model} ({self._insteon_device.cat!r}, 0x{self._insteon_device.subcat:02x})",
+            ATTR_SW_VERSION: f"{self._insteon_device.firmware:02x} Engine Version: {self._insteon_device.engine_version}",
+            ATTR_MANUFACTURER: "Smart Home",
             "via_device": (DOMAIN, str(devices.modem.address)),
         }
 

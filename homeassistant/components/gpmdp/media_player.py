@@ -18,6 +18,7 @@ from homeassistant.components.media_player.const import (
     SUPPORT_VOLUME_SET,
 )
 from homeassistant.const import (
+    ATTR_NAME,
     CONF_HOST,
     CONF_NAME,
     CONF_PORT,
@@ -131,7 +132,7 @@ def request_configuration(hass, config, url, add_entities_callback):
             "Google Play Music Desktop Player."
         ),
         submit_caption="Submit",
-        fields=[{"id": "pin", "name": "Pin Code", "type": "number"}],
+        fields=[{"id": "pin", ATTR_NAME: "Pin Code", "type": "number"}],
     )
 
 

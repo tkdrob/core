@@ -14,7 +14,14 @@ from aiohomekit.model.characteristics import (
 from aiohomekit.model.services import Service, ServicesTypes
 
 from homeassistant.components import zeroconf
-from homeassistant.const import EVENT_HOMEASSISTANT_STOP
+from homeassistant.const import (
+    ATTR_IDENTIFIERS,
+    ATTR_MANUFACTURER,
+    ATTR_MODEL,
+    ATTR_NAME,
+    ATTR_SW_VERSION,
+    EVENT_HOMEASSISTANT_STOP,
+)
 from homeassistant.exceptions import ConfigEntryNotReady
 from homeassistant.helpers.entity import Entity
 
@@ -157,11 +164,11 @@ class HomeKitEntity(Entity):
         accessory_serial = info.value(CharacteristicsTypes.SERIAL_NUMBER)
 
         device_info = {
-            "identifiers": {(DOMAIN, "serial-number", accessory_serial)},
-            "name": info.value(CharacteristicsTypes.NAME),
-            "manufacturer": info.value(CharacteristicsTypes.MANUFACTURER, ""),
-            "model": info.value(CharacteristicsTypes.MODEL, ""),
-            "sw_version": info.value(CharacteristicsTypes.FIRMWARE_REVISION, ""),
+            ATTR_IDENTIFIERS: {(DOMAIN, "serial-number", accessory_serial)},
+            ATTR_NAME: info.value(CharacteristicsTypes.NAME),
+            ATTR_MANUFACTURER: info.value(CharacteristicsTypes.MANUFACTURER, ""),
+            ATTR_MODEL: info.value(CharacteristicsTypes.MODEL, ""),
+            ATTR_SW_VERSION: info.value(CharacteristicsTypes.FIRMWARE_REVISION, ""),
         }
 
         # Some devices only have a single accessory - we don't add a

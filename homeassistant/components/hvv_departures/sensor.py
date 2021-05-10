@@ -6,7 +6,14 @@ from aiohttp import ClientConnectorError
 from pygti.exceptions import InvalidAuth
 
 from homeassistant.components.sensor import SensorEntity
-from homeassistant.const import ATTR_ATTRIBUTION, ATTR_ID, DEVICE_CLASS_TIMESTAMP
+from homeassistant.const import (
+    ATTR_ATTRIBUTION,
+    ATTR_ID,
+    ATTR_IDENTIFIERS,
+    ATTR_MANUFACTURER,
+    ATTR_NAME,
+    DEVICE_CLASS_TIMESTAMP,
+)
 from homeassistant.helpers import aiohttp_client
 from homeassistant.util import Throttle
 from homeassistant.util.dt import get_time_zone, utcnow
@@ -159,7 +166,7 @@ class HVVDepartureSensor(SensorEntity):
     def device_info(self):
         """Return the device info for this sensor."""
         return {
-            "identifiers": {
+            ATTR_IDENTIFIERS: {
                 (
                     DOMAIN,
                     self.config_entry.entry_id,
@@ -167,8 +174,8 @@ class HVVDepartureSensor(SensorEntity):
                     self.config_entry.data[CONF_STATION]["type"],
                 )
             },
-            "name": self._name,
-            "manufacturer": MANUFACTURER,
+            ATTR_NAME: self._name,
+            ATTR_MANUFACTURER: MANUFACTURER,
         }
 
     @property

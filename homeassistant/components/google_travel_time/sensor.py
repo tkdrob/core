@@ -12,6 +12,8 @@ from homeassistant.components.sensor import PLATFORM_SCHEMA, SensorEntity
 from homeassistant.config_entries import SOURCE_IMPORT, ConfigEntry
 from homeassistant.const import (
     ATTR_ATTRIBUTION,
+    ATTR_IDENTIFIERS,
+    ATTR_NAME,
     CONF_API_KEY,
     CONF_ENTITY_NAMESPACE,
     CONF_MODE,
@@ -212,8 +214,8 @@ class GoogleTravelTimeSensor(SensorEntity):
     def device_info(self):
         """Return device specific attributes."""
         return {
-            "name": DOMAIN,
-            "identifiers": {(DOMAIN, self._api_key)},
+            ATTR_NAME: DOMAIN,
+            ATTR_IDENTIFIERS: {(DOMAIN, self._api_key)},
             "entry_type": "service",
         }
 

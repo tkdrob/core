@@ -6,7 +6,12 @@ import asyncio
 from aioguardian import Client
 
 from homeassistant.config_entries import ConfigEntry
-from homeassistant.const import ATTR_ATTRIBUTION, CONF_IP_ADDRESS, CONF_PORT
+from homeassistant.const import (
+    ATTR_ATTRIBUTION,
+    ATTR_MANUFACTURER,
+    CONF_IP_ADDRESS,
+    CONF_PORT,
+)
 from homeassistant.core import HomeAssistant, callback
 from homeassistant.helpers.dispatcher import async_dispatcher_send
 from homeassistant.helpers.entity import DeviceInfo
@@ -222,7 +227,7 @@ class GuardianEntity(CoordinatorEntity):
         self._available = True
         self._entry = entry
         self._device_class = device_class
-        self._device_info = {"manufacturer": "Elexa"}
+        self._device_info = {ATTR_MANUFACTURER: "Elexa"}
         self._icon = icon
         self._kind = kind
         self._name = name

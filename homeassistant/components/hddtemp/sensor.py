@@ -8,6 +8,7 @@ import voluptuous as vol
 
 from homeassistant.components.sensor import PLATFORM_SCHEMA, SensorEntity
 from homeassistant.const import (
+    ATTR_MODEL,
     CONF_DISKS,
     CONF_HOST,
     CONF_NAME,
@@ -20,7 +21,6 @@ import homeassistant.helpers.config_validation as cv
 _LOGGER = logging.getLogger(__name__)
 
 ATTR_DEVICE = "device"
-ATTR_MODEL = "model"
 
 DEFAULT_HOST = "localhost"
 DEFAULT_PORT = 7634

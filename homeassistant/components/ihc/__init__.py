@@ -9,6 +9,7 @@ import voluptuous as vol
 from homeassistant.components.binary_sensor import DEVICE_CLASSES_SCHEMA
 from homeassistant.config import load_yaml_config_file
 from homeassistant.const import (
+    ATTR_NAME,
     CONF_ID,
     CONF_NAME,
     CONF_PASSWORD,
@@ -266,7 +267,7 @@ def get_manual_configuration(hass, config, conf, ihc_controller, controller_id):
                     "ihc_id": sensor_cfg[CONF_ID],
                     "ctrl_id": controller_id,
                     "product": {
-                        "name": name,
+                        ATTR_NAME: name,
                         "note": sensor_cfg.get(CONF_NOTE) or "",
                         "position": sensor_cfg.get(CONF_POSITION) or "",
                     },
@@ -331,7 +332,7 @@ def get_discovery_info(platform_setup, groups, controller_id):
                         "ihc_id": ihc_id,
                         "ctrl_id": controller_id,
                         "product": {
-                            "name": product.get("name") or "",
+                            ATTR_NAME: product.get("name") or "",
                             "note": product.get("note") or "",
                             "position": product.get("position") or "",
                         },

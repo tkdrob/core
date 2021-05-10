@@ -5,6 +5,7 @@ from rfk101py.rfk101py import rfk101py
 import voluptuous as vol
 
 from homeassistant.const import (
+    ATTR_NAME,
     CONF_HOST,
     CONF_NAME,
     CONF_PORT,
@@ -75,7 +76,7 @@ class IdteckReader:
     def _callback(self, card):
         """Send a keycard event message into Home Assistant whenever a card is read."""
         self.hass.bus.fire(
-            EVENT_IDTECK_PROX_KEYCARD, {"card": card, "name": self._name}
+            EVENT_IDTECK_PROX_KEYCARD, {"card": card, ATTR_NAME: self._name}
         )
 
     def stop(self):

@@ -1,7 +1,14 @@
 """Support for Home Assistant iOS app sensors."""
 from homeassistant.components import ios
 from homeassistant.components.sensor import SensorEntity
-from homeassistant.const import PERCENTAGE
+from homeassistant.const import (
+    ATTR_IDENTIFIERS,
+    ATTR_MANUFACTURER,
+    ATTR_MODEL,
+    ATTR_NAME,
+    ATTR_SW_VERSION,
+    PERCENTAGE,
+)
 from homeassistant.core import callback
 from homeassistant.helpers.dispatcher import async_dispatcher_connect
 from homeassistant.helpers.icon import icon_for_battery_level
@@ -48,16 +55,18 @@ class IOSSensor(SensorEntity):
     def device_info(self):
         """Return information about the device."""
         return {
-            "identifiers": {
+            ATTR_IDENTIFIERS: {
                 (
                     ios.DOMAIN,
                     self._device[ios.ATTR_DEVICE][ios.ATTR_DEVICE_PERMANENT_ID],
                 )
             },
-            "name": self._device[ios.ATTR_DEVICE][ios.ATTR_DEVICE_NAME],
-            "manufacturer": "Apple",
-            "model": self._device[ios.ATTR_DEVICE][ios.ATTR_DEVICE_TYPE],
-            "sw_version": self._device[ios.ATTR_DEVICE][ios.ATTR_DEVICE_SYSTEM_VERSION],
+            ATTR_NAME: self._device[ios.ATTR_DEVICE][ios.ATTR_DEVICE_NAME],
+            ATTR_MANUFACTURER: "Apple",
+            ATTR_MODEL: self._device[ios.ATTR_DEVICE][ios.ATTR_DEVICE_TYPE],
+            ATTR_SW_VERSION: self._device[ios.ATTR_DEVICE][
+                ios.ATTR_DEVICE_SYSTEM_VERSION
+            ],
         }
 
     @property

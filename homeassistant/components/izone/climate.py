@@ -25,6 +25,10 @@ from homeassistant.components.climate.const import (
     SUPPORT_TARGET_TEMPERATURE,
 )
 from homeassistant.const import (
+    ATTR_IDENTIFIERS,
+    ATTR_MANUFACTURER,
+    ATTR_MODEL,
+    ATTR_NAME,
     ATTR_TEMPERATURE,
     CONF_EXCLUDE,
     PRECISION_HALVES,
@@ -159,10 +163,10 @@ class ControllerDevice(ClimateEntity):
         self._available = True
 
         self._device_info = {
-            "identifiers": {(IZONE, self.unique_id)},
-            "name": self.name,
-            "manufacturer": "IZone",
-            "model": self._controller.sys_type,
+            ATTR_IDENTIFIERS: {(IZONE, self.unique_id)},
+            ATTR_NAME: self.name,
+            ATTR_MANUFACTURER: "IZone",
+            ATTR_MODEL: self._controller.sys_type,
         }
 
         # Create the zones
@@ -484,11 +488,11 @@ class ZoneDevice(ClimateEntity):
             self._supported_features |= SUPPORT_TARGET_TEMPERATURE
 
         self._device_info = {
-            "identifiers": {(IZONE, controller.unique_id, zone.index)},
-            "name": self.name,
-            "manufacturer": "IZone",
+            ATTR_IDENTIFIERS: {(IZONE, controller.unique_id, zone.index)},
+            ATTR_NAME: self.name,
+            ATTR_MANUFACTURER: "IZone",
             "via_device": (IZONE, controller.unique_id),
-            "model": zone.type.name.title(),
+            ATTR_MODEL: zone.type.name.title(),
         }
 
     async def async_added_to_hass(self):

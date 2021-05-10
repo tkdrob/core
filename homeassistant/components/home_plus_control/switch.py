@@ -6,6 +6,13 @@ from homeassistant.components.switch import (
     DEVICE_CLASS_SWITCH,
     SwitchEntity,
 )
+from homeassistant.const import (
+    ATTR_IDENTIFIERS,
+    ATTR_MANUFACTURER,
+    ATTR_MODEL,
+    ATTR_NAME,
+    ATTR_SW_VERSION,
+)
 from homeassistant.core import callback
 from homeassistant.helpers import dispatcher
 from homeassistant.helpers.update_coordinator import CoordinatorEntity
@@ -82,14 +89,14 @@ class HomeControlSwitchEntity(CoordinatorEntity, SwitchEntity):
     def device_info(self):
         """Device information."""
         return {
-            "identifiers": {
+            ATTR_IDENTIFIERS: {
                 # Unique identifiers within the domain
                 (DOMAIN, self.unique_id)
             },
-            "name": self.name,
-            "manufacturer": "Legrand",
-            "model": HW_TYPE.get(self.module.hw_type),
-            "sw_version": self.module.fw,
+            ATTR_NAME: self.name,
+            ATTR_MANUFACTURER: "Legrand",
+            ATTR_MODEL: HW_TYPE.get(self.module.hw_type),
+            ATTR_SW_VERSION: self.module.fw,
         }
 
     @property

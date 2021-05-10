@@ -25,7 +25,14 @@ from homeassistant.components.climate.const import (
     SUPPORT_TARGET_TEMPERATURE,
 )
 from homeassistant.config_entries import ConfigEntry
-from homeassistant.const import ATTR_TEMPERATURE, TEMP_CELSIUS
+from homeassistant.const import (
+    ATTR_IDENTIFIERS,
+    ATTR_MANUFACTURER,
+    ATTR_MODEL,
+    ATTR_NAME,
+    ATTR_TEMPERATURE,
+    TEMP_CELSIUS,
+)
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity import DeviceInfo
 
@@ -77,10 +84,10 @@ class HomematicipHeatingGroup(HomematicipGenericEntity, ClimateEntity):
     def device_info(self) -> DeviceInfo:
         """Return device specific attributes."""
         return {
-            "identifiers": {(HMIPC_DOMAIN, self._device.id)},
-            "name": self._device.label,
-            "manufacturer": "eQ-3",
-            "model": self._device.modelType,
+            ATTR_IDENTIFIERS: {(HMIPC_DOMAIN, self._device.id)},
+            ATTR_NAME: self._device.label,
+            ATTR_MANUFACTURER: "eQ-3",
+            ATTR_MODEL: self._device.modelType,
             "via_device": (HMIPC_DOMAIN, self._device.homeId),
         }
 

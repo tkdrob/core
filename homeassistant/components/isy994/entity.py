@@ -10,7 +10,14 @@ from pyisy.constants import (
 )
 from pyisy.helpers import NodeProperty
 
-from homeassistant.const import STATE_OFF, STATE_ON
+from homeassistant.const import (
+    ATTR_IDENTIFIERS,
+    ATTR_MANUFACTURER,
+    ATTR_MODEL,
+    ATTR_NAME,
+    STATE_OFF,
+    STATE_ON,
+)
 from homeassistant.helpers.entity import Entity
 
 from .const import _LOGGER, DOMAIN
@@ -72,10 +79,10 @@ class ISYEntity(Entity):
             basename = node.name
 
         device_info = {
-            "name": basename,
-            "identifiers": {},
-            "model": "Unknown",
-            "manufacturer": "Unknown",
+            ATTR_NAME: basename,
+            ATTR_IDENTIFIERS: {},
+            ATTR_MODEL: "Unknown",
+            ATTR_MANUFACTURER: "Unknown",
             "via_device": (DOMAIN, uuid),
         }
 

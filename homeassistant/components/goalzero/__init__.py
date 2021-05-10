@@ -6,7 +6,15 @@ from goalzero import Yeti, exceptions
 from homeassistant.components.binary_sensor import DOMAIN as DOMAIN_BINARY_SENSOR
 from homeassistant.components.switch import DOMAIN as DOMAIN_SWITCH
 from homeassistant.config_entries import ConfigEntry
-from homeassistant.const import CONF_HOST, CONF_NAME
+from homeassistant.const import (
+    ATTR_IDENTIFIERS,
+    ATTR_MANUFACTURER,
+    ATTR_MODEL,
+    ATTR_NAME,
+    ATTR_SW_VERSION,
+    CONF_HOST,
+    CONF_NAME,
+)
 from homeassistant.core import HomeAssistant
 from homeassistant.exceptions import ConfigEntryNotReady
 from homeassistant.helpers.aiohttp_client import async_get_clientsession
@@ -93,11 +101,11 @@ class YetiEntity(CoordinatorEntity):
         else:
             model = model or None
         return {
-            "identifiers": {(DOMAIN, self._server_unique_id)},
-            "manufacturer": "Goal Zero",
-            "model": model,
-            "name": self._name,
-            "sw_version": sw_version,
+            ATTR_IDENTIFIERS: {(DOMAIN, self._server_unique_id)},
+            ATTR_MANUFACTURER: "Goal Zero",
+            ATTR_MODEL: model,
+            ATTR_NAME: self._name,
+            ATTR_SW_VERSION: sw_version,
         }
 
     @property

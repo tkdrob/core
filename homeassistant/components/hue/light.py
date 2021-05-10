@@ -26,6 +26,13 @@ from homeassistant.components.light import (
     SUPPORT_TRANSITION,
     LightEntity,
 )
+from homeassistant.const import (
+    ATTR_IDENTIFIERS,
+    ATTR_MANUFACTURER,
+    ATTR_MODEL,
+    ATTR_NAME,
+    ATTR_SW_VERSION,
+)
 from homeassistant.core import callback
 from homeassistant.exceptions import PlatformNotReady
 from homeassistant.helpers.debounce import Debouncer
@@ -432,14 +439,14 @@ class HueLight(CoordinatorEntity, LightEntity):
             return None
 
         info = {
-            "identifiers": {(HUE_DOMAIN, self.device_id)},
-            "name": self.name,
-            "manufacturer": self.light.manufacturername,
+            ATTR_IDENTIFIERS: {(HUE_DOMAIN, self.device_id)},
+            ATTR_NAME: self.name,
+            ATTR_MANUFACTURER: self.light.manufacturername,
             # productname added in Hue Bridge API 1.24
             # (published 03/05/2018)
-            "model": self.light.productname or self.light.modelid,
+            ATTR_MODEL: self.light.productname or self.light.modelid,
             # Not yet exposed as properties in aiohue
-            "sw_version": self.light.raw["swversion"],
+            ATTR_SW_VERSION: self.light.raw["swversion"],
             "via_device": (HUE_DOMAIN, self.bridge.api.config.bridgeid),
         }
 

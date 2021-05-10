@@ -8,6 +8,14 @@ from aioharmony.const import ClientCallbackType, SendCommandDevice
 import aioharmony.exceptions as aioexc
 from aioharmony.harmonyapi import HarmonyAPI as HarmonyClient
 
+from homeassistant.const import (
+    ATTR_IDENTIFIERS,
+    ATTR_MANUFACTURER,
+    ATTR_MODEL,
+    ATTR_NAME,
+    ATTR_SW_VERSION,
+)
+
 from .const import ACTIVITY_POWER_OFF
 from .subscriber import HarmonySubscriberMixin
 
@@ -85,13 +93,13 @@ class HarmonyData(HarmonySubscriberMixin):
         if "ethernetStatus" in self._client.hub_config.info:
             model = "Harmony Hub Pro 2400"
         return {
-            "identifiers": {(domain, self.unique_id)},
-            "manufacturer": "Logitech",
-            "sw_version": self._client.hub_config.info.get(
+            ATTR_IDENTIFIERS: {(domain, self.unique_id)},
+            ATTR_MANUFACTURER: "Logitech",
+            ATTR_SW_VERSION: self._client.hub_config.info.get(
                 "hubSwVersion", self._client.fw_version
             ),
-            "name": self.name,
-            "model": model,
+            ATTR_NAME: self.name,
+            ATTR_MODEL: model,
         }
 
     async def connect(self) -> bool:

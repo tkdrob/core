@@ -34,6 +34,7 @@ from homeassistant.components.sensor import DOMAIN as SENSOR_DOMAIN
 from homeassistant.components.switch import DOMAIN as SWITCH_DOMAIN
 from homeassistant.config_entries import SOURCE_IMPORT, ConfigEntry
 from homeassistant.const import (
+    ATTR_IDENTIFIERS,
     CONF_NAME,
     CONF_PASSWORD,
     CONF_RECIPIENT,
@@ -606,7 +607,7 @@ class HuaweiLteBaseEntity(Entity):
     def device_info(self) -> DeviceInfo:
         """Get info for matching with parent router."""
         return {
-            "identifiers": self.router.device_identifiers,
+            ATTR_IDENTIFIERS: self.router.device_identifiers,
             "connections": self.router.device_connections,
         }
 

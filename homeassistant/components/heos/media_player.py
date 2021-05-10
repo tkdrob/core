@@ -29,7 +29,16 @@ from homeassistant.components.media_player.const import (
     SUPPORT_VOLUME_STEP,
 )
 from homeassistant.config_entries import ConfigEntry
-from homeassistant.const import STATE_IDLE, STATE_PAUSED, STATE_PLAYING
+from homeassistant.const import (
+    ATTR_IDENTIFIERS,
+    ATTR_MANUFACTURER,
+    ATTR_MODEL,
+    ATTR_NAME,
+    ATTR_SW_VERSION,
+    STATE_IDLE,
+    STATE_PAUSED,
+    STATE_PLAYING,
+)
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity import DeviceInfo
 from homeassistant.util.dt import utcnow
@@ -257,11 +266,11 @@ class HeosMediaPlayer(MediaPlayerEntity):
     def device_info(self) -> DeviceInfo:
         """Get attributes about the device."""
         return {
-            "identifiers": {(HEOS_DOMAIN, self._player.player_id)},
-            "name": self._player.name,
-            "model": self._player.model,
-            "manufacturer": "HEOS",
-            "sw_version": self._player.version,
+            ATTR_IDENTIFIERS: {(HEOS_DOMAIN, self._player.player_id)},
+            ATTR_NAME: self._player.name,
+            ATTR_MODEL: self._player.model,
+            ATTR_MANUFACTURER: "HEOS",
+            ATTR_SW_VERSION: self._player.version,
         }
 
     @property

@@ -1,6 +1,11 @@
 """Support for the GIOS service."""
 from homeassistant.components.air_quality import AirQualityEntity
-from homeassistant.const import CONF_NAME
+from homeassistant.const import (
+    ATTR_IDENTIFIERS,
+    ATTR_MANUFACTURER,
+    ATTR_NAME,
+    CONF_NAME,
+)
 from homeassistant.helpers.update_coordinator import CoordinatorEntity
 
 from .const import (
@@ -120,9 +125,9 @@ class GiosAirQuality(CoordinatorEntity, AirQualityEntity):
     def device_info(self):
         """Return the device info."""
         return {
-            "identifiers": {(DOMAIN, self.coordinator.gios.station_id)},
-            "name": DEFAULT_NAME,
-            "manufacturer": MANUFACTURER,
+            ATTR_IDENTIFIERS: {(DOMAIN, self.coordinator.gios.station_id)},
+            ATTR_NAME: DEFAULT_NAME,
+            ATTR_MANUFACTURER: MANUFACTURER,
             "entry_type": "service",
         }
 

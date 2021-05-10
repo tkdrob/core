@@ -7,6 +7,7 @@ import voluptuous as vol
 
 from homeassistant import config_entries
 from homeassistant.components import zeroconf
+from homeassistant.const import ATTR_NAME
 from homeassistant.core import callback
 from homeassistant.helpers.device_registry import (
     CONNECTION_NETWORK_MAC,
@@ -160,7 +161,7 @@ class HomekitControllerFlowHandler(config_entries.ConfigFlow, domain=DOMAIN):
                     "port": record["port"],
                     "hostname": record["name"],
                     "type": "_hap._tcp.local.",
-                    "name": record["name"],
+                    ATTR_NAME: record["name"],
                     "properties": {
                         "md": record["md"],
                         "pv": record["pv"],
@@ -396,8 +397,8 @@ class HomekitControllerFlowHandler(config_entries.ConfigFlow, domain=DOMAIN):
 
     @callback
     def _async_step_pair_show_form(self, errors=None):
-        placeholders = {"name": self.name}
-        self.context["title_placeholders"] = {"name": self.name}
+        placeholders = {ATTR_NAME: self.name}
+        self.context["title_placeholders"] = {ATTR_NAME: self.name}
 
         return self.async_show_form(
             step_id="pair",

@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 from homeassistant.components.switch import DEVICE_CLASS_SWITCH, SwitchEntity
+from homeassistant.const import ATTR_IDENTIFIERS, ATTR_MANUFACTURER, ATTR_NAME
 from homeassistant.core import callback
 from homeassistant.helpers.device_registry import CONNECTION_NETWORK_MAC
 from homeassistant.helpers.dispatcher import async_dispatcher_connect
@@ -54,9 +55,9 @@ class GreeSwitchEntity(CoordinatorEntity, SwitchEntity):
     def device_info(self):
         """Return device specific attributes."""
         return {
-            "name": self._name,
-            "identifiers": {(DOMAIN, self._mac)},
-            "manufacturer": "Gree",
+            ATTR_NAME: self._name,
+            ATTR_IDENTIFIERS: {(DOMAIN, self._mac)},
+            ATTR_MANUFACTURER: "Gree",
             "connections": {(CONNECTION_NETWORK_MAC, self._mac)},
         }
 

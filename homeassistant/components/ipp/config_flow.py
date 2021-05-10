@@ -17,6 +17,7 @@ import voluptuous as vol
 
 from homeassistant.config_entries import ConfigFlow
 from homeassistant.const import (
+    ATTR_NAME,
     CONF_HOST,
     CONF_NAME,
     CONF_PORT,
@@ -106,7 +107,7 @@ class IPPFlowHandler(ConfigFlow, domain=DOMAIN):
         tls = zctype == "_ipps._tcp.local."
         base_path = discovery_info["properties"].get("rp", "ipp/print")
 
-        self.context.update({"title_placeholders": {"name": name}})
+        self.context.update({"title_placeholders": {ATTR_NAME: name}})
 
         self.discovery_info.update(
             {
@@ -171,7 +172,7 @@ class IPPFlowHandler(ConfigFlow, domain=DOMAIN):
         if user_input is None:
             return self.async_show_form(
                 step_id="zeroconf_confirm",
-                description_placeholders={"name": self.discovery_info[CONF_NAME]},
+                description_placeholders={ATTR_NAME: self.discovery_info[CONF_NAME]},
                 errors={},
             )
 

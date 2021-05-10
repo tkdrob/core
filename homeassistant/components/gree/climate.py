@@ -38,6 +38,9 @@ from homeassistant.components.climate.const import (
     SWING_VERTICAL,
 )
 from homeassistant.const import (
+    ATTR_IDENTIFIERS,
+    ATTR_MANUFACTURER,
+    ATTR_NAME,
     ATTR_TEMPERATURE,
     PRECISION_WHOLE,
     TEMP_CELSIUS,
@@ -138,9 +141,9 @@ class GreeClimateEntity(CoordinatorEntity, ClimateEntity):
     def device_info(self):
         """Return device specific attributes."""
         return {
-            "name": self._name,
-            "identifiers": {(DOMAIN, self._mac)},
-            "manufacturer": "Gree",
+            ATTR_NAME: self._name,
+            ATTR_IDENTIFIERS: {(DOMAIN, self._mac)},
+            ATTR_MANUFACTURER: "Gree",
             "connections": {(CONNECTION_NETWORK_MAC, self._mac)},
         }
 

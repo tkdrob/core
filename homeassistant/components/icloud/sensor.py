@@ -5,7 +5,14 @@ from typing import Any
 
 from homeassistant.components.sensor import SensorEntity
 from homeassistant.config_entries import ConfigEntry
-from homeassistant.const import DEVICE_CLASS_BATTERY, PERCENTAGE
+from homeassistant.const import (
+    ATTR_IDENTIFIERS,
+    ATTR_MANUFACTURER,
+    ATTR_MODEL,
+    ATTR_NAME,
+    DEVICE_CLASS_BATTERY,
+    PERCENTAGE,
+)
 from homeassistant.core import HomeAssistant, callback
 from homeassistant.helpers.dispatcher import async_dispatcher_connect
 from homeassistant.helpers.entity import DeviceInfo
@@ -101,10 +108,10 @@ class IcloudDeviceBatterySensor(SensorEntity):
     def device_info(self) -> DeviceInfo:
         """Return the device information."""
         return {
-            "identifiers": {(DOMAIN, self._device.unique_id)},
-            "name": self._device.name,
-            "manufacturer": "Apple",
-            "model": self._device.device_model,
+            ATTR_IDENTIFIERS: {(DOMAIN, self._device.unique_id)},
+            ATTR_NAME: self._device.name,
+            ATTR_MANUFACTURER: "Apple",
+            ATTR_MODEL: self._device.device_model,
         }
 
     @property

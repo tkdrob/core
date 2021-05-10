@@ -3,6 +3,13 @@
 from datetime import timedelta
 
 from homeassistant.components.sensor import DEVICE_CLASS_BATTERY, SensorEntity
+from homeassistant.const import (
+    ATTR_IDENTIFIERS,
+    ATTR_MANUFACTURER,
+    ATTR_MODEL,
+    ATTR_NAME,
+    ATTR_SW_VERSION,
+)
 
 from . import HiveEntity
 from .const import DOMAIN
@@ -38,11 +45,11 @@ class HiveSensorEntity(HiveEntity, SensorEntity):
     def device_info(self):
         """Return device information."""
         return {
-            "identifiers": {(DOMAIN, self.device["device_id"])},
-            "name": self.device["device_name"],
-            "model": self.device["deviceData"]["model"],
-            "manufacturer": self.device["deviceData"]["manufacturer"],
-            "sw_version": self.device["deviceData"]["version"],
+            ATTR_IDENTIFIERS: {(DOMAIN, self.device["device_id"])},
+            ATTR_NAME: self.device["device_name"],
+            ATTR_MODEL: self.device["deviceData"]["model"],
+            ATTR_MANUFACTURER: self.device["deviceData"]["manufacturer"],
+            ATTR_SW_VERSION: self.device["deviceData"]["version"],
             "via_device": (DOMAIN, self.device["parentDevice"]),
         }
 

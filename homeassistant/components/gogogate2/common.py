@@ -11,6 +11,11 @@ from ismartgate.common import AbstractDoor, get_door_by_id
 
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.const import (
+    ATTR_IDENTIFIERS,
+    ATTR_MANUFACTURER,
+    ATTR_MODEL,
+    ATTR_NAME,
+    ATTR_SW_VERSION,
     CONF_DEVICE,
     CONF_IP_ADDRESS,
     CONF_PASSWORD,
@@ -96,11 +101,11 @@ class GoGoGate2Entity(CoordinatorEntity):
         """Device info for the controller."""
         data = self.coordinator.data
         return {
-            "identifiers": {(DOMAIN, self._config_entry.unique_id)},
-            "name": self._config_entry.title,
-            "manufacturer": MANUFACTURER,
-            "model": data.model,
-            "sw_version": data.firmwareversion,
+            ATTR_IDENTIFIERS: {(DOMAIN, self._config_entry.unique_id)},
+            ATTR_NAME: self._config_entry.title,
+            ATTR_MANUFACTURER: MANUFACTURER,
+            ATTR_MODEL: data.model,
+            ATTR_SW_VERSION: data.firmwareversion,
         }
 
 

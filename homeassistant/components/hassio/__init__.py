@@ -16,8 +16,12 @@ from homeassistant.components.homeassistant import (
 import homeassistant.config as conf_util
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.const import (
+    ATTR_IDENTIFIERS,
+    ATTR_MANUFACTURER,
+    ATTR_MODEL,
     ATTR_NAME,
     ATTR_SERVICE,
+    ATTR_SW_VERSION,
     EVENT_CORE_CONFIG_UPDATE,
     SERVICE_HOMEASSISTANT_RESTART,
     SERVICE_HOMEASSISTANT_STOP,
@@ -567,10 +571,10 @@ def async_register_addons_in_dev_reg(
     for addon in addons:
         params = {
             "config_entry_id": entry_id,
-            "identifiers": {(DOMAIN, addon[ATTR_SLUG])},
-            "model": "Home Assistant Add-on",
-            "sw_version": addon[ATTR_VERSION],
-            "name": addon[ATTR_NAME],
+            ATTR_IDENTIFIERS: {(DOMAIN, addon[ATTR_SLUG])},
+            ATTR_MODEL: "Home Assistant Add-on",
+            ATTR_SW_VERSION: addon[ATTR_VERSION],
+            ATTR_NAME: addon[ATTR_NAME],
             "entry_type": ATTR_SERVICE,
         }
         if manufacturer := addon.get(ATTR_REPOSITORY) or addon.get(ATTR_URL):
@@ -585,11 +589,11 @@ def async_register_os_in_dev_reg(
     """Register OS in the device registry."""
     params = {
         "config_entry_id": entry_id,
-        "identifiers": {(DOMAIN, "OS")},
-        "manufacturer": "Home Assistant",
-        "model": "Home Assistant Operating System",
-        "sw_version": os_dict[ATTR_VERSION],
-        "name": "Home Assistant Operating System",
+        ATTR_IDENTIFIERS: {(DOMAIN, "OS")},
+        ATTR_MANUFACTURER: "Home Assistant",
+        ATTR_MODEL: "Home Assistant Operating System",
+        ATTR_SW_VERSION: os_dict[ATTR_VERSION],
+        ATTR_NAME: "Home Assistant Operating System",
         "entry_type": ATTR_SERVICE,
     }
     dev_reg.async_get_or_create(**params)

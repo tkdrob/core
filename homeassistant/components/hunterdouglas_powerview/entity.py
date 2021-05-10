@@ -2,6 +2,13 @@
 
 from aiopvapi.resources.shade import ATTR_TYPE
 
+from homeassistant.const import (
+    ATTR_IDENTIFIERS,
+    ATTR_MANUFACTURER,
+    ATTR_MODEL,
+    ATTR_NAME,
+    ATTR_SW_VERSION,
+)
 import homeassistant.helpers.device_registry as dr
 from homeassistant.helpers.update_coordinator import CoordinatorEntity
 
@@ -41,15 +48,15 @@ class HDEntity(CoordinatorEntity):
         firmware = self._device_info[DEVICE_FIRMWARE]
         sw_version = f"{firmware[FIRMWARE_REVISION]}.{firmware[FIRMWARE_SUB_REVISION]}.{firmware[FIRMWARE_BUILD]}"
         return {
-            "identifiers": {(DOMAIN, self._device_info[DEVICE_SERIAL_NUMBER])},
+            ATTR_IDENTIFIERS: {(DOMAIN, self._device_info[DEVICE_SERIAL_NUMBER])},
             "connections": {
                 (dr.CONNECTION_NETWORK_MAC, self._device_info[DEVICE_MAC_ADDRESS])
             },
-            "name": self._device_info[DEVICE_NAME],
+            ATTR_NAME: self._device_info[DEVICE_NAME],
             "suggested_area": self._room_name,
-            "model": self._device_info[DEVICE_MODEL],
-            "sw_version": sw_version,
-            "manufacturer": MANUFACTURER,
+            ATTR_MODEL: self._device_info[DEVICE_MODEL],
+            ATTR_SW_VERSION: sw_version,
+            ATTR_MANUFACTURER: MANUFACTURER,
         }
 
 
@@ -67,10 +74,10 @@ class ShadeEntity(HDEntity):
         """Return the device_info of the device."""
 
         device_info = {
-            "identifiers": {(DOMAIN, self._shade.id)},
-            "name": self._shade_name,
+            ATTR_IDENTIFIERS: {(DOMAIN, self._shade.id)},
+            ATTR_NAME: self._shade_name,
             "suggested_area": self._room_name,
-            "manufacturer": MANUFACTURER,
+            ATTR_MANUFACTURER: MANUFACTURER,
             "via_device": (DOMAIN, self._device_info[DEVICE_SERIAL_NUMBER]),
         }
 

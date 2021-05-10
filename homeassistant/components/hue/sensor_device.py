@@ -1,4 +1,12 @@
 """Support for the Philips Hue sensor devices."""
+from homeassistant.const import (
+    ATTR_IDENTIFIERS,
+    ATTR_MANUFACTURER,
+    ATTR_MODEL,
+    ATTR_NAME,
+    ATTR_SW_VERSION,
+)
+
 from .const import DOMAIN as HUE_DOMAIN
 
 
@@ -44,10 +52,12 @@ class GenericHueDevice:
         Links individual entities together in the hass device registry.
         """
         return {
-            "identifiers": {(HUE_DOMAIN, self.device_id)},
-            "name": self.primary_sensor.name,
-            "manufacturer": self.primary_sensor.manufacturername,
-            "model": (self.primary_sensor.productname or self.primary_sensor.modelid),
-            "sw_version": self.primary_sensor.swversion,
+            ATTR_IDENTIFIERS: {(HUE_DOMAIN, self.device_id)},
+            ATTR_NAME: self.primary_sensor.name,
+            ATTR_MANUFACTURER: self.primary_sensor.manufacturername,
+            ATTR_MODEL: (
+                self.primary_sensor.productname or self.primary_sensor.modelid
+            ),
+            ATTR_SW_VERSION: self.primary_sensor.swversion,
             "via_device": (HUE_DOMAIN, self.bridge.api.config.bridgeid),
         }

@@ -11,7 +11,13 @@ from garminconnect import (
 
 from homeassistant.components.sensor import SensorEntity
 from homeassistant.config_entries import ConfigEntry
-from homeassistant.const import ATTR_ATTRIBUTION, CONF_ID
+from homeassistant.const import (
+    ATTR_ATTRIBUTION,
+    ATTR_IDENTIFIERS,
+    ATTR_MANUFACTURER,
+    ATTR_NAME,
+    CONF_ID,
+)
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity import DeviceInfo
 
@@ -141,9 +147,9 @@ class GarminConnectSensor(SensorEntity):
     def device_info(self) -> DeviceInfo:
         """Return device information."""
         return {
-            "identifiers": {(DOMAIN, self._unique_id)},
-            "name": "Garmin Connect",
-            "manufacturer": "Garmin Connect",
+            ATTR_IDENTIFIERS: {(DOMAIN, self._unique_id)},
+            ATTR_NAME: "Garmin Connect",
+            ATTR_MANUFACTURER: "Garmin Connect",
         }
 
     @property

@@ -2,6 +2,12 @@
 
 import logging
 
+from homeassistant.const import (
+    ATTR_IDENTIFIERS,
+    ATTR_MANUFACTURER,
+    ATTR_MODEL,
+    ATTR_NAME,
+)
 from homeassistant.core import callback
 from homeassistant.helpers.dispatcher import async_dispatcher_connect
 from homeassistant.helpers.entity import Entity
@@ -54,10 +60,10 @@ class HomeConnectEntity(Entity):
     def device_info(self):
         """Return info about the device."""
         return {
-            "identifiers": {(DOMAIN, self.device.appliance.haId)},
-            "name": self.device.appliance.name,
-            "manufacturer": self.device.appliance.brand,
-            "model": self.device.appliance.vib,
+            ATTR_IDENTIFIERS: {(DOMAIN, self.device.appliance.haId)},
+            ATTR_NAME: self.device.appliance.name,
+            ATTR_MANUFACTURER: self.device.appliance.brand,
+            ATTR_MODEL: self.device.appliance.vib,
         }
 
     @callback

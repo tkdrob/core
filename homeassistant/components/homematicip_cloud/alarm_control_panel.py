@@ -12,6 +12,10 @@ from homeassistant.components.alarm_control_panel.const import (
 )
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.const import (
+    ATTR_IDENTIFIERS,
+    ATTR_MANUFACTURER,
+    ATTR_MODEL,
+    ATTR_NAME,
     STATE_ALARM_ARMED_AWAY,
     STATE_ALARM_ARMED_HOME,
     STATE_ALARM_DISARMED,
@@ -48,10 +52,10 @@ class HomematicipAlarmControlPanelEntity(AlarmControlPanelEntity):
     def device_info(self) -> DeviceInfo:
         """Return device specific attributes."""
         return {
-            "identifiers": {(HMIPC_DOMAIN, f"ACP {self._home.id}")},
-            "name": self.name,
-            "manufacturer": "eQ-3",
-            "model": CONST_ALARM_CONTROL_PANEL_NAME,
+            ATTR_IDENTIFIERS: {(HMIPC_DOMAIN, f"ACP {self._home.id}")},
+            ATTR_NAME: self.name,
+            ATTR_MANUFACTURER: "eQ-3",
+            ATTR_MODEL: CONST_ALARM_CONTROL_PANEL_NAME,
             "via_device": (HMIPC_DOMAIN, self._home.id),
         }
 

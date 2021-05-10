@@ -11,7 +11,7 @@ from homeassistant.components.remote import (
     ATTR_DELAY_SECS,
     DEFAULT_DELAY_SECS,
 )
-from homeassistant.const import CONF_HOST, CONF_NAME
+from homeassistant.const import ATTR_NAME, CONF_HOST, CONF_NAME
 from homeassistant.core import callback
 
 from .const import DOMAIN, HARMONY_DATA, PREVIOUS_ACTIVE_ACTIVITY, UNIQUE_ID
@@ -88,7 +88,7 @@ class ConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
         if self._host_already_configured(parsed_url.hostname):
             return self.async_abort(reason="already_configured")
 
-        self.context["title_placeholders"] = {"name": friendly_name}
+        self.context["title_placeholders"] = {ATTR_NAME: friendly_name}
 
         self.harmony_config = {
             CONF_HOST: parsed_url.hostname,

@@ -10,7 +10,12 @@ from homeassistant.components.binary_sensor import (
     DEVICE_CLASS_PROBLEM,
     BinarySensorEntity,
 )
-from homeassistant.const import ATTR_ATTRIBUTION
+from homeassistant.const import (
+    ATTR_ATTRIBUTION,
+    ATTR_IDENTIFIERS,
+    ATTR_MANUFACTURER,
+    ATTR_NAME,
+)
 from homeassistant.helpers.update_coordinator import (
     CoordinatorEntity,
     DataUpdateCoordinator,
@@ -59,7 +64,7 @@ async def async_setup_entry(hass, entry, async_add_entities):
 
                 elevators[idx] = {
                     "state": state,
-                    "name": name,
+                    ATTR_NAME: name,
                     "available": available,
                     "attributes": {
                         "cabin_width": elevator.get("cabinWidth"),
@@ -146,7 +151,7 @@ class HvvDepartureBinarySensor(CoordinatorEntity, BinarySensorEntity):
     def device_info(self):
         """Return the device info for this sensor."""
         return {
-            "identifiers": {
+            ATTR_IDENTIFIERS: {
                 (
                     DOMAIN,
                     self.config_entry.entry_id,
@@ -154,8 +159,8 @@ class HvvDepartureBinarySensor(CoordinatorEntity, BinarySensorEntity):
                     self.config_entry.data[CONF_STATION]["type"],
                 )
             },
-            "name": f"Departures at {self.config_entry.data[CONF_STATION]['name']}",
-            "manufacturer": MANUFACTURER,
+            ATTR_NAME: f"Departures at {self.config_entry.data[CONF_STATION]['name']}",
+            ATTR_MANUFACTURER: MANUFACTURER,
         }
 
     @property

@@ -5,14 +5,14 @@ from goalzero import Yeti, exceptions
 import voluptuous as vol
 
 from homeassistant import config_entries
-from homeassistant.const import CONF_HOST, CONF_NAME
+from homeassistant.const import ATTR_NAME, CONF_HOST, CONF_NAME
 from homeassistant.helpers.aiohttp_client import async_get_clientsession
 
 from .const import DEFAULT_NAME, DOMAIN
 
 _LOGGER = logging.getLogger(__name__)
 
-DATA_SCHEMA = vol.Schema({"host": str, "name": str})
+DATA_SCHEMA = vol.Schema({"host": str, ATTR_NAME: str})
 
 
 class GoalZeroFlowHandler(config_entries.ConfigFlow, domain=DOMAIN):

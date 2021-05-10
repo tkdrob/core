@@ -44,6 +44,7 @@ from homeassistant.components.binary_sensor import (
     BinarySensorEntity,
 )
 from homeassistant.config_entries import ConfigEntry
+from homeassistant.const import ATTR_IDENTIFIERS
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity import DeviceInfo
 
@@ -173,7 +174,7 @@ class HomematicipCloudConnectionSensor(HomematicipGenericEntity, BinarySensorEnt
         """Return device specific attributes."""
         # Adds a sensor to the existing HAP device
         return {
-            "identifiers": {
+            ATTR_IDENTIFIERS: {
                 # Serial numbers of Homematic IP device
                 (HMIPC_DOMAIN, self._home.id)
             }

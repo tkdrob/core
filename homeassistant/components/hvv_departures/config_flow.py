@@ -6,7 +6,13 @@ from pygti.exceptions import CannotConnect, InvalidAuth
 import voluptuous as vol
 
 from homeassistant import config_entries
-from homeassistant.const import CONF_HOST, CONF_OFFSET, CONF_PASSWORD, CONF_USERNAME
+from homeassistant.const import (
+    ATTR_NAME,
+    CONF_HOST,
+    CONF_OFFSET,
+    CONF_PASSWORD,
+    CONF_USERNAME,
+)
 from homeassistant.core import callback
 from homeassistant.helpers import aiohttp_client
 import homeassistant.helpers.config_validation as cv
@@ -82,7 +88,7 @@ class ConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
             errors = {}
 
             check_name = await self.hub.gti.checkName(
-                {"theName": {"name": user_input[CONF_STATION]}, "maxList": 20}
+                {"theName": {ATTR_NAME: user_input[CONF_STATION]}, "maxList": 20}
             )
 
             stations = check_name.get("results")

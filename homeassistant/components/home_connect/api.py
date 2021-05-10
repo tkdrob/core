@@ -10,6 +10,7 @@ from homeassistant import config_entries, core
 from homeassistant.const import (
     ATTR_DEVICE_CLASS,
     ATTR_ICON,
+    ATTR_NAME,
     CONF_DEVICE,
     CONF_ENTITIES,
     DEVICE_CLASS_TIMESTAMP,
@@ -259,22 +260,22 @@ class Dryer(
     """Dryer class."""
 
     PROGRAMS = [
-        {"name": "LaundryCare.Dryer.Program.Cotton"},
-        {"name": "LaundryCare.Dryer.Program.Synthetic"},
-        {"name": "LaundryCare.Dryer.Program.Mix"},
-        {"name": "LaundryCare.Dryer.Program.Blankets"},
-        {"name": "LaundryCare.Dryer.Program.BusinessShirts"},
-        {"name": "LaundryCare.Dryer.Program.DownFeathers"},
-        {"name": "LaundryCare.Dryer.Program.Hygiene"},
-        {"name": "LaundryCare.Dryer.Program.Jeans"},
-        {"name": "LaundryCare.Dryer.Program.Outdoor"},
-        {"name": "LaundryCare.Dryer.Program.SyntheticRefresh"},
-        {"name": "LaundryCare.Dryer.Program.Towels"},
-        {"name": "LaundryCare.Dryer.Program.Delicates"},
-        {"name": "LaundryCare.Dryer.Program.Super40"},
-        {"name": "LaundryCare.Dryer.Program.Shirts15"},
-        {"name": "LaundryCare.Dryer.Program.Pillow"},
-        {"name": "LaundryCare.Dryer.Program.AntiShrink"},
+        {ATTR_NAME: "LaundryCare.Dryer.Program.Cotton"},
+        {ATTR_NAME: "LaundryCare.Dryer.Program.Synthetic"},
+        {ATTR_NAME: "LaundryCare.Dryer.Program.Mix"},
+        {ATTR_NAME: "LaundryCare.Dryer.Program.Blankets"},
+        {ATTR_NAME: "LaundryCare.Dryer.Program.BusinessShirts"},
+        {ATTR_NAME: "LaundryCare.Dryer.Program.DownFeathers"},
+        {ATTR_NAME: "LaundryCare.Dryer.Program.Hygiene"},
+        {ATTR_NAME: "LaundryCare.Dryer.Program.Jeans"},
+        {ATTR_NAME: "LaundryCare.Dryer.Program.Outdoor"},
+        {ATTR_NAME: "LaundryCare.Dryer.Program.SyntheticRefresh"},
+        {ATTR_NAME: "LaundryCare.Dryer.Program.Towels"},
+        {ATTR_NAME: "LaundryCare.Dryer.Program.Delicates"},
+        {ATTR_NAME: "LaundryCare.Dryer.Program.Super40"},
+        {ATTR_NAME: "LaundryCare.Dryer.Program.Shirts15"},
+        {ATTR_NAME: "LaundryCare.Dryer.Program.Pillow"},
+        {ATTR_NAME: "LaundryCare.Dryer.Program.AntiShrink"},
     ]
 
     def get_entity_info(self):
@@ -303,28 +304,28 @@ class Dishwasher(
     """Dishwasher class."""
 
     PROGRAMS = [
-        {"name": "Dishcare.Dishwasher.Program.Auto1"},
-        {"name": "Dishcare.Dishwasher.Program.Auto2"},
-        {"name": "Dishcare.Dishwasher.Program.Auto3"},
-        {"name": "Dishcare.Dishwasher.Program.Eco50"},
-        {"name": "Dishcare.Dishwasher.Program.Quick45"},
-        {"name": "Dishcare.Dishwasher.Program.Intensiv70"},
-        {"name": "Dishcare.Dishwasher.Program.Normal65"},
-        {"name": "Dishcare.Dishwasher.Program.Glas40"},
-        {"name": "Dishcare.Dishwasher.Program.GlassCare"},
-        {"name": "Dishcare.Dishwasher.Program.NightWash"},
-        {"name": "Dishcare.Dishwasher.Program.Quick65"},
-        {"name": "Dishcare.Dishwasher.Program.Normal45"},
-        {"name": "Dishcare.Dishwasher.Program.Intensiv45"},
-        {"name": "Dishcare.Dishwasher.Program.AutoHalfLoad"},
-        {"name": "Dishcare.Dishwasher.Program.IntensivPower"},
-        {"name": "Dishcare.Dishwasher.Program.MagicDaily"},
-        {"name": "Dishcare.Dishwasher.Program.Super60"},
-        {"name": "Dishcare.Dishwasher.Program.Kurz60"},
-        {"name": "Dishcare.Dishwasher.Program.ExpressSparkle65"},
-        {"name": "Dishcare.Dishwasher.Program.MachineCare"},
-        {"name": "Dishcare.Dishwasher.Program.SteamFresh"},
-        {"name": "Dishcare.Dishwasher.Program.MaximumCleaning"},
+        {ATTR_NAME: "Dishcare.Dishwasher.Program.Auto1"},
+        {ATTR_NAME: "Dishcare.Dishwasher.Program.Auto2"},
+        {ATTR_NAME: "Dishcare.Dishwasher.Program.Auto3"},
+        {ATTR_NAME: "Dishcare.Dishwasher.Program.Eco50"},
+        {ATTR_NAME: "Dishcare.Dishwasher.Program.Quick45"},
+        {ATTR_NAME: "Dishcare.Dishwasher.Program.Intensiv70"},
+        {ATTR_NAME: "Dishcare.Dishwasher.Program.Normal65"},
+        {ATTR_NAME: "Dishcare.Dishwasher.Program.Glas40"},
+        {ATTR_NAME: "Dishcare.Dishwasher.Program.GlassCare"},
+        {ATTR_NAME: "Dishcare.Dishwasher.Program.NightWash"},
+        {ATTR_NAME: "Dishcare.Dishwasher.Program.Quick65"},
+        {ATTR_NAME: "Dishcare.Dishwasher.Program.Normal45"},
+        {ATTR_NAME: "Dishcare.Dishwasher.Program.Intensiv45"},
+        {ATTR_NAME: "Dishcare.Dishwasher.Program.AutoHalfLoad"},
+        {ATTR_NAME: "Dishcare.Dishwasher.Program.IntensivPower"},
+        {ATTR_NAME: "Dishcare.Dishwasher.Program.MagicDaily"},
+        {ATTR_NAME: "Dishcare.Dishwasher.Program.Super60"},
+        {ATTR_NAME: "Dishcare.Dishwasher.Program.Kurz60"},
+        {ATTR_NAME: "Dishcare.Dishwasher.Program.ExpressSparkle65"},
+        {ATTR_NAME: "Dishcare.Dishwasher.Program.MachineCare"},
+        {ATTR_NAME: "Dishcare.Dishwasher.Program.SteamFresh"},
+        {ATTR_NAME: "Dishcare.Dishwasher.Program.MaximumCleaning"},
     ]
 
     def get_entity_info(self):
@@ -352,11 +353,11 @@ class Oven(
     """Oven class."""
 
     PROGRAMS = [
-        {"name": "Cooking.Oven.Program.HeatingMode.PreHeating"},
-        {"name": "Cooking.Oven.Program.HeatingMode.HotAir"},
-        {"name": "Cooking.Oven.Program.HeatingMode.TopBottomHeating"},
-        {"name": "Cooking.Oven.Program.HeatingMode.PizzaSetting"},
-        {"name": "Cooking.Oven.Program.Microwave.600Watt"},
+        {ATTR_NAME: "Cooking.Oven.Program.HeatingMode.PreHeating"},
+        {ATTR_NAME: "Cooking.Oven.Program.HeatingMode.HotAir"},
+        {ATTR_NAME: "Cooking.Oven.Program.HeatingMode.TopBottomHeating"},
+        {ATTR_NAME: "Cooking.Oven.Program.HeatingMode.PizzaSetting"},
+        {ATTR_NAME: "Cooking.Oven.Program.Microwave.600Watt"},
     ]
 
     power_off_state = BSH_POWER_STANDBY
@@ -386,27 +387,27 @@ class Washer(
     """Washer class."""
 
     PROGRAMS = [
-        {"name": "LaundryCare.Washer.Program.Cotton"},
-        {"name": "LaundryCare.Washer.Program.Cotton.CottonEco"},
-        {"name": "LaundryCare.Washer.Program.EasyCare"},
-        {"name": "LaundryCare.Washer.Program.Mix"},
-        {"name": "LaundryCare.Washer.Program.DelicatesSilk"},
-        {"name": "LaundryCare.Washer.Program.Wool"},
-        {"name": "LaundryCare.Washer.Program.Sensitive"},
-        {"name": "LaundryCare.Washer.Program.Auto30"},
-        {"name": "LaundryCare.Washer.Program.Auto40"},
-        {"name": "LaundryCare.Washer.Program.Auto60"},
-        {"name": "LaundryCare.Washer.Program.Chiffon"},
-        {"name": "LaundryCare.Washer.Program.Curtains"},
-        {"name": "LaundryCare.Washer.Program.DarkWash"},
-        {"name": "LaundryCare.Washer.Program.Dessous"},
-        {"name": "LaundryCare.Washer.Program.Monsoon"},
-        {"name": "LaundryCare.Washer.Program.Outdoor"},
-        {"name": "LaundryCare.Washer.Program.PlushToy"},
-        {"name": "LaundryCare.Washer.Program.ShirtsBlouses"},
-        {"name": "LaundryCare.Washer.Program.SportFitness"},
-        {"name": "LaundryCare.Washer.Program.Towels"},
-        {"name": "LaundryCare.Washer.Program.WaterProof"},
+        {ATTR_NAME: "LaundryCare.Washer.Program.Cotton"},
+        {ATTR_NAME: "LaundryCare.Washer.Program.Cotton.CottonEco"},
+        {ATTR_NAME: "LaundryCare.Washer.Program.EasyCare"},
+        {ATTR_NAME: "LaundryCare.Washer.Program.Mix"},
+        {ATTR_NAME: "LaundryCare.Washer.Program.DelicatesSilk"},
+        {ATTR_NAME: "LaundryCare.Washer.Program.Wool"},
+        {ATTR_NAME: "LaundryCare.Washer.Program.Sensitive"},
+        {ATTR_NAME: "LaundryCare.Washer.Program.Auto30"},
+        {ATTR_NAME: "LaundryCare.Washer.Program.Auto40"},
+        {ATTR_NAME: "LaundryCare.Washer.Program.Auto60"},
+        {ATTR_NAME: "LaundryCare.Washer.Program.Chiffon"},
+        {ATTR_NAME: "LaundryCare.Washer.Program.Curtains"},
+        {ATTR_NAME: "LaundryCare.Washer.Program.DarkWash"},
+        {ATTR_NAME: "LaundryCare.Washer.Program.Dessous"},
+        {ATTR_NAME: "LaundryCare.Washer.Program.Monsoon"},
+        {ATTR_NAME: "LaundryCare.Washer.Program.Outdoor"},
+        {ATTR_NAME: "LaundryCare.Washer.Program.PlushToy"},
+        {ATTR_NAME: "LaundryCare.Washer.Program.ShirtsBlouses"},
+        {ATTR_NAME: "LaundryCare.Washer.Program.SportFitness"},
+        {ATTR_NAME: "LaundryCare.Washer.Program.Towels"},
+        {ATTR_NAME: "LaundryCare.Washer.Program.WaterProof"},
     ]
 
     def get_entity_info(self):
@@ -428,20 +429,20 @@ class CoffeeMaker(DeviceWithOpState, DeviceWithPrograms, DeviceWithRemoteStart):
     """Coffee maker class."""
 
     PROGRAMS = [
-        {"name": "ConsumerProducts.CoffeeMaker.Program.Beverage.Espresso"},
-        {"name": "ConsumerProducts.CoffeeMaker.Program.Beverage.EspressoMacchiato"},
-        {"name": "ConsumerProducts.CoffeeMaker.Program.Beverage.Coffee"},
-        {"name": "ConsumerProducts.CoffeeMaker.Program.Beverage.Cappuccino"},
-        {"name": "ConsumerProducts.CoffeeMaker.Program.Beverage.LatteMacchiato"},
-        {"name": "ConsumerProducts.CoffeeMaker.Program.Beverage.CaffeLatte"},
-        {"name": "ConsumerProducts.CoffeeMaker.Program.CoffeeWorld.Americano"},
-        {"name": "ConsumerProducts.CoffeeMaker.Program.Beverage.EspressoDoppio"},
-        {"name": "ConsumerProducts.CoffeeMaker.Program.CoffeeWorld.FlatWhite"},
-        {"name": "ConsumerProducts.CoffeeMaker.Program.CoffeeWorld.Galao"},
-        {"name": "ConsumerProducts.CoffeeMaker.Program.Beverage.MilkFroth"},
-        {"name": "ConsumerProducts.CoffeeMaker.Program.Beverage.WarmMilk"},
-        {"name": "ConsumerProducts.CoffeeMaker.Program.Beverage.Ristretto"},
-        {"name": "ConsumerProducts.CoffeeMaker.Program.CoffeeWorld.Cortado"},
+        {ATTR_NAME: "ConsumerProducts.CoffeeMaker.Program.Beverage.Espresso"},
+        {ATTR_NAME: "ConsumerProducts.CoffeeMaker.Program.Beverage.EspressoMacchiato"},
+        {ATTR_NAME: "ConsumerProducts.CoffeeMaker.Program.Beverage.Coffee"},
+        {ATTR_NAME: "ConsumerProducts.CoffeeMaker.Program.Beverage.Cappuccino"},
+        {ATTR_NAME: "ConsumerProducts.CoffeeMaker.Program.Beverage.LatteMacchiato"},
+        {ATTR_NAME: "ConsumerProducts.CoffeeMaker.Program.Beverage.CaffeLatte"},
+        {ATTR_NAME: "ConsumerProducts.CoffeeMaker.Program.CoffeeWorld.Americano"},
+        {ATTR_NAME: "ConsumerProducts.CoffeeMaker.Program.Beverage.EspressoDoppio"},
+        {ATTR_NAME: "ConsumerProducts.CoffeeMaker.Program.CoffeeWorld.FlatWhite"},
+        {ATTR_NAME: "ConsumerProducts.CoffeeMaker.Program.CoffeeWorld.Galao"},
+        {ATTR_NAME: "ConsumerProducts.CoffeeMaker.Program.Beverage.MilkFroth"},
+        {ATTR_NAME: "ConsumerProducts.CoffeeMaker.Program.Beverage.WarmMilk"},
+        {ATTR_NAME: "ConsumerProducts.CoffeeMaker.Program.Beverage.Ristretto"},
+        {ATTR_NAME: "ConsumerProducts.CoffeeMaker.Program.CoffeeWorld.Cortado"},
     ]
 
     power_off_state = BSH_POWER_STANDBY
@@ -470,9 +471,9 @@ class Hood(
     """Hood class."""
 
     PROGRAMS = [
-        {"name": "Cooking.Common.Program.Hood.Automatic"},
-        {"name": "Cooking.Common.Program.Hood.Venting"},
-        {"name": "Cooking.Common.Program.Hood.DelayedShutOff"},
+        {ATTR_NAME: "Cooking.Common.Program.Hood.Automatic"},
+        {ATTR_NAME: "Cooking.Common.Program.Hood.Venting"},
+        {ATTR_NAME: "Cooking.Common.Program.Hood.DelayedShutOff"},
     ]
 
     def get_entity_info(self):
@@ -504,7 +505,7 @@ class FridgeFreezer(DeviceWithDoor):
 class Hob(DeviceWithOpState, DeviceWithPrograms, DeviceWithRemoteControl):
     """Hob class."""
 
-    PROGRAMS = [{"name": "Cooking.Hob.Program.PowerLevelMode"}]
+    PROGRAMS = [{ATTR_NAME: "Cooking.Hob.Program.PowerLevelMode"}]
 
     def get_entity_info(self):
         """Get a dictionary with infos about the associated entities."""
