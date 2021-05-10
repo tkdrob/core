@@ -1,5 +1,11 @@
 """The DoorBird integration base entity."""
 
+from homeassistant.const import (
+    ATTR_MANUFACTURER,
+    ATTR_MODEL,
+    ATTR_NAME,
+    ATTR_SW_VERSION,
+)
 from homeassistant.helpers import device_registry as dr
 from homeassistant.helpers.entity import Entity
 
@@ -29,8 +35,8 @@ class DoorBirdEntity(Entity):
         firmware_build = self._doorstation_info[DOORBIRD_INFO_KEY_BUILD_NUMBER]
         return {
             "connections": {(dr.CONNECTION_NETWORK_MAC, self._mac_addr)},
-            "name": self._doorstation.name,
-            "manufacturer": MANUFACTURER,
-            "sw_version": f"{firmware} {firmware_build}",
-            "model": self._doorstation_info[DOORBIRD_INFO_KEY_DEVICE_TYPE],
+            ATTR_NAME: self._doorstation.name,
+            ATTR_MANUFACTURER: MANUFACTURER,
+            ATTR_SW_VERSION: f"{firmware} {firmware_build}",
+            ATTR_MODEL: self._doorstation_info[DOORBIRD_INFO_KEY_DEVICE_TYPE],
         }

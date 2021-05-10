@@ -19,6 +19,10 @@ from homeassistant.components.sensor import DOMAIN as SENSOR_DOMAIN
 from homeassistant.components.weather import DOMAIN as WEATHER_DOMAIN
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.const import (
+    ATTR_IDENTIFIERS,
+    ATTR_MANUFACTURER,
+    ATTR_NAME,
+    ATTR_SW_VERSION,
     CONF_API_KEY,
     CONF_API_VERSION,
     CONF_LATITUDE,
@@ -362,9 +366,9 @@ class ClimaCellEntity(CoordinatorEntity):
     def device_info(self) -> DeviceInfo:
         """Return device registry information."""
         return {
-            "identifiers": {(DOMAIN, self._config_entry.data[CONF_API_KEY])},
-            "name": "ClimaCell",
-            "manufacturer": "ClimaCell",
-            "sw_version": f"v{self.api_version}",
+            ATTR_IDENTIFIERS: {(DOMAIN, self._config_entry.data[CONF_API_KEY])},
+            ATTR_NAME: "ClimaCell",
+            ATTR_MANUFACTURER: "ClimaCell",
+            ATTR_SW_VERSION: f"v{self.api_version}",
             "entry_type": "service",
         }

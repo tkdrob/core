@@ -2,6 +2,8 @@
 from homeassistant.components.sensor import SensorEntity
 from homeassistant.const import (
     ATTR_BATTERY_LEVEL,
+    ATTR_IDENTIFIERS,
+    ATTR_NAME,
     CONCENTRATION_PARTS_PER_MILLION,
     DEVICE_CLASS_CO,
     DEVICE_CLASS_CO2,
@@ -77,11 +79,11 @@ class DemoSensor(SensorEntity):
     def device_info(self):
         """Return device info."""
         return {
-            "identifiers": {
+            ATTR_IDENTIFIERS: {
                 # Serial numbers are unique identifiers within a specific domain
                 (DOMAIN, self.unique_id)
             },
-            "name": self.name,
+            ATTR_NAME: self.name,
         }
 
     @property

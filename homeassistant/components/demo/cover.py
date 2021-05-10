@@ -10,6 +10,7 @@ from homeassistant.components.cover import (
     SUPPORT_STOP_TILT,
     CoverEntity,
 )
+from homeassistant.const import ATTR_IDENTIFIERS, ATTR_NAME
 from homeassistant.core import callback
 from homeassistant.helpers.event import async_track_utc_time_change
 
@@ -89,11 +90,11 @@ class DemoCover(CoverEntity):
     def device_info(self):
         """Return device info."""
         return {
-            "identifiers": {
+            ATTR_IDENTIFIERS: {
                 # Serial numbers are unique identifiers within a specific domain
                 (DOMAIN, self.unique_id)
             },
-            "name": self.name,
+            ATTR_NAME: self.name,
         }
 
     @property

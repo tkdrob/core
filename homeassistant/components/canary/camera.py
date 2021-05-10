@@ -11,6 +11,12 @@ import voluptuous as vol
 from homeassistant.components.camera import PLATFORM_SCHEMA, Camera
 from homeassistant.components.ffmpeg import DATA_FFMPEG
 from homeassistant.config_entries import ConfigEntry
+from homeassistant.const import (
+    ATTR_IDENTIFIERS,
+    ATTR_MANUFACTURER,
+    ATTR_MODEL,
+    ATTR_NAME,
+)
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers import config_validation as cv
 from homeassistant.helpers.aiohttp_client import async_aiohttp_proxy_stream
@@ -109,10 +115,10 @@ class CanaryCamera(CoordinatorEntity, Camera):
     def device_info(self):
         """Return the device_info of the device."""
         return {
-            "identifiers": {(DOMAIN, str(self._device_id))},
-            "name": self._device_name,
-            "model": self._device_type_name,
-            "manufacturer": MANUFACTURER,
+            ATTR_IDENTIFIERS: {(DOMAIN, str(self._device_id))},
+            ATTR_NAME: self._device_name,
+            ATTR_MODEL: self._device_type_name,
+            ATTR_MANUFACTURER: MANUFACTURER,
         }
 
     @property

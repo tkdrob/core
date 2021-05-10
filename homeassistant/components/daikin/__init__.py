@@ -8,7 +8,15 @@ from async_timeout import timeout
 from pydaikin.daikin_base import Appliance
 
 from homeassistant.config_entries import ConfigEntry
-from homeassistant.const import CONF_API_KEY, CONF_HOST, CONF_PASSWORD
+from homeassistant.const import (
+    ATTR_MANUFACTURER,
+    ATTR_MODEL,
+    ATTR_NAME,
+    ATTR_SW_VERSION,
+    CONF_API_KEY,
+    CONF_HOST,
+    CONF_PASSWORD,
+)
 from homeassistant.core import HomeAssistant
 from homeassistant.exceptions import ConfigEntryNotReady
 import homeassistant.helpers.config_validation as cv
@@ -114,8 +122,8 @@ class DaikinApi:
         info = self.device.values
         return {
             "connections": {(CONNECTION_NETWORK_MAC, self.device.mac)},
-            "manufacturer": "Daikin",
-            "model": info.get("model"),
-            "name": info.get("name"),
-            "sw_version": info.get("ver", "").replace("_", "."),
+            ATTR_MANUFACTURER: "Daikin",
+            ATTR_MODEL: info.get("model"),
+            ATTR_NAME: info.get("name"),
+            ATTR_SW_VERSION: info.get("ver", "").replace("_", "."),
         }

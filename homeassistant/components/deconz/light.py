@@ -21,6 +21,12 @@ from homeassistant.components.light import (
     SUPPORT_TRANSITION,
     LightEntity,
 )
+from homeassistant.const import (
+    ATTR_IDENTIFIERS,
+    ATTR_MANUFACTURER,
+    ATTR_MODEL,
+    ATTR_NAME,
+)
 from homeassistant.core import callback
 from homeassistant.helpers.dispatcher import async_dispatcher_connect
 import homeassistant.util.color as color_util
@@ -267,10 +273,10 @@ class DeconzGroup(DeconzBaseLight):
         bridgeid = self.gateway.api.config.bridgeid
 
         return {
-            "identifiers": {(DECONZ_DOMAIN, self.unique_id)},
-            "manufacturer": "Dresden Elektronik",
-            "model": "deCONZ group",
-            "name": self._device.name,
+            ATTR_IDENTIFIERS: {(DECONZ_DOMAIN, self.unique_id)},
+            ATTR_MANUFACTURER: "Dresden Elektronik",
+            ATTR_MODEL: "deCONZ group",
+            ATTR_NAME: self._device.name,
             "via_device": (DECONZ_DOMAIN, bridgeid),
         }
 

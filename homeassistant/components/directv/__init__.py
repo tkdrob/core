@@ -6,21 +6,21 @@ from datetime import timedelta
 from directv import DIRECTV, DIRECTVError
 
 from homeassistant.config_entries import ConfigEntry
-from homeassistant.const import ATTR_NAME, CONF_HOST
+from homeassistant.const import (
+    ATTR_IDENTIFIERS,
+    ATTR_MANUFACTURER,
+    ATTR_MODEL,
+    ATTR_NAME,
+    ATTR_SW_VERSION,
+    CONF_HOST,
+)
 from homeassistant.core import HomeAssistant
 from homeassistant.exceptions import ConfigEntryNotReady
 from homeassistant.helpers import config_validation as cv
 from homeassistant.helpers.aiohttp_client import async_get_clientsession
 from homeassistant.helpers.entity import DeviceInfo, Entity
 
-from .const import (
-    ATTR_IDENTIFIERS,
-    ATTR_MANUFACTURER,
-    ATTR_MODEL,
-    ATTR_SOFTWARE_VERSION,
-    ATTR_VIA_DEVICE,
-    DOMAIN,
-)
+from .const import ATTR_VIA_DEVICE, DOMAIN
 
 CONFIG_SCHEMA = cv.deprecated(DOMAIN)
 
@@ -78,6 +78,6 @@ class DIRECTVEntity(Entity):
             ATTR_NAME: self.name,
             ATTR_MANUFACTURER: self.dtv.device.info.brand,
             ATTR_MODEL: None,
-            ATTR_SOFTWARE_VERSION: self.dtv.device.info.version,
+            ATTR_SW_VERSION: self.dtv.device.info.version,
             ATTR_VIA_DEVICE: (DOMAIN, self.dtv.device.info.receiver_id),
         }

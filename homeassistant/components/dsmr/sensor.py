@@ -16,6 +16,8 @@ import voluptuous as vol
 from homeassistant.components.sensor import PLATFORM_SCHEMA, SensorEntity
 from homeassistant.config_entries import SOURCE_IMPORT, ConfigEntry
 from homeassistant.const import (
+    ATTR_IDENTIFIERS,
+    ATTR_NAME,
     CONF_HOST,
     CONF_PORT,
     EVENT_HOMEASSISTANT_STOP,
@@ -365,8 +367,8 @@ class DSMREntity(SensorEntity):
     def device_info(self) -> DeviceInfo:
         """Return the device information."""
         return {
-            "identifiers": {(DOMAIN, self._device_serial)},
-            "name": self._device_name,
+            ATTR_IDENTIFIERS: {(DOMAIN, self._device_serial)},
+            ATTR_NAME: self._device_name,
         }
 
     @property

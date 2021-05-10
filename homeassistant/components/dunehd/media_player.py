@@ -12,6 +12,9 @@ from homeassistant.components.media_player.const import (
 )
 from homeassistant.config_entries import SOURCE_IMPORT
 from homeassistant.const import (
+    ATTR_IDENTIFIERS,
+    ATTR_MANUFACTURER,
+    ATTR_NAME,
     CONF_HOST,
     CONF_NAME,
     STATE_OFF,
@@ -21,7 +24,7 @@ from homeassistant.const import (
 )
 import homeassistant.helpers.config_validation as cv
 
-from .const import ATTR_MANUFACTURER, DEFAULT_NAME, DOMAIN
+from .const import DEFAULT_NAME, DOMAIN, MANUFACTURER
 
 CONF_SOURCES = "sources"
 
@@ -113,9 +116,9 @@ class DuneHDPlayerEntity(MediaPlayerEntity):
     def device_info(self):
         """Return the device info."""
         return {
-            "identifiers": {(DOMAIN, self._unique_id)},
-            "name": DEFAULT_NAME,
-            "manufacturer": ATTR_MANUFACTURER,
+            ATTR_IDENTIFIERS: {(DOMAIN, self._unique_id)},
+            ATTR_NAME: DEFAULT_NAME,
+            ATTR_MANUFACTURER: MANUFACTURER,
         }
 
     @property

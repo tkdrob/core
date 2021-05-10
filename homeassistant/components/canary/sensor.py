@@ -6,6 +6,10 @@ from canary.api import SensorType
 from homeassistant.components.sensor import SensorEntity
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.const import (
+    ATTR_IDENTIFIERS,
+    ATTR_MANUFACTURER,
+    ATTR_MODEL,
+    ATTR_NAME,
     DEVICE_CLASS_BATTERY,
     DEVICE_CLASS_HUMIDITY,
     DEVICE_CLASS_SIGNAL_STRENGTH,
@@ -142,10 +146,10 @@ class CanarySensor(CoordinatorEntity, SensorEntity):
     def device_info(self):
         """Return the device_info of the device."""
         return {
-            "identifiers": {(DOMAIN, str(self._device_id))},
-            "name": self._device_name,
-            "model": self._device_type_name,
-            "manufacturer": MANUFACTURER,
+            ATTR_IDENTIFIERS: {(DOMAIN, str(self._device_id))},
+            ATTR_NAME: self._device_name,
+            ATTR_MODEL: self._device_type_name,
+            ATTR_MANUFACTURER: MANUFACTURER,
         }
 
     @property

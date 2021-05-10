@@ -2,6 +2,7 @@
 import voluptuous as vol
 
 from homeassistant.components import websocket_api
+from homeassistant.const import ATTR_NAME
 
 WS_TYPE_LIST = "config/auth/list"
 SCHEMA_WS_LIST = websocket_api.BASE_COMMAND_MESSAGE_SCHEMA.extend(
@@ -147,7 +148,7 @@ def _user_info(user):
     return {
         "id": user.id,
         "username": ha_username,
-        "name": user.name,
+        ATTR_NAME: user.name,
         "is_owner": user.is_owner,
         "is_active": user.is_active,
         "system_generated": user.system_generated,

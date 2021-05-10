@@ -17,6 +17,7 @@ from homeassistant.components.light import (
     SUPPORT_EFFECT,
     LightEntity,
 )
+from homeassistant.const import ATTR_IDENTIFIERS, ATTR_NAME
 
 from . import DOMAIN
 
@@ -130,11 +131,11 @@ class DemoLight(LightEntity):
     def device_info(self):
         """Return device info."""
         return {
-            "identifiers": {
+            ATTR_IDENTIFIERS: {
                 # Serial numbers are unique identifiers within a specific domain
                 (DOMAIN, self.unique_id)
             },
-            "name": self.name,
+            ATTR_NAME: self.name,
         }
 
     @property

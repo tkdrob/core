@@ -6,6 +6,13 @@ from homeassistant.components.websocket_api.decorators import (
     async_response,
     require_admin,
 )
+from homeassistant.const import (
+    ATTR_IDENTIFIERS,
+    ATTR_MANUFACTURER,
+    ATTR_MODEL,
+    ATTR_NAME,
+    ATTR_SW_VERSION,
+)
 from homeassistant.core import callback
 from homeassistant.helpers.device_registry import DISABLED_USER, async_get_registry
 
@@ -69,13 +76,13 @@ def _entry_dict(entry):
     return {
         "config_entries": list(entry.config_entries),
         "connections": list(entry.connections),
-        "manufacturer": entry.manufacturer,
-        "model": entry.model,
-        "name": entry.name,
-        "sw_version": entry.sw_version,
+        ATTR_MANUFACTURER: entry.manufacturer,
+        ATTR_MODEL: entry.model,
+        ATTR_NAME: entry.name,
+        ATTR_SW_VERSION: entry.sw_version,
         "entry_type": entry.entry_type,
         "id": entry.id,
-        "identifiers": list(entry.identifiers),
+        ATTR_IDENTIFIERS: list(entry.identifiers),
         "via_device_id": entry.via_device_id,
         "area_id": entry.area_id,
         "name_by_user": entry.name_by_user,

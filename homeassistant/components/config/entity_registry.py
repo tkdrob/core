@@ -8,6 +8,7 @@ from homeassistant.components.websocket_api.decorators import (
     async_response,
     require_admin,
 )
+from homeassistant.const import ATTR_NAME
 from homeassistant.core import callback
 from homeassistant.helpers import config_validation as cv
 from homeassistant.helpers.entity_registry import DISABLED_USER, async_get_registry
@@ -174,7 +175,7 @@ def _entry_dict(entry):
         "area_id": entry.area_id,
         "disabled_by": entry.disabled_by,
         "entity_id": entry.entity_id,
-        "name": entry.name,
+        ATTR_NAME: entry.name,
         "icon": entry.icon,
         "platform": entry.platform,
     }

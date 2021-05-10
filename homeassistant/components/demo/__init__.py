@@ -2,7 +2,7 @@
 import asyncio
 
 from homeassistant import bootstrap, config_entries
-from homeassistant.const import ATTR_ENTITY_ID, EVENT_HOMEASSISTANT_START
+from homeassistant.const import ATTR_ENTITY_ID, ATTR_NAME, EVENT_HOMEASSISTANT_START
 import homeassistant.core as ha
 
 DOMAIN = "demo"
@@ -80,7 +80,7 @@ async def async_setup(hass, config):
                     "who_cooks": {
                         "icon": "mdi:panda",
                         "initial": "Anne Therese",
-                        "name": "Cook today",
+                        ATTR_NAME: "Cook today",
                         "options": ["Paulus", "Anne Therese"],
                     },
                 }
@@ -98,7 +98,7 @@ async def async_setup(hass, config):
                     "notify": {
                         "icon": "mdi:car",
                         "initial": False,
-                        "name": "Notify Anne Therese is home",
+                        ATTR_NAME: "Notify Anne Therese is home",
                     }
                 }
             },
@@ -116,7 +116,7 @@ async def async_setup(hass, config):
                         "icon": "mdi:bell-ring",
                         "min": 0,
                         "max": 10,
-                        "name": "Allowed Noise",
+                        ATTR_NAME: "Allowed Noise",
                         "unit_of_measurement": "dB",
                     }
                 }
@@ -201,7 +201,7 @@ async def finish_setup(hass, config):
         {
             "scene": [
                 {
-                    "name": "Romantic lights",
+                    ATTR_NAME: "Romantic lights",
                     "entities": {
                         lights[0]: True,
                         lights[1]: {
@@ -212,7 +212,7 @@ async def finish_setup(hass, config):
                     },
                 },
                 {
-                    "name": "Switch on and off",
+                    ATTR_NAME: "Switch on and off",
                     "entities": {switches[0]: True, switches[1]: False},
                 },
             ]

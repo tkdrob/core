@@ -6,6 +6,7 @@ from homeassistant.components.websocket_api.decorators import (
     async_response,
     require_admin,
 )
+from homeassistant.const import ATTR_NAME
 from homeassistant.core import callback
 from homeassistant.helpers.area_registry import async_get_registry
 
@@ -59,7 +60,7 @@ async def websocket_list_areas(hass, connection, msg):
         websocket_api.result_message(
             msg["id"],
             [
-                {"name": entry.name, "area_id": entry.id}
+                {ATTR_NAME: entry.name, "area_id": entry.id}
                 for entry in registry.async_list_areas()
             ],
         )
@@ -122,4 +123,4 @@ async def websocket_update_area(hass, connection, msg):
 @callback
 def _entry_dict(entry):
     """Convert entry to API format."""
-    return {"area_id": entry.id, "name": entry.name}
+    return {"area_id": entry.id, ATTR_NAME: entry.name}

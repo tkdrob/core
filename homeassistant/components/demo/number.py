@@ -2,7 +2,7 @@
 import voluptuous as vol
 
 from homeassistant.components.number import NumberEntity
-from homeassistant.const import DEVICE_DEFAULT_NAME
+from homeassistant.const import ATTR_IDENTIFIERS, ATTR_NAME, DEVICE_DEFAULT_NAME
 
 from . import DOMAIN
 
@@ -65,11 +65,11 @@ class DemoNumber(NumberEntity):
     def device_info(self):
         """Return device info."""
         return {
-            "identifiers": {
+            ATTR_IDENTIFIERS: {
                 # Serial numbers are unique identifiers within a specific domain
                 (DOMAIN, self.unique_id)
             },
-            "name": self.name,
+            ATTR_NAME: self.name,
         }
 
     @property

@@ -10,7 +10,7 @@ from homeassistant.components.device_tracker import (
     PLATFORM_SCHEMA,
     DeviceScanner,
 )
-from homeassistant.const import CONF_API_KEY, CONF_CLIENT_ID, CONF_HOST
+from homeassistant.const import ATTR_NAME, CONF_API_KEY, CONF_CLIENT_ID, CONF_HOST
 import homeassistant.helpers.config_validation as cv
 
 SCAN_INTERVAL = timedelta(seconds=120)
@@ -70,7 +70,7 @@ class CPPMDeviceScanner(DeviceScanner):
         devices = []
         for item in endpoints:
             if self._cppm.online_status(item["mac_address"]):
-                device = {"mac": item["mac_address"], "name": item["mac_address"]}
+                device = {"mac": item["mac_address"], ATTR_NAME: item["mac_address"]}
                 devices.append(device)
             else:
                 continue

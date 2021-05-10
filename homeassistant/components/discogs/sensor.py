@@ -9,6 +9,7 @@ import voluptuous as vol
 from homeassistant.components.sensor import PLATFORM_SCHEMA, SensorEntity
 from homeassistant.const import (
     ATTR_ATTRIBUTION,
+    ATTR_NAME,
     CONF_MONITORED_CONDITIONS,
     CONF_NAME,
     CONF_TOKEN,
@@ -36,17 +37,17 @@ SENSOR_RANDOM_RECORD_TYPE = "random_record"
 
 SENSORS = {
     SENSOR_COLLECTION_TYPE: {
-        "name": "Collection",
+        ATTR_NAME: "Collection",
         "icon": ICON_RECORD,
         "unit_of_measurement": UNIT_RECORDS,
     },
     SENSOR_WANTLIST_TYPE: {
-        "name": "Wantlist",
+        ATTR_NAME: "Wantlist",
         "icon": ICON_RECORD,
         "unit_of_measurement": UNIT_RECORDS,
     },
     SENSOR_RANDOM_RECORD_TYPE: {
-        "name": "Random Record",
+        ATTR_NAME: "Random Record",
         "icon": ICON_PLAYER,
         "unit_of_measurement": None,
     },

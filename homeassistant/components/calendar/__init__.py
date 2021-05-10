@@ -9,7 +9,7 @@ from typing import cast, final
 from aiohttp import web
 
 from homeassistant.components import http
-from homeassistant.const import HTTP_BAD_REQUEST, STATE_OFF, STATE_ON
+from homeassistant.const import ATTR_NAME, HTTP_BAD_REQUEST, STATE_OFF, STATE_ON
 from homeassistant.helpers.config_validation import (  # noqa: F401
     PLATFORM_SCHEMA,
     PLATFORM_SCHEMA_BASE,
@@ -225,6 +225,6 @@ class CalendarListView(http.HomeAssistantView):
 
         for entity in self.component.entities:
             state = hass.states.get(entity.entity_id)
-            calendar_list.append({"name": state.name, "entity_id": entity.entity_id})
+            calendar_list.append({ATTR_NAME: state.name, "entity_id": entity.entity_id})
 
         return self.json(sorted(calendar_list, key=lambda x: cast(str, x["name"])))

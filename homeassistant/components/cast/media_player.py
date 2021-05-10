@@ -46,6 +46,10 @@ from homeassistant.components.media_player.const import (
 from homeassistant.components.plex.const import PLEX_URI_SCHEME
 from homeassistant.components.plex.services import lookup_plex_media
 from homeassistant.const import (
+    ATTR_IDENTIFIERS,
+    ATTR_MANUFACTURER,
+    ATTR_MODEL,
+    ATTR_NAME,
     EVENT_HOMEASSISTANT_STOP,
     STATE_IDLE,
     STATE_OFF,
@@ -542,10 +546,10 @@ class CastDevice(MediaPlayerEntity):
             return None
 
         return {
-            "name": cast_info.friendly_name,
-            "identifiers": {(CAST_DOMAIN, cast_info.uuid.replace("-", ""))},
-            "model": cast_info.model_name,
-            "manufacturer": cast_info.manufacturer,
+            ATTR_NAME: cast_info.friendly_name,
+            ATTR_IDENTIFIERS: {(CAST_DOMAIN, cast_info.uuid.replace("-", ""))},
+            ATTR_MODEL: cast_info.model_name,
+            ATTR_MANUFACTURER: cast_info.manufacturer,
         }
 
     def _media_status(self):

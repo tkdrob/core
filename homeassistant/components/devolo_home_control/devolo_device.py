@@ -1,6 +1,12 @@
 """Base class for a device entity integrated in devolo Home Control."""
 import logging
 
+from homeassistant.const import (
+    ATTR_IDENTIFIERS,
+    ATTR_MANUFACTURER,
+    ATTR_MODEL,
+    ATTR_NAME,
+)
 from homeassistant.helpers.entity import Entity
 
 from .const import DOMAIN
@@ -56,10 +62,10 @@ class DevoloDeviceEntity(Entity):
     def device_info(self):
         """Return the device info."""
         return {
-            "identifiers": {(DOMAIN, self._device_instance.uid)},
-            "name": self._name,
-            "manufacturer": self._brand,
-            "model": self._model,
+            ATTR_IDENTIFIERS: {(DOMAIN, self._device_instance.uid)},
+            ATTR_NAME: self._name,
+            ATTR_MANUFACTURER: self._brand,
+            ATTR_MODEL: self._model,
             "suggested_area": self._area,
         }
 

@@ -1,6 +1,6 @@
 """Describe logbook events."""
 
-from homeassistant.const import ATTR_ENTITY_ID
+from homeassistant.const import ATTR_ENTITY_ID, ATTR_NAME
 from homeassistant.core import callback
 
 from .const import DOMAIN, DOOR_STATION, DOOR_STATION_EVENT_ENTITY_IDS
@@ -16,7 +16,7 @@ def async_describe_events(hass, async_describe_event):
         doorbird_event = event.event_type.split("_", 1)[1]
 
         return {
-            "name": "Doorbird",
+            ATTR_NAME: "Doorbird",
             "message": f"Event {event.event_type} was fired.",
             "entity_id": hass.data[DOMAIN][DOOR_STATION_EVENT_ENTITY_IDS].get(
                 doorbird_event, event.data.get(ATTR_ENTITY_ID)

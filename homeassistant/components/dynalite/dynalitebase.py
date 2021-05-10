@@ -5,6 +5,7 @@ from typing import Any, Callable
 
 from homeassistant.components.dynalite.bridge import DynaliteBridge
 from homeassistant.config_entries import ConfigEntry
+from homeassistant.const import ATTR_IDENTIFIERS, ATTR_MANUFACTURER, ATTR_NAME
 from homeassistant.core import HomeAssistant, callback
 from homeassistant.helpers.dispatcher import async_dispatcher_connect
 from homeassistant.helpers.entity import DeviceInfo, Entity
@@ -64,9 +65,9 @@ class DynaliteBase(Entity):
     def device_info(self) -> DeviceInfo:
         """Device info for this entity."""
         return {
-            "identifiers": {(DOMAIN, self._device.unique_id)},
-            "name": self.name,
-            "manufacturer": "Dynalite",
+            ATTR_IDENTIFIERS: {(DOMAIN, self._device.unique_id)},
+            ATTR_NAME: self.name,
+            ATTR_MANUFACTURER: "Dynalite",
         }
 
     async def async_added_to_hass(self) -> None:

@@ -1,4 +1,11 @@
 """Base class for deCONZ devices."""
+from homeassistant.const import (
+    ATTR_IDENTIFIERS,
+    ATTR_MANUFACTURER,
+    ATTR_MODEL,
+    ATTR_NAME,
+    ATTR_SW_VERSION,
+)
 from homeassistant.core import callback
 from homeassistant.helpers.device_registry import CONNECTION_ZIGBEE
 from homeassistant.helpers.dispatcher import async_dispatcher_connect
@@ -38,11 +45,11 @@ class DeconzBase:
 
         return {
             "connections": {(CONNECTION_ZIGBEE, self.serial)},
-            "identifiers": {(DECONZ_DOMAIN, self.serial)},
-            "manufacturer": self._device.manufacturer,
-            "model": self._device.modelid,
-            "name": self._device.name,
-            "sw_version": self._device.swversion,
+            ATTR_IDENTIFIERS: {(DECONZ_DOMAIN, self.serial)},
+            ATTR_MANUFACTURER: self._device.manufacturer,
+            ATTR_MODEL: self._device.modelid,
+            ATTR_NAME: self._device.name,
+            ATTR_SW_VERSION: self._device.swversion,
             "via_device": (DECONZ_DOMAIN, bridgeid),
         }
 

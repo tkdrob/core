@@ -10,7 +10,7 @@ import voluptuous as vol
 
 from homeassistant.components.ssdp import ATTR_SSDP_LOCATION, ATTR_UPNP_SERIAL
 from homeassistant.config_entries import ConfigFlow
-from homeassistant.const import CONF_HOST, CONF_NAME
+from homeassistant.const import ATTR_NAME, CONF_HOST, CONF_NAME
 from homeassistant.core import HomeAssistant
 from homeassistant.data_entry_flow import FlowResult
 from homeassistant.helpers.aiohttp_client import async_get_clientsession
@@ -73,7 +73,7 @@ class DirecTVConfigFlow(ConfigFlow, domain=DOMAIN):
         if discovery_info.get(ATTR_UPNP_SERIAL):
             receiver_id = discovery_info[ATTR_UPNP_SERIAL][4:]  # strips off RID-
 
-        self.context.update({"title_placeholders": {"name": host}})
+        self.context.update({"title_placeholders": {ATTR_NAME: host}})
 
         self.discovery_info.update(
             {CONF_HOST: host, CONF_NAME: host, CONF_RECEIVER_ID: receiver_id}
@@ -103,7 +103,7 @@ class DirecTVConfigFlow(ConfigFlow, domain=DOMAIN):
         if user_input is None:
             return self.async_show_form(
                 step_id="ssdp_confirm",
-                description_placeholders={"name": self.discovery_info[CONF_NAME]},
+                description_placeholders={ATTR_NAME: self.discovery_info[CONF_NAME]},
                 errors={},
             )
 

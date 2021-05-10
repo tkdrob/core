@@ -9,6 +9,10 @@ from pyControl4.error_handling import BadCredentials
 
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.const import (
+    ATTR_IDENTIFIERS,
+    ATTR_MANUFACTURER,
+    ATTR_MODEL,
+    ATTR_NAME,
     CONF_HOST,
     CONF_PASSWORD,
     CONF_SCAN_INTERVAL,
@@ -181,9 +185,9 @@ class Control4Entity(CoordinatorEntity):
         """Return info of parent Control4 device of entity."""
         return {
             "config_entry_id": self.entry.entry_id,
-            "identifiers": {(DOMAIN, self._device_id)},
-            "name": self._device_name,
-            "manufacturer": self._device_manufacturer,
-            "model": self._device_model,
+            ATTR_IDENTIFIERS: {(DOMAIN, self._device_id)},
+            ATTR_NAME: self._device_name,
+            ATTR_MANUFACTURER: self._device_manufacturer,
+            ATTR_MODEL: self._device_model,
             "via_device": (DOMAIN, self._controller_unique_id),
         }

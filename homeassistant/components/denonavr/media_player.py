@@ -35,7 +35,15 @@ from homeassistant.components.media_player.const import (
     SUPPORT_VOLUME_SET,
     SUPPORT_VOLUME_STEP,
 )
-from homeassistant.const import ATTR_COMMAND, STATE_PAUSED, STATE_PLAYING
+from homeassistant.const import (
+    ATTR_COMMAND,
+    ATTR_IDENTIFIERS,
+    ATTR_MANUFACTURER,
+    ATTR_MODEL,
+    ATTR_NAME,
+    STATE_PAUSED,
+    STATE_PLAYING,
+)
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers import config_validation as cv, entity_platform
 
@@ -242,10 +250,10 @@ class DenonDevice(MediaPlayerEntity):
             return None
 
         device_info = {
-            "identifiers": {(DOMAIN, self._config_entry.unique_id)},
-            "manufacturer": self._config_entry.data[CONF_MANUFACTURER],
-            "name": self._config_entry.title,
-            "model": f"{self._config_entry.data[CONF_MODEL]}-{self._config_entry.data[CONF_TYPE]}",
+            ATTR_IDENTIFIERS: {(DOMAIN, self._config_entry.unique_id)},
+            ATTR_MANUFACTURER: self._config_entry.data[CONF_MANUFACTURER],
+            ATTR_NAME: self._config_entry.title,
+            ATTR_MODEL: f"{self._config_entry.data[CONF_MODEL]}-{self._config_entry.data[CONF_TYPE]}",
         }
 
         return device_info

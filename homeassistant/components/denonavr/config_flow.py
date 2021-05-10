@@ -11,7 +11,7 @@ import voluptuous as vol
 
 from homeassistant import config_entries
 from homeassistant.components import ssdp
-from homeassistant.const import CONF_HOST, CONF_TYPE
+from homeassistant.const import ATTR_NAME, CONF_HOST, CONF_TYPE
 from homeassistant.core import callback
 from homeassistant.data_entry_flow import FlowResult
 from homeassistant.helpers.httpx_client import get_async_client
@@ -248,7 +248,9 @@ class DenonAvrFlowHandler(config_entries.ConfigFlow, domain=DOMAIN):
         self.context.update(
             {
                 "title_placeholders": {
-                    "name": discovery_info.get(ssdp.ATTR_UPNP_FRIENDLY_NAME, self.host)
+                    ATTR_NAME: discovery_info.get(
+                        ssdp.ATTR_UPNP_FRIENDLY_NAME, self.host
+                    )
                 }
             }
         )
