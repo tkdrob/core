@@ -6,7 +6,13 @@ from typing import Any
 
 from homeassistant.components.sensor import SensorEntity
 from homeassistant.config_entries import ConfigEntry
-from homeassistant.const import DATA_RATE_KILOBYTES_PER_SECOND
+from homeassistant.const import (
+    ATTR_IDENTIFIERS,
+    ATTR_MODEL,
+    ATTR_NAME,
+    ATTR_SW_VERSION,
+    DATA_RATE_KILOBYTES_PER_SECOND,
+)
 from homeassistant.core import HomeAssistant, callback
 from homeassistant.helpers.dispatcher import async_dispatcher_connect
 from homeassistant.helpers.entity import DeviceInfo
@@ -212,10 +218,10 @@ class FreeboxDiskSensor(FreeboxSensor):
     def device_info(self) -> DeviceInfo:
         """Return the device information."""
         return {
-            "identifiers": {(DOMAIN, self._disk["id"])},
-            "name": f"Disk {self._disk['id']}",
-            "model": self._disk["model"],
-            "sw_version": self._disk["firmware"],
+            ATTR_IDENTIFIERS: {(DOMAIN, self._disk["id"])},
+            ATTR_NAME: f"Disk {self._disk['id']}",
+            ATTR_MODEL: self._disk["model"],
+            ATTR_SW_VERSION: self._disk["firmware"],
             "via_device": (
                 DOMAIN,
                 self._router.mac,

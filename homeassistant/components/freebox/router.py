@@ -12,7 +12,14 @@ from freebox_api.api.wifi import Wifi
 from freebox_api.exceptions import HttpRequestError
 
 from homeassistant.config_entries import ConfigEntry
-from homeassistant.const import CONF_HOST, CONF_PORT
+from homeassistant.const import (
+    ATTR_IDENTIFIERS,
+    ATTR_MANUFACTURER,
+    ATTR_NAME,
+    ATTR_SW_VERSION,
+    CONF_HOST,
+    CONF_PORT,
+)
 from homeassistant.core import HomeAssistant
 from homeassistant.exceptions import ConfigEntryNotReady
 from homeassistant.helpers.device_registry import CONNECTION_NETWORK_MAC
@@ -185,10 +192,10 @@ class FreeboxRouter:
         """Return the device information."""
         return {
             "connections": {(CONNECTION_NETWORK_MAC, self.mac)},
-            "identifiers": {(DOMAIN, self.mac)},
-            "name": self.name,
-            "manufacturer": "Freebox SAS",
-            "sw_version": self._sw_v,
+            ATTR_IDENTIFIERS: {(DOMAIN, self.mac)},
+            ATTR_NAME: self.name,
+            ATTR_MANUFACTURER: "Freebox SAS",
+            ATTR_SW_VERSION: self._sw_v,
         }
 
     @property

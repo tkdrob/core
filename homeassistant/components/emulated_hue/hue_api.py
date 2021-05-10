@@ -53,6 +53,7 @@ from homeassistant.components.media_player.const import (
 )
 from homeassistant.const import (
     ATTR_ENTITY_ID,
+    ATTR_NAME,
     ATTR_SUPPORTED_FEATURES,
     ATTR_TEMPERATURE,
     HTTP_BAD_REQUEST,
@@ -742,7 +743,7 @@ def entity_to_json(config, entity):
             "reachable": entity.state != STATE_UNAVAILABLE,
             "mode": "homeautomation",
         },
-        "name": config.get_entity_name(entity),
+        ATTR_NAME: config.get_entity_name(entity),
         "uniqueid": unique_id,
         "manufacturername": "Home Assistant",
         "swversion": "123",
@@ -832,7 +833,7 @@ def create_config_model(config, request):
         "mac": "00:00:00:00:00:00",
         "swversion": "01003542",
         "apiversion": "1.17.0",
-        "whitelist": {HUE_API_USERNAME: {"name": "HASS BRIDGE"}},
+        "whitelist": {HUE_API_USERNAME: {ATTR_NAME: "HASS BRIDGE"}},
         "ipaddress": f"{config.advertise_ip}:{config.advertise_port}",
         "linkbutton": True,
     }

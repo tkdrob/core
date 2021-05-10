@@ -24,6 +24,7 @@ from homeassistant import const
 from homeassistant.components import zeroconf
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.const import (
+    ATTR_NAME,
     CONF_HOST,
     CONF_MODE,
     CONF_PASSWORD,
@@ -522,7 +523,7 @@ async def _register_service(
         }[arg.type_]
         schema[vol.Required(arg.name)] = metadata["validator"]
         fields[arg.name] = {
-            "name": arg.name,
+            ATTR_NAME: arg.name,
             "required": True,
             "description": metadata.get("description"),
             "example": metadata["example"],

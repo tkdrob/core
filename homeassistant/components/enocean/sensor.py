@@ -3,6 +3,7 @@ import voluptuous as vol
 
 from homeassistant.components.sensor import PLATFORM_SCHEMA, SensorEntity
 from homeassistant.const import (
+    ATTR_NAME,
     CONF_DEVICE_CLASS,
     CONF_ID,
     CONF_NAME,
@@ -34,25 +35,25 @@ SENSOR_TYPE_WINDOWHANDLE = "windowhandle"
 
 SENSOR_TYPES = {
     SENSOR_TYPE_HUMIDITY: {
-        "name": "Humidity",
+        ATTR_NAME: "Humidity",
         "unit": PERCENTAGE,
         "icon": "mdi:water-percent",
         "class": DEVICE_CLASS_HUMIDITY,
     },
     SENSOR_TYPE_POWER: {
-        "name": "Power",
+        ATTR_NAME: "Power",
         "unit": POWER_WATT,
         "icon": "mdi:power-plug",
         "class": DEVICE_CLASS_POWER,
     },
     SENSOR_TYPE_TEMPERATURE: {
-        "name": "Temperature",
+        ATTR_NAME: "Temperature",
         "unit": TEMP_CELSIUS,
         "icon": "mdi:thermometer",
         "class": DEVICE_CLASS_TEMPERATURE,
     },
     SENSOR_TYPE_WINDOWHANDLE: {
-        "name": "WindowHandle",
+        ATTR_NAME: "WindowHandle",
         "unit": None,
         "icon": "mdi:window",
         "class": None,

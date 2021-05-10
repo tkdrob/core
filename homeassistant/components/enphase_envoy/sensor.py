@@ -7,6 +7,10 @@ import voluptuous as vol
 from homeassistant.components.sensor import PLATFORM_SCHEMA, SensorEntity
 from homeassistant.config_entries import SOURCE_IMPORT
 from homeassistant.const import (
+    ATTR_IDENTIFIERS,
+    ATTR_MANUFACTURER,
+    ATTR_MODEL,
+    ATTR_NAME,
     CONF_IP_ADDRESS,
     CONF_MONITORED_CONDITIONS,
     CONF_NAME,
@@ -182,8 +186,8 @@ class Envoy(CoordinatorEntity, SensorEntity):
         if not self._device_serial_number:
             return None
         return {
-            "identifiers": {(DOMAIN, str(self._device_serial_number))},
-            "name": self._device_name,
-            "model": "Envoy",
-            "manufacturer": "Enphase",
+            ATTR_IDENTIFIERS: {(DOMAIN, str(self._device_serial_number))},
+            ATTR_NAME: self._device_name,
+            ATTR_MODEL: "Envoy",
+            ATTR_MANUFACTURER: "Enphase",
         }

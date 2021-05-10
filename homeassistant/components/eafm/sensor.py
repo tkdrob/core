@@ -1,4 +1,4 @@
-"""Support for guages from flood monitoring API."""
+"""Support for gauges from flood monitoring API."""
 from datetime import timedelta
 import logging
 
@@ -6,7 +6,14 @@ from aioeafm import get_station
 import async_timeout
 
 from homeassistant.components.sensor import SensorEntity
-from homeassistant.const import ATTR_ATTRIBUTION, LENGTH_METERS
+from homeassistant.const import (
+    ATTR_ATTRIBUTION,
+    ATTR_IDENTIFIERS,
+    ATTR_MANUFACTURER,
+    ATTR_MODEL,
+    ATTR_NAME,
+    LENGTH_METERS,
+)
 from homeassistant.helpers.aiohttp_client import async_get_clientsession
 from homeassistant.helpers.update_coordinator import (
     CoordinatorEntity,
@@ -122,10 +129,10 @@ class Measurement(CoordinatorEntity, SensorEntity):
     def device_info(self):
         """Return the device info."""
         return {
-            "identifiers": {(DOMAIN, "measure-id", self.station_id)},
-            "name": self.name,
-            "manufacturer": "https://environment.data.gov.uk/",
-            "model": self.parameter_name,
+            ATTR_IDENTIFIERS: {(DOMAIN, "measure-id", self.station_id)},
+            ATTR_NAME: self.name,
+            ATTR_MANUFACTURER: "https://environment.data.gov.uk/",
+            ATTR_MODEL: self.parameter_name,
             "entry_type": "service",
         }
 

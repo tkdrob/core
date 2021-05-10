@@ -7,6 +7,7 @@ from typing import Any
 from homeassistant.components.device_tracker import SOURCE_TYPE_ROUTER
 from homeassistant.components.device_tracker.config_entry import ScannerEntity
 from homeassistant.config_entries import ConfigEntry
+from homeassistant.const import ATTR_IDENTIFIERS, ATTR_MANUFACTURER, ATTR_NAME
 from homeassistant.core import HomeAssistant, callback
 from homeassistant.helpers.device_registry import CONNECTION_NETWORK_MAC
 from homeassistant.helpers.dispatcher import async_dispatcher_connect
@@ -116,9 +117,9 @@ class FreeboxDevice(ScannerEntity):
         """Return the device information."""
         return {
             "connections": {(CONNECTION_NETWORK_MAC, self._mac)},
-            "identifiers": {(DOMAIN, self.unique_id)},
-            "name": self.name,
-            "manufacturer": self._manufacturer,
+            ATTR_IDENTIFIERS: {(DOMAIN, self.unique_id)},
+            ATTR_NAME: self.name,
+            ATTR_MANUFACTURER: self._manufacturer,
         }
 
     @property

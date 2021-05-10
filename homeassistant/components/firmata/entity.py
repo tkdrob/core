@@ -2,6 +2,12 @@
 from __future__ import annotations
 
 from homeassistant.config_entries import ConfigEntry
+from homeassistant.const import (
+    ATTR_IDENTIFIERS,
+    ATTR_MANUFACTURER,
+    ATTR_NAME,
+    ATTR_SW_VERSION,
+)
 from homeassistant.helpers.entity import DeviceInfo
 
 from .board import FirmataPinType
@@ -21,10 +27,10 @@ class FirmataEntity:
         """Return device info."""
         return {
             "connections": {},
-            "identifiers": {(DOMAIN, self._api.board.name)},
-            "manufacturer": FIRMATA_MANUFACTURER,
-            "name": self._api.board.name,
-            "sw_version": self._api.board.firmware_version,
+            ATTR_IDENTIFIERS: {(DOMAIN, self._api.board.name)},
+            ATTR_MANUFACTURER: FIRMATA_MANUFACTURER,
+            ATTR_NAME: self._api.board.name,
+            ATTR_SW_VERSION: self._api.board.firmware_version,
         }
 
 

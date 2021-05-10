@@ -13,7 +13,13 @@ from homeassistant.components.ssdp import (
     ATTR_UPNP_UDN,
 )
 from homeassistant.config_entries import ConfigEntry, ConfigFlow
-from homeassistant.const import CONF_HOST, CONF_PASSWORD, CONF_PORT, CONF_USERNAME
+from homeassistant.const import (
+    ATTR_NAME,
+    CONF_HOST,
+    CONF_PASSWORD,
+    CONF_PORT,
+    CONF_USERNAME,
+)
 from homeassistant.core import callback
 
 from .common import FritzBoxTools
@@ -111,7 +117,7 @@ class FritzBoxToolsFlowHandler(ConfigFlow, domain=DOMAIN):
             return self.async_abort(reason="already_configured")
 
         self.context["title_placeholders"] = {
-            "name": self._name.replace("FRITZ!Box ", "")
+            ATTR_NAME: self._name.replace("FRITZ!Box ", "")
         }
         return await self.async_step_confirm()
 
@@ -158,7 +164,7 @@ class FritzBoxToolsFlowHandler(ConfigFlow, domain=DOMAIN):
                     vol.Required(CONF_PASSWORD): str,
                 }
             ),
-            description_placeholders={"name": self._name},
+            description_placeholders={ATTR_NAME: self._name},
             errors=errors or {},
         )
 

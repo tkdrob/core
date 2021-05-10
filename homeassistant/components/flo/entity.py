@@ -3,6 +3,13 @@ from __future__ import annotations
 
 from typing import Any
 
+from homeassistant.const import (
+    ATTR_IDENTIFIERS,
+    ATTR_MANUFACTURER,
+    ATTR_MODEL,
+    ATTR_NAME,
+    ATTR_SW_VERSION,
+)
 from homeassistant.helpers.device_registry import CONNECTION_NETWORK_MAC
 from homeassistant.helpers.entity import DeviceInfo, Entity
 
@@ -40,12 +47,12 @@ class FloEntity(Entity):
     def device_info(self) -> DeviceInfo:
         """Return a device description for device registry."""
         return {
-            "identifiers": {(FLO_DOMAIN, self._device.id)},
+            ATTR_IDENTIFIERS: {(FLO_DOMAIN, self._device.id)},
             "connections": {(CONNECTION_NETWORK_MAC, self._device.mac_address)},
-            "manufacturer": self._device.manufacturer,
-            "model": self._device.model,
-            "name": self._device.device_name,
-            "sw_version": self._device.firmware_version,
+            ATTR_MANUFACTURER: self._device.manufacturer,
+            ATTR_MODEL: self._device.model,
+            ATTR_NAME: self._device.device_name,
+            ATTR_SW_VERSION: self._device.firmware_version,
         }
 
     @property

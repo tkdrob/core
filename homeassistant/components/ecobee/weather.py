@@ -12,7 +12,13 @@ from homeassistant.components.weather import (
     ATTR_FORECAST_WIND_SPEED,
     WeatherEntity,
 )
-from homeassistant.const import TEMP_FAHRENHEIT
+from homeassistant.const import (
+    ATTR_IDENTIFIERS,
+    ATTR_MANUFACTURER,
+    ATTR_MODEL,
+    ATTR_NAME,
+    TEMP_FAHRENHEIT,
+)
 from homeassistant.util import dt as dt_util
 
 from .const import (
@@ -82,10 +88,10 @@ class EcobeeWeather(WeatherEntity):
             return None
 
         return {
-            "identifiers": {(DOMAIN, thermostat["identifier"])},
-            "name": self.name,
-            "manufacturer": MANUFACTURER,
-            "model": model,
+            ATTR_IDENTIFIERS: {(DOMAIN, thermostat["identifier"])},
+            ATTR_NAME: self.name,
+            ATTR_MANUFACTURER: MANUFACTURER,
+            ATTR_MODEL: model,
         }
 
     @property

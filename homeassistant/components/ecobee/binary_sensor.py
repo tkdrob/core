@@ -3,6 +3,12 @@ from homeassistant.components.binary_sensor import (
     DEVICE_CLASS_OCCUPANCY,
     BinarySensorEntity,
 )
+from homeassistant.const import (
+    ATTR_IDENTIFIERS,
+    ATTR_MANUFACTURER,
+    ATTR_MODEL,
+    ATTR_NAME,
+)
 
 from .const import _LOGGER, DOMAIN, ECOBEE_MODEL_TO_NAME, MANUFACTURER
 
@@ -79,10 +85,10 @@ class EcobeeBinarySensor(BinarySensorEntity):
 
         if identifier is not None and model is not None:
             return {
-                "identifiers": {(DOMAIN, identifier)},
-                "name": self.sensor_name,
-                "manufacturer": MANUFACTURER,
-                "model": model,
+                ATTR_IDENTIFIERS: {(DOMAIN, identifier)},
+                ATTR_NAME: self.sensor_name,
+                ATTR_MANUFACTURER: MANUFACTURER,
+                ATTR_MODEL: model,
             }
         return None
 

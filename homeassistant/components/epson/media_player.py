@@ -37,7 +37,17 @@ from homeassistant.components.media_player.const import (
     SUPPORT_VOLUME_STEP,
 )
 from homeassistant.config_entries import SOURCE_IMPORT
-from homeassistant.const import CONF_HOST, CONF_NAME, CONF_PORT, STATE_OFF, STATE_ON
+from homeassistant.const import (
+    ATTR_IDENTIFIERS,
+    ATTR_MANUFACTURER,
+    ATTR_MODEL,
+    ATTR_NAME,
+    CONF_HOST,
+    CONF_NAME,
+    CONF_PORT,
+    STATE_OFF,
+    STATE_ON,
+)
 from homeassistant.helpers import entity_platform
 import homeassistant.helpers.config_validation as cv
 from homeassistant.helpers.entity_registry import async_get as async_get_entity_registry
@@ -160,10 +170,10 @@ class EpsonProjectorMediaPlayer(MediaPlayerEntity):
         if not self._unique_id:
             return None
         return {
-            "identifiers": {(DOMAIN, self._unique_id)},
-            "manufacturer": "Epson",
-            "name": "Epson projector",
-            "model": "Epson",
+            ATTR_IDENTIFIERS: {(DOMAIN, self._unique_id)},
+            ATTR_MANUFACTURER: "Epson",
+            ATTR_NAME: "Epson projector",
+            ATTR_MODEL: "Epson",
             "via_hub": (DOMAIN, self._unique_id),
         }
 

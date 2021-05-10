@@ -9,6 +9,11 @@ import voluptuous as vol
 
 from homeassistant.config_entries import SOURCE_IMPORT, ConfigEntry
 from homeassistant.const import (
+    ATTR_IDENTIFIERS,
+    ATTR_MANUFACTURER,
+    ATTR_MODEL,
+    ATTR_NAME,
+    ATTR_SW_VERSION,
     CONF_EXCLUDE,
     CONF_HOST,
     CONF_INCLUDE,
@@ -466,9 +471,9 @@ class ElkAttachedEntity(ElkEntity):
         if self._prefix:
             device_name += f" {self._prefix}"
         return {
-            "name": device_name,
-            "identifiers": {(DOMAIN, f"{self._prefix}_system")},
-            "sw_version": self._elk.panel.elkm1_version,
-            "manufacturer": "ELK Products, Inc.",
-            "model": "M1",
+            ATTR_NAME: device_name,
+            ATTR_IDENTIFIERS: {(DOMAIN, f"{self._prefix}_system")},
+            ATTR_SW_VERSION: self._elk.panel.elkm1_version,
+            ATTR_MANUFACTURER: "ELK Products, Inc.",
+            ATTR_MODEL: "M1",
         }

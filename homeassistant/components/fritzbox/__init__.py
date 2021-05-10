@@ -10,7 +10,11 @@ from homeassistant.config_entries import ConfigEntry
 from homeassistant.const import (
     ATTR_DEVICE_CLASS,
     ATTR_ENTITY_ID,
+    ATTR_IDENTIFIERS,
+    ATTR_MANUFACTURER,
+    ATTR_MODEL,
     ATTR_NAME,
+    ATTR_SW_VERSION,
     ATTR_UNIT_OF_MEASUREMENT,
     CONF_HOST,
     CONF_PASSWORD,
@@ -131,11 +135,11 @@ class FritzBoxEntity(CoordinatorEntity):
     def device_info(self):
         """Return device specific attributes."""
         return {
-            "name": self.device.name,
-            "identifiers": {(DOMAIN, self.ain)},
-            "manufacturer": self.device.manufacturer,
-            "model": self.device.productname,
-            "sw_version": self.device.fw_version,
+            ATTR_NAME: self.device.name,
+            ATTR_IDENTIFIERS: {(DOMAIN, self.ain)},
+            ATTR_MANUFACTURER: self.device.manufacturer,
+            ATTR_MODEL: self.device.productname,
+            ATTR_SW_VERSION: self.device.fw_version,
         }
 
     @property

@@ -31,6 +31,10 @@ from homeassistant.components.climate.const import (
 )
 from homeassistant.const import (
     ATTR_ENTITY_ID,
+    ATTR_IDENTIFIERS,
+    ATTR_MANUFACTURER,
+    ATTR_MODEL,
+    ATTR_NAME,
     ATTR_TEMPERATURE,
     PRECISION_TENTHS,
     STATE_ON,
@@ -369,10 +373,10 @@ class Thermostat(ClimateEntity):
             return None
 
         return {
-            "identifiers": {(DOMAIN, self.thermostat["identifier"])},
-            "name": self.name,
-            "manufacturer": MANUFACTURER,
-            "model": model,
+            ATTR_IDENTIFIERS: {(DOMAIN, self.thermostat["identifier"])},
+            ATTR_NAME: self.name,
+            ATTR_MANUFACTURER: MANUFACTURER,
+            ATTR_MODEL: model,
         }
 
     @property

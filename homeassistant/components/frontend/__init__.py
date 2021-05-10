@@ -17,7 +17,7 @@ from yarl import URL
 from homeassistant.components import websocket_api
 from homeassistant.components.http.view import HomeAssistantView
 from homeassistant.config import async_hass_config_yaml
-from homeassistant.const import CONF_MODE, CONF_NAME, EVENT_THEMES_UPDATED
+from homeassistant.const import ATTR_NAME, CONF_MODE, CONF_NAME, EVENT_THEMES_UPDATED
 from homeassistant.core import callback
 from homeassistant.helpers import service
 import homeassistant.helpers.config_validation as cv
@@ -143,7 +143,7 @@ MANIFEST_JSON = Manifest(
             }
         ],
         "lang": "en-US",
-        "name": "Home Assistant",
+        ATTR_NAME: "Home Assistant",
         "short_name": "Assistant",
         "start_url": "/?homescreen=1",
         "theme_color": DEFAULT_THEME_COLOR,

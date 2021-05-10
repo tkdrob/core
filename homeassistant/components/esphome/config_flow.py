@@ -8,7 +8,13 @@ import voluptuous as vol
 
 from homeassistant.components import zeroconf
 from homeassistant.config_entries import ConfigFlow
-from homeassistant.const import CONF_HOST, CONF_NAME, CONF_PASSWORD, CONF_PORT
+from homeassistant.const import (
+    ATTR_NAME,
+    CONF_HOST,
+    CONF_NAME,
+    CONF_PASSWORD,
+    CONF_PORT,
+)
 from homeassistant.core import callback
 from homeassistant.helpers.typing import ConfigType, DiscoveryInfoType
 
@@ -53,7 +59,7 @@ class EsphomeFlowHandler(ConfigFlow, domain=DOMAIN):
     @_name.setter
     def _name(self, value):
         self.context[CONF_NAME] = value
-        self.context["title_placeholders"] = {"name": self._name}
+        self.context["title_placeholders"] = {ATTR_NAME: self._name}
 
     def _set_user_input(self, user_input):
         if user_input is None:
@@ -79,7 +85,8 @@ class EsphomeFlowHandler(ConfigFlow, domain=DOMAIN):
         if user_input is not None:
             return await self._async_authenticate_or_add(None)
         return self.async_show_form(
-            step_id="discovery_confirm", description_placeholders={"name": self._name}
+            step_id="discovery_confirm",
+            description_placeholders={ATTR_NAME: self._name},
         )
 
     async def async_step_zeroconf(self, discovery_info: DiscoveryInfoType):
@@ -157,7 +164,7 @@ class EsphomeFlowHandler(ConfigFlow, domain=DOMAIN):
         return self.async_show_form(
             step_id="authenticate",
             data_schema=vol.Schema({vol.Required("password"): str}),
-            description_placeholders={"name": self._name},
+            description_placeholders={ATTR_NAME: self._name},
             errors=errors,
         )
 

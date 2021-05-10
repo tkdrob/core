@@ -3,6 +3,10 @@ from pyecobee.const import ECOBEE_STATE_CALIBRATING, ECOBEE_STATE_UNKNOWN
 
 from homeassistant.components.sensor import SensorEntity
 from homeassistant.const import (
+    ATTR_IDENTIFIERS,
+    ATTR_MANUFACTURER,
+    ATTR_MODEL,
+    ATTR_NAME,
     DEVICE_CLASS_HUMIDITY,
     DEVICE_CLASS_TEMPERATURE,
     PERCENTAGE,
@@ -91,10 +95,10 @@ class EcobeeSensor(SensorEntity):
 
         if identifier is not None and model is not None:
             return {
-                "identifiers": {(DOMAIN, identifier)},
-                "name": self.sensor_name,
-                "manufacturer": MANUFACTURER,
-                "model": model,
+                ATTR_IDENTIFIERS: {(DOMAIN, identifier)},
+                ATTR_NAME: self.sensor_name,
+                ATTR_MANUFACTURER: MANUFACTURER,
+                ATTR_MODEL: model,
             }
         return None
 

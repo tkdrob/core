@@ -11,6 +11,13 @@ from fritzconnection import FritzConnection
 from fritzconnection.lib.fritzhosts import FritzHosts
 from fritzconnection.lib.fritzstatus import FritzStatus
 
+from homeassistant.const import (
+    ATTR_IDENTIFIERS,
+    ATTR_MANUFACTURER,
+    ATTR_MODEL,
+    ATTR_NAME,
+    ATTR_SW_VERSION,
+)
 from homeassistant.core import callback
 from homeassistant.helpers.device_registry import CONNECTION_NETWORK_MAC
 from homeassistant.helpers.dispatcher import async_dispatcher_send
@@ -236,9 +243,9 @@ class FritzBoxBaseEntity:
 
         return {
             "connections": {(CONNECTION_NETWORK_MAC, self.mac_address)},
-            "identifiers": {(DOMAIN, self._fritzbox_tools.unique_id)},
-            "name": self._device_name,
-            "manufacturer": "AVM",
-            "model": self._fritzbox_tools.model,
-            "sw_version": self._fritzbox_tools.sw_version,
+            ATTR_IDENTIFIERS: {(DOMAIN, self._fritzbox_tools.unique_id)},
+            ATTR_NAME: self._device_name,
+            ATTR_MANUFACTURER: "AVM",
+            ATTR_MODEL: self._fritzbox_tools.model,
+            ATTR_SW_VERSION: self._fritzbox_tools.sw_version,
         }

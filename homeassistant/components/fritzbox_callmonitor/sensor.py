@@ -11,6 +11,11 @@ import voluptuous as vol
 from homeassistant.components.sensor import PLATFORM_SCHEMA, SensorEntity
 from homeassistant.config_entries import SOURCE_IMPORT
 from homeassistant.const import (
+    ATTR_IDENTIFIERS,
+    ATTR_MANUFACTURER,
+    ATTR_MODEL,
+    ATTR_NAME,
+    ATTR_SW_VERSION,
     CONF_HOST,
     CONF_NAME,
     CONF_PASSWORD,
@@ -178,11 +183,11 @@ class FritzBoxCallSensor(SensorEntity):
     def device_info(self):
         """Return device specific attributes."""
         return {
-            "name": self._fritzbox_phonebook.fph.modelname,
-            "identifiers": {(DOMAIN, self._unique_id)},
-            "manufacturer": MANUFACTURER,
-            "model": self._fritzbox_phonebook.fph.modelname,
-            "sw_version": self._fritzbox_phonebook.fph.fc.system_version,
+            ATTR_NAME: self._fritzbox_phonebook.fph.modelname,
+            ATTR_IDENTIFIERS: {(DOMAIN, self._unique_id)},
+            ATTR_MANUFACTURER: MANUFACTURER,
+            ATTR_MODEL: self._fritzbox_phonebook.fph.modelname,
+            ATTR_SW_VERSION: self._fritzbox_phonebook.fph.fc.system_version,
         }
 
     @property

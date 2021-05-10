@@ -12,7 +12,15 @@ from homeassistant.components.device_tracker import (
 )
 from homeassistant.components.device_tracker.config_entry import ScannerEntity
 from homeassistant.config_entries import SOURCE_IMPORT, ConfigEntry
-from homeassistant.const import CONF_HOST, CONF_PASSWORD, CONF_USERNAME
+from homeassistant.const import (
+    ATTR_IDENTIFIERS,
+    ATTR_MANUFACTURER,
+    ATTR_MODEL,
+    ATTR_NAME,
+    CONF_HOST,
+    CONF_PASSWORD,
+    CONF_USERNAME,
+)
 from homeassistant.core import HomeAssistant, callback
 import homeassistant.helpers.config_validation as cv
 from homeassistant.helpers.device_registry import CONNECTION_NETWORK_MAC
@@ -157,10 +165,10 @@ class FritzBoxTracker(ScannerEntity):
         """Return the device information."""
         return {
             "connections": {(CONNECTION_NETWORK_MAC, self._mac)},
-            "identifiers": {(DOMAIN, self.unique_id)},
-            "name": self.name,
-            "manufacturer": "AVM",
-            "model": "FRITZ!Box Tracked device",
+            ATTR_IDENTIFIERS: {(DOMAIN, self.unique_id)},
+            ATTR_NAME: self.name,
+            ATTR_MANUFACTURER: "AVM",
+            ATTR_MODEL: "FRITZ!Box Tracked device",
             "via_device": (
                 DOMAIN,
                 self._router.unique_id,

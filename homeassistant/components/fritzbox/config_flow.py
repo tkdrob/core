@@ -11,7 +11,7 @@ from homeassistant.components.ssdp import (
     ATTR_UPNP_FRIENDLY_NAME,
     ATTR_UPNP_UDN,
 )
-from homeassistant.const import CONF_HOST, CONF_PASSWORD, CONF_USERNAME
+from homeassistant.const import ATTR_NAME, CONF_HOST, CONF_PASSWORD, CONF_USERNAME
 
 from .const import DEFAULT_HOST, DEFAULT_USERNAME, DOMAIN
 
@@ -140,7 +140,7 @@ class FritzboxConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
         self._host = host
         self._name = discovery_info.get(ATTR_UPNP_FRIENDLY_NAME) or host
 
-        self.context["title_placeholders"] = {"name": self._name}
+        self.context["title_placeholders"] = {ATTR_NAME: self._name}
         return await self.async_step_confirm()
 
     async def async_step_confirm(self, user_input=None):
@@ -161,7 +161,7 @@ class FritzboxConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
         return self.async_show_form(
             step_id="confirm",
             data_schema=DATA_SCHEMA_CONFIRM,
-            description_placeholders={"name": self._name},
+            description_placeholders={ATTR_NAME: self._name},
             errors=errors,
         )
 
@@ -199,6 +199,6 @@ class FritzboxConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                     vol.Required(CONF_PASSWORD): str,
                 }
             ),
-            description_placeholders={"name": self._name},
+            description_placeholders={ATTR_NAME: self._name},
             errors=errors,
         )

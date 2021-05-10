@@ -9,6 +9,10 @@ import voluptuous as vol
 from homeassistant.components.sensor import PLATFORM_SCHEMA, SensorEntity
 from homeassistant.config_entries import SOURCE_IMPORT
 from homeassistant.const import (
+    ATTR_IDENTIFIERS,
+    ATTR_MANUFACTURER,
+    ATTR_MODEL,
+    ATTR_NAME,
     CONF_CLIENT_ID,
     CONF_CLIENT_SECRET,
     CONF_NAME,
@@ -124,10 +128,10 @@ class FlumeSensor(CoordinatorEntity, SensorEntity):
     def device_info(self):
         """Device info for the flume sensor."""
         return {
-            "name": self._name,
-            "identifiers": {(DOMAIN, self._device_id)},
-            "manufacturer": "Flume, Inc.",
-            "model": "Flume Smart Water Monitor",
+            ATTR_NAME: self._name,
+            ATTR_IDENTIFIERS: {(DOMAIN, self._device_id)},
+            ATTR_MANUFACTURER: "Flume, Inc.",
+            ATTR_MODEL: "Flume Smart Water Monitor",
         }
 
     @property

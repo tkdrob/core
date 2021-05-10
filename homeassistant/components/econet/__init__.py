@@ -12,7 +12,14 @@ from pyeconet.errors import (
     PyeconetError,
 )
 
-from homeassistant.const import CONF_EMAIL, CONF_PASSWORD, TEMP_FAHRENHEIT
+from homeassistant.const import (
+    ATTR_IDENTIFIERS,
+    ATTR_MANUFACTURER,
+    ATTR_NAME,
+    CONF_EMAIL,
+    CONF_PASSWORD,
+    TEMP_FAHRENHEIT,
+)
 from homeassistant.core import callback
 from homeassistant.exceptions import ConfigEntryNotReady
 from homeassistant.helpers.dispatcher import dispatcher_send
@@ -131,9 +138,9 @@ class EcoNetEntity(Entity):
     def device_info(self):
         """Return device registry information for this entity."""
         return {
-            "identifiers": {(DOMAIN, self._econet.device_id)},
-            "manufacturer": "Rheem",
-            "name": self._econet.device_name,
+            ATTR_IDENTIFIERS: {(DOMAIN, self._econet.device_id)},
+            ATTR_MANUFACTURER: "Rheem",
+            ATTR_NAME: self._econet.device_name,
         }
 
     @property

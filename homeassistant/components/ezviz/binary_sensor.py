@@ -4,6 +4,13 @@ import logging
 from pyezviz.constants import BinarySensorType
 
 from homeassistant.components.binary_sensor import BinarySensorEntity
+from homeassistant.const import (
+    ATTR_IDENTIFIERS,
+    ATTR_MANUFACTURER,
+    ATTR_MODEL,
+    ATTR_NAME,
+    ATTR_SW_VERSION,
+)
 from homeassistant.helpers.update_coordinator import CoordinatorEntity
 
 from .const import DATA_COORDINATOR, DOMAIN, MANUFACTURER
@@ -64,11 +71,11 @@ class EzvizBinarySensor(CoordinatorEntity, BinarySensorEntity):
     def device_info(self):
         """Return the device_info of the device."""
         return {
-            "identifiers": {(DOMAIN, self._serial)},
-            "name": self.coordinator.data[self._idx]["name"],
-            "model": self.coordinator.data[self._idx]["device_sub_category"],
-            "manufacturer": MANUFACTURER,
-            "sw_version": self.coordinator.data[self._idx]["version"],
+            ATTR_IDENTIFIERS: {(DOMAIN, self._serial)},
+            ATTR_NAME: self.coordinator.data[self._idx]["name"],
+            ATTR_MODEL: self.coordinator.data[self._idx]["device_sub_category"],
+            ATTR_MANUFACTURER: MANUFACTURER,
+            ATTR_SW_VERSION: self.coordinator.data[self._idx]["version"],
         }
 
     @property

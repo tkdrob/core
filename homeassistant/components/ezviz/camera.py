@@ -9,7 +9,16 @@ import voluptuous as vol
 from homeassistant.components.camera import PLATFORM_SCHEMA, SUPPORT_STREAM, Camera
 from homeassistant.components.ffmpeg import DATA_FFMPEG
 from homeassistant.config_entries import SOURCE_DISCOVERY, SOURCE_IGNORE, SOURCE_IMPORT
-from homeassistant.const import CONF_IP_ADDRESS, CONF_PASSWORD, CONF_USERNAME
+from homeassistant.const import (
+    ATTR_IDENTIFIERS,
+    ATTR_MANUFACTURER,
+    ATTR_MODEL,
+    ATTR_NAME,
+    ATTR_SW_VERSION,
+    CONF_IP_ADDRESS,
+    CONF_PASSWORD,
+    CONF_USERNAME,
+)
 from homeassistant.helpers import config_validation as cv
 from homeassistant.helpers.restore_state import RestoreEntity
 from homeassistant.helpers.update_coordinator import CoordinatorEntity
@@ -250,11 +259,11 @@ class EzvizCamera(CoordinatorEntity, Camera, RestoreEntity):
     def device_info(self):
         """Return the device_info of the device."""
         return {
-            "identifiers": {(DOMAIN, self._serial)},
-            "name": self.coordinator.data[self._idx]["name"],
-            "model": self.coordinator.data[self._idx]["device_sub_category"],
-            "manufacturer": MANUFACTURER,
-            "sw_version": self.coordinator.data[self._idx]["version"],
+            ATTR_IDENTIFIERS: {(DOMAIN, self._serial)},
+            ATTR_NAME: self.coordinator.data[self._idx]["name"],
+            ATTR_MODEL: self.coordinator.data[self._idx]["device_sub_category"],
+            ATTR_MANUFACTURER: MANUFACTURER,
+            ATTR_SW_VERSION: self.coordinator.data[self._idx]["version"],
         }
 
     async def stream_source(self):

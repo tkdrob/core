@@ -7,7 +7,7 @@ import voluptuous as vol
 
 from homeassistant import config_entries, core
 from homeassistant.components.dhcp import IP_ADDRESS, MAC_ADDRESS
-from homeassistant.const import CONF_HOST, CONF_NAME
+from homeassistant.const import ATTR_NAME, CONF_HOST, CONF_NAME
 from homeassistant.helpers import aiohttp_client
 from homeassistant.helpers.device_registry import format_mac
 
@@ -68,7 +68,7 @@ class ConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
         await self.async_set_unique_id(format_mac(discovery_info[MAC_ADDRESS]))
         self._abort_if_unique_id_configured(updates={CONF_HOST: self.discovered_ip})
         name = name_short_mac(short_mac(discovery_info[MAC_ADDRESS]))
-        self.context["title_placeholders"] = {"name": name}
+        self.context["title_placeholders"] = {ATTR_NAME: name}
         try:
             self.discovered_info = await fetch_mac_and_title(
                 self.hass, self.discovered_ip
@@ -89,7 +89,7 @@ class ConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
             )
 
         self._set_confirm_only()
-        self.context["title_placeholders"] = {"name": self.discovered_info["title"]}
+        self.context["title_placeholders"] = {ATTR_NAME: self.discovered_info["title"]}
         return self.async_show_form(
             step_id="confirm",
             description_placeholders={
