@@ -5,8 +5,10 @@ from goalzero import Yeti, exceptions
 import voluptuous as vol
 
 from homeassistant import config_entries
-from homeassistant.const import CONF_HOST, CONF_NAME
+from homeassistant.components.dhcp import IP_ADDRESS, MAC_ADDRESS
+from homeassistant.const import ATTR_NAME, CONF_HOST, CONF_IP_ADDRESS, CONF_NAME
 from homeassistant.helpers.aiohttp_client import async_get_clientsession
+from homeassistant.helpers.device_registry import format_mac
 
 from .const import DEFAULT_NAME, DOMAIN
 
@@ -20,6 +22,24 @@ class GoalZeroFlowHandler(config_entries.ConfigFlow, domain=DOMAIN):
 
     VERSION = 1
 
+    async def async_step_dhcp(self, discovery_info):
+        """Handle dhcp discovery."""
+        await self.async_set_unique_id(format_mac(discovery_info[MAC_ADDRESS]))
+        self._abort_if_unique_id_configured()
+        for entry in self._async_current_entries():
+            if entry.data.get(CONF_IP_ADDRESS) == discovery_info[IP_ADDRESS]:
+                return self.async_abort(reason="already_configured")
+        result = await self._async_try_connect(entry.data.get(CONF_IP_ADDRESS))
+        if result.data[ATTR_NAME].match("yeti"):
+
+            self.context["title_placeholders"] = {CONF_HOST: discovery_info[IP_ADDRESS]}
+            # return await self.async_step_user()
+
+            self._set_confirm_only()
+            return self.async_show_form(step_id="confirm")
+        else:
+            _LOGGER.error("test")
+
     async def async_step_user(self, user_input=None):
         """Handle a flow initiated by the user."""
         errors = {}
@@ -30,7 +50,6 @@ class GoalZeroFlowHandler(config_entries.ConfigFlow, domain=DOMAIN):
 
             if await self._async_endpoint_existed(host):
                 return self.async_abort(reason="already_configured")
-
             try:
                 await self._async_try_connect(host)
             except exceptions.ConnectError:
@@ -73,4 +92,4 @@ class GoalZeroFlowHandler(config_entries.ConfigFlow, domain=DOMAIN):
     async def _async_try_connect(self, host):
         session = async_get_clientsession(self.hass)
         api = Yeti(host, self.hass.loop, session)
-        await api.get_state()
+        await api.sysinfo()

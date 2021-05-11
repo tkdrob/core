@@ -2,19 +2,14 @@
 
 from unittest.mock import AsyncMock, patch
 
+from homeassistant.components.goalzero.const import DEFAULT_NAME
 from homeassistant.const import CONF_HOST, CONF_NAME
 
 HOST = "1.2.3.4"
-NAME = "Yeti"
 
 CONF_DATA = {
     CONF_HOST: HOST,
-    CONF_NAME: NAME,
-}
-
-CONF_CONFIG_FLOW = {
-    CONF_HOST: HOST,
-    CONF_NAME: NAME,
+    CONF_NAME: DEFAULT_NAME,
 }
 
 
@@ -22,10 +17,6 @@ async def _create_mocked_yeti(raise_exception=False):
     mocked_yeti = AsyncMock()
     mocked_yeti.get_state = AsyncMock()
     return mocked_yeti
-
-
-def _patch_init_yeti(mocked_yeti):
-    return patch("homeassistant.components.goalzero.Yeti", return_value=mocked_yeti)
 
 
 def _patch_config_flow_yeti(mocked_yeti):
