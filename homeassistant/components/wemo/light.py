@@ -35,7 +35,7 @@ WEMO_ON = 1
 WEMO_OFF = 0
 
 
-async def async_setup_entry(hass, config_entry, async_add_entities):
+async def async_setup_entry(hass, entry, async_add_entities):
     """Set up WeMo lights."""
 
     async def _discovered_wemo(device):

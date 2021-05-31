@@ -36,7 +36,7 @@ DEFAULT_BRIGHTNESS_MAX = 255
 TASMOTA_BRIGHTNESS_MAX = 100
 
 
-async def async_setup_entry(hass, config_entry, async_add_entities):
+async def async_setup_entry(hass, entry, async_add_entities):
     """Set up Tasmota light dynamically through discovery."""
 
     @callback

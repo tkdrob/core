@@ -7,7 +7,7 @@ from homeassistant.helpers.dispatcher import async_dispatcher_connect
 from . import ZWaveDeviceEntity, const
 
 
-async def async_setup_entry(hass, config_entry, async_add_entities):
+async def async_setup_entry(hass, entry, async_add_entities):
     """Set up Z-Wave Sensor from Config Entry."""
 
     @callback

@@ -553,7 +553,7 @@ async def test_setup_entry(hass):
     """Test we can setup an entry."""
     registry = mock_registry(hass)
 
-    async def async_setup_entry(hass, config_entry, async_add_entities):
+    async def async_setup_entry(hass, entry, async_add_entities):
         """Mock setup entry method."""
         async_add_entities([MockEntity(name="test1", unique_id="unique")])
         return True
@@ -810,7 +810,7 @@ async def test_device_info_called(hass):
         model="via",
     )
 
-    async def async_setup_entry(hass, config_entry, async_add_entities):
+    async def async_setup_entry(hass, entry, async_add_entities):
         """Mock setup entry method."""
         async_add_entities(
             [
@@ -872,7 +872,7 @@ async def test_device_info_not_overrides(hass):
     assert device.manufacturer == "test-manufacturer"
     assert device.model == "test-model"
 
-    async def async_setup_entry(hass, config_entry, async_add_entities):
+    async def async_setup_entry(hass, entry, async_add_entities):
         """Mock setup entry method."""
         async_add_entities(
             [
@@ -1050,7 +1050,7 @@ async def test_setup_entry_with_entities_that_block_forever(hass, caplog):
     """Test we cancel adding entities when we reach the timeout."""
     registry = mock_registry(hass)
 
-    async def async_setup_entry(hass, config_entry, async_add_entities):
+    async def async_setup_entry(hass, entry, async_add_entities):
         """Mock setup entry method."""
         async_add_entities([MockBlockingEntity(name="test1", unique_id="unique")])
         return True

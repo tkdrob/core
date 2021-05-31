@@ -3,7 +3,7 @@ from homeassistant.components.remote import RemoteEntity
 from homeassistant.const import DEVICE_DEFAULT_NAME
 
 
-async def async_setup_entry(hass, config_entry, async_add_entities):
+async def async_setup_entry(hass, entry, async_add_entities):
     """Set up the Demo config entry."""
     setup_platform(hass, {}, async_add_entities)
 

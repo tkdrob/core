@@ -8,7 +8,7 @@ from . import SomfyEntity
 from .const import API, COORDINATOR, DOMAIN
 
 
-async def async_setup_entry(hass, config_entry, async_add_entities):
+async def async_setup_entry(hass, entry, async_add_entities):
     """Set up the Somfy switch platform."""
     domain_data = hass.data[DOMAIN]
     coordinator = domain_data[COORDINATOR]

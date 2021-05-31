@@ -19,7 +19,7 @@ from .utils import async_add_insteon_entities
 SUPPORTED_FEATURES = SUPPORT_OPEN | SUPPORT_CLOSE | SUPPORT_SET_POSITION
 
 
-async def async_setup_entry(hass, config_entry, async_add_entities):
+async def async_setup_entry(hass, entry, async_add_entities):
     """Set up the Insteon covers from a config entry."""
 
     @callback

@@ -24,7 +24,7 @@ DEV_TYPE_TO_HA = {
 }
 
 
-async def async_setup_entry(hass, config_entry, async_add_entities):
+async def async_setup_entry(hass, entry, async_add_entities):
     """Set up lights."""
 
     async def async_discover(devices):

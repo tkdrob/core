@@ -17,7 +17,7 @@ BINARY_SENSORS = (
 )
 
 
-async def async_setup_entry(hass, config_entry, async_add_entities):
+async def async_setup_entry(hass, entry, async_add_entities):
     """Defer sensor setup to the shared sensor module."""
     coordinator = hass.data[DOMAIN]
 

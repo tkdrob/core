@@ -17,7 +17,7 @@ SUPPORTED_FEATURES = SUPPORT_SET_SPEED
 SPEED_RANGE = (1, 99)  # off is not included
 
 
-async def async_setup_entry(hass, config_entry, async_add_entities):
+async def async_setup_entry(hass, entry, async_add_entities):
     """Set up Z-Wave Fan from Config Entry."""
 
     @callback

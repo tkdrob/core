@@ -29,7 +29,7 @@ _LOGGER = logging.getLogger(__name__)
 SUPPORT_GARAGE = SUPPORT_OPEN | SUPPORT_CLOSE
 
 
-async def async_setup_entry(hass, config_entry, async_add_entities):
+async def async_setup_entry(hass, entry, async_add_entities):
     """Set up Z-Wave Cover from Config Entry."""
 
     @callback

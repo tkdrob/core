@@ -37,7 +37,7 @@ SERVICE_DISABLE_LOCK_USER_CODE = "disable_lock_user_code"
 SERVICE_CLEAR_LOCK_USER_CODE = "clear_lock_user_code"
 
 
-async def async_setup_entry(hass, config_entry, async_add_entities):
+async def async_setup_entry(hass, entry, async_add_entities):
     """Set up the Zigbee Home Automation Door Lock from config entry."""
     entities_to_create = hass.data[DATA_ZHA][DOMAIN]
 

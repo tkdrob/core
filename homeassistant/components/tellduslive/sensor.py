@@ -57,7 +57,7 @@ SENSOR_TYPES = {
 }
 
 
-async def async_setup_entry(hass, config_entry, async_add_entities):
+async def async_setup_entry(hass, entry, async_add_entities):
     """Set up tellduslive sensors dynamically."""
 
     async def async_discover_sensor(device_id):

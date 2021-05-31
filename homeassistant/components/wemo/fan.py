@@ -65,7 +65,7 @@ SET_HUMIDITY_SCHEMA = {
 }
 
 
-async def async_setup_entry(hass, config_entry, async_add_entities):
+async def async_setup_entry(hass, entry, async_add_entities):
     """Set up WeMo binary sensors."""
 
     async def _discovered_wemo(device):

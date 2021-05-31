@@ -58,7 +58,7 @@ IAS_ACE_STATE_MAP = {
 }
 
 
-async def async_setup_entry(hass, config_entry, async_add_entities):
+async def async_setup_entry(hass, entry, async_add_entities):
     """Set up the Zigbee Home Automation alarm control panel from config entry."""
     entities_to_create = hass.data[DATA_ZHA][DOMAIN]
 

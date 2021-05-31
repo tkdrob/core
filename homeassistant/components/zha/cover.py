@@ -40,7 +40,7 @@ _LOGGER = logging.getLogger(__name__)
 STRICT_MATCH = functools.partial(ZHA_ENTITIES.strict_match, DOMAIN)
 
 
-async def async_setup_entry(hass, config_entry, async_add_entities):
+async def async_setup_entry(hass, entry, async_add_entities):
     """Set up the Zigbee Home Automation cover from config entry."""
     entities_to_create = hass.data[DATA_ZHA][DOMAIN]
 

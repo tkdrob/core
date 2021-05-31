@@ -10,7 +10,7 @@ from homeassistant.helpers.update_coordinator import CoordinatorEntity
 from .const import COORDINATORS, DISPATCH_DEVICE_DISCOVERED, DISPATCHERS, DOMAIN
 
 
-async def async_setup_entry(hass, config_entry, async_add_entities):
+async def async_setup_entry(hass, entry, async_add_entities):
     """Set up the Gree HVAC device from a config entry."""
 
     @callback

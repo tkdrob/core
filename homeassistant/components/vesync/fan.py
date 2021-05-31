@@ -31,7 +31,7 @@ PRESET_MODES = {
 SPEED_RANGE = (1, 3)  # off is not included
 
 
-async def async_setup_entry(hass, config_entry, async_add_entities):
+async def async_setup_entry(hass, entry, async_add_entities):
     """Set up the VeSync fan platform."""
 
     async def async_discover(devices):

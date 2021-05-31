@@ -12,7 +12,7 @@ from .discovery import TASMOTA_DISCOVERY_ENTITY_NEW
 from .mixins import TasmotaAvailability, TasmotaDiscoveryUpdate
 
 
-async def async_setup_entry(hass, config_entry, async_add_entities):
+async def async_setup_entry(hass, entry, async_add_entities):
     """Set up Tasmota cover dynamically through discovery."""
 
     @callback

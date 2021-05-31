@@ -150,7 +150,7 @@ SENSOR_UNIT_MAP = {
 }
 
 
-async def async_setup_entry(hass, config_entry, async_add_entities):
+async def async_setup_entry(hass, entry, async_add_entities):
     """Set up Tasmota sensor dynamically through discovery."""
 
     async def async_discover_sensor(tasmota_entity, discovery_hash):

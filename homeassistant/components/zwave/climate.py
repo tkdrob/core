@@ -129,7 +129,7 @@ DEFAULT_HVAC_MODES = [
 ]
 
 
-async def async_setup_entry(hass, config_entry, async_add_entities):
+async def async_setup_entry(hass, entry, async_add_entities):
     """Set up Z-Wave Climate device from Config Entry."""
 
     @callback

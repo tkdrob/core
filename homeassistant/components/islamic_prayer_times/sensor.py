@@ -8,7 +8,7 @@ import homeassistant.util.dt as dt_util
 from .const import DATA_UPDATED, DOMAIN, PRAYER_TIMES_ICON, SENSOR_TYPES
 
 
-async def async_setup_entry(hass, config_entry, async_add_entities):
+async def async_setup_entry(hass, entry, async_add_entities):
     """Set up the Islamic prayer times sensor platform."""
 
     client = hass.data[DOMAIN]

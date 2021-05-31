@@ -151,7 +151,7 @@ SYSTEM_MODE_2_HVAC = {
 ZCL_TEMP = 100
 
 
-async def async_setup_entry(hass, config_entry, async_add_entities):
+async def async_setup_entry(hass, entry, async_add_entities):
     """Set up the Zigbee Home Automation sensor from config entry."""
     entities_to_create = hass.data[DATA_ZHA][DOMAIN]
     unsub = async_dispatcher_connect(

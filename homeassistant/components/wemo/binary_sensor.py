@@ -11,7 +11,7 @@ from .entity import WemoSubscriptionEntity
 _LOGGER = logging.getLogger(__name__)
 
 
-async def async_setup_entry(hass, config_entry, async_add_entities):
+async def async_setup_entry(hass, entry, async_add_entities):
     """Set up WeMo binary sensors."""
 
     async def _discovered_wemo(device):

@@ -18,7 +18,7 @@ MODE_MANUAL = "manual"
 MODE_OFF = "off"
 
 
-async def async_setup_entry(hass, config_entry, async_add_entities):
+async def async_setup_entry(hass, entry, async_add_entities):
     """Set up the ecobee thermostat humidifier entity."""
     data = hass.data[DOMAIN]
     entities = []

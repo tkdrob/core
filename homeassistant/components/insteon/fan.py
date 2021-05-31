@@ -20,7 +20,7 @@ from .utils import async_add_insteon_entities
 SPEED_RANGE = (1, 255)  # off is not included
 
 
-async def async_setup_entry(hass, config_entry, async_add_entities):
+async def async_setup_entry(hass, entry, async_add_entities):
     """Set up the Insteon fans from a config entry."""
 
     @callback

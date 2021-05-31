@@ -100,7 +100,7 @@ class LightColorMode(enum.IntEnum):
     COLOR_TEMP = 0x02
 
 
-async def async_setup_entry(hass, config_entry, async_add_entities):
+async def async_setup_entry(hass, entry, async_add_entities):
     """Set up the Zigbee Home Automation light from config entry."""
     entities_to_create = hass.data[DATA_ZHA][light.DOMAIN]
 
