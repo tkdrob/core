@@ -1,0 +1,36 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "Tautulli",
+        "description": "To find your API key, open the Tautulli web interface and navigate to Settings and then to Web interface. The API key will be at the bottom of that page.",
+        "data": {
+          "host": "[%key:common::config_flow::data::host%]",
+          "api_key": "[%key:common::config_flow::data::api_key]",
+          "path": "Path",
+          "port": "[%key:common::config_flow::data::port]",
+          "ssl": "[%key:common::config_flow::data::ssl]",
+          "verify_ssl": "[%key:common::config_flow::data::verify_ssl]"
+        }
+      }
+    },
+    "error": {
+      "cannot_connect": "[%key:common::config_flow::error::cannot_connect%]",
+      "unknown": "[%key:common::config_flow::error::unknown%]"
+    },
+    "abort": {
+      "already_configured": "[%key:common::config_flow::abort::already_configured_service%]"
+    }
+  },
+  "options": {
+    "step": {
+      "tautulli_settings": {
+        "description": "Options for Tautulli",
+        "data": {
+          "monitored_users": "Monitored users",
+          "monitored_conditions": "Monitored conditions"
+        }
+      }
+    }
+  }
+}
