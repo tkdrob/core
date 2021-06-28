@@ -5,12 +5,12 @@ import asyncio
 import functools
 import logging
 import math
-from typing import Any, Callable
+from typing import Generic, TypeVar
 
 from aioesphomeapi import (
     APIClient,
     APIConnectionError,
-    DeviceInfo,
+    DeviceInfo as EsphomeDeviceInfo,
     EntityInfo,
     EntityState,
     HomeassistantServiceCall,
@@ -36,7 +36,7 @@ from homeassistant.helpers import template
 import homeassistant.helpers.config_validation as cv
 import homeassistant.helpers.device_registry as dr
 from homeassistant.helpers.dispatcher import async_dispatcher_connect
-from homeassistant.helpers.entity import Entity
+from homeassistant.helpers.entity import DeviceInfo, Entity
 from homeassistant.helpers.event import async_track_state_change_event
 from homeassistant.helpers.json import JSONEncoder
 from homeassistant.helpers.service import async_set_service_schema
@@ -48,6 +48,7 @@ from .entry_data import RuntimeEntryData
 
 DOMAIN = "esphome"
 _LOGGER = logging.getLogger(__name__)
+_T = TypeVar("_T")
 
 STORAGE_VERSION = 1
 
@@ -140,32 +141,65 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
                 )
             )
 
-    async def send_home_assistant_state_event(event: Event) -> None:
-        """Forward Home Assistant states updates to ESPHome."""
-        new_state = event.data.get("new_state")
-        if new_state is None:
-            return
-        entity_id = event.data.get("entity_id")
-        await cli.send_home_assistant_state(entity_id, new_state.state)
-
     async def _send_home_assistant_state(
-        entity_id: str, new_state: State | None
+        entity_id: str, attribute: str | None, state: State | None
     ) -> None:
         """Forward Home Assistant states to ESPHome."""
-        await cli.send_home_assistant_state(entity_id, new_state.state)
+        if state is None or (attribute and attribute not in state.attributes):
+            return
+
+        send_state = state.state
+        if attribute:
+            send_state = state.attributes[attribute]
+            # ESPHome only handles "on"/"off" for boolean values
+            if isinstance(send_state, bool):
+                send_state = "on" if send_state else "off"
+
+        await cli.send_home_assistant_state(entity_id, attribute, str(send_state))
 
     @callback
-    def async_on_state_subscription(entity_id: str) -> None:
+    def async_on_state_subscription(
+        entity_id: str, attribute: str | None = None
+    ) -> None:
         """Subscribe and forward states for requested entities."""
+
+        async def send_home_assistant_state_event(event: Event) -> None:
+            """Forward Home Assistant states updates to ESPHome."""
+
+            # Only communicate changes to the state or attribute tracked
+            if (
+                "old_state" in event.data
+                and "new_state" in event.data
+                and (
+                    (
+                        not attribute
+                        and event.data["old_state"].state
+                        == event.data["new_state"].state
+                    )
+                    or (
+                        attribute
+                        and attribute in event.data["old_state"].attributes
+                        and attribute in event.data["new_state"].attributes
+                        and event.data["old_state"].attributes[attribute]
+                        == event.data["new_state"].attributes[attribute]
+                    )
+                )
+            ):
+                return
+
+            await _send_home_assistant_state(
+                event.data["entity_id"], attribute, event.data.get("new_state")
+            )
+
         unsub = async_track_state_change_event(
             hass, [entity_id], send_home_assistant_state_event
         )
         entry_data.disconnect_callbacks.append(unsub)
-        new_state = hass.states.get(entity_id)
-        if new_state is None:
-            return
+
         # Send initial state
-        hass.async_create_task(_send_home_assistant_state(entity_id, new_state))
+        hass.async_create_task(
+            _send_home_assistant_state(entity_id, attribute, hass.states.get(entity_id))
+        )
 
     async def on_login() -> None:
         """Subscribe to states and list entities on successful API login."""
@@ -448,7 +482,7 @@ class ReconnectLogic(RecordUpdateListener):
 
 
 async def _async_setup_device_registry(
-    hass: HomeAssistant, entry: ConfigEntry, device_info: DeviceInfo
+    hass: HomeAssistant, entry: ConfigEntry, device_info: EsphomeDeviceInfo
 ):
     """Set up device registry feature for a particular config entry."""
     sw_version = device_info.esphome_version
@@ -688,36 +722,29 @@ def esphome_state_property(func):
     return _wrapper
 
 
-class EsphomeEnumMapper:
+class EsphomeEnumMapper(Generic[_T]):
     """Helper class to convert between hass and esphome enum values."""
 
-    def __init__(self, func: Callable[[], dict[int, str]]):
+    def __init__(self, mapping: dict[_T, str]) -> None:
         """Construct a EsphomeEnumMapper."""
-        self._func = func
+        # Add none mapping
+        mapping = {None: None, **mapping}
+        self._mapping = mapping
+        self._inverse: dict[str, _T] = {v: k for k, v in mapping.items()}
 
-    def from_esphome(self, value: int) -> str:
+    def from_esphome(self, value: _T | None) -> str | None:
         """Convert from an esphome int representation to a hass string."""
-        return self._func()[value]
+        return self._mapping[value]
 
-    def from_hass(self, value: str) -> int:
+    def from_hass(self, value: str) -> _T:
         """Convert from a hass string to a esphome int representation."""
-        inverse = {v: k for k, v in self._func().items()}
-        return inverse[value]
-
-
-def esphome_map_enum(func: Callable[[], dict[int, str]]):
-    """Map esphome int enum values to hass string constants.
-
-    This class has to be used as a decorator. This ensures the aioesphomeapi
-    import is only happening at runtime.
-    """
-    return EsphomeEnumMapper(func)
+        return self._inverse[value]
 
 
 class EsphomeBaseEntity(Entity):
     """Define a base esphome entity."""
 
-    def __init__(self, entry_id: str, component_key: str, key: int):
+    def __init__(self, entry_id: str, component_key: str, key: int) -> None:
         """Initialize."""
         self._entry_id = entry_id
         self._component_key = component_key
@@ -769,7 +796,7 @@ class EsphomeBaseEntity(Entity):
         return self._entry_data.old_info[self._component_key].get(self._key)
 
     @property
-    def _device_info(self) -> DeviceInfo:
+    def _device_info(self) -> EsphomeDeviceInfo:
         return self._entry_data.device_info
 
     @property
@@ -803,7 +830,7 @@ class EsphomeBaseEntity(Entity):
         return self._static_info.unique_id
 
     @property
-    def device_info(self) -> dict[str, Any]:
+    def device_info(self) -> DeviceInfo:
         """Return device registry information for this entity."""
         return {
             "connections": {(dr.CONNECTION_NETWORK_MAC, self._device_info.mac_address)}

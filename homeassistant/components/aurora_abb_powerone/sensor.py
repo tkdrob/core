@@ -5,7 +5,11 @@ import logging
 from aurorapy.client import AuroraError, AuroraSerialClient
 import voluptuous as vol
 
-from homeassistant.components.sensor import PLATFORM_SCHEMA
+from homeassistant.components.sensor import (
+    PLATFORM_SCHEMA,
+    STATE_CLASS_MEASUREMENT,
+    SensorEntity,
+)
 from homeassistant.config_entries import SOURCE_IMPORT
 from homeassistant.const import (
     CONF_ADDRESS,
@@ -69,6 +73,7 @@ class AuroraSensor(AuroraDevice):
     """Representation of a Sensor on a Aurora ABB PowerOne Solar inverter."""
 
     availableprev = True
+    _attr_state_class = STATE_CLASS_MEASUREMENT
 
     def __init__(self, client: AuroraSerialClient, data, name, typename):
         """Initialize the sensor."""
