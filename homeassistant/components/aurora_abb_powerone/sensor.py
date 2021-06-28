@@ -8,7 +8,6 @@ import voluptuous as vol
 from homeassistant.components.sensor import (
     PLATFORM_SCHEMA,
     STATE_CLASS_MEASUREMENT,
-    SensorEntity,
 )
 from homeassistant.config_entries import SOURCE_IMPORT
 from homeassistant.const import (
