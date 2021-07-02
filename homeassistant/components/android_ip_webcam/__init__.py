@@ -291,6 +291,8 @@ async def async_setup(hass, config):
 class AndroidIPCamEntity(Entity):
     """The Android device running IP Webcam."""
 
+    _attr_should_poll = False
+
     def __init__(self, host, ipcam):
         """Initialize the data object."""
         self._host = host
@@ -309,11 +311,6 @@ class AndroidIPCamEntity(Entity):
         self.async_on_remove(
             async_dispatcher_connect(self.hass, SIGNAL_UPDATE_DATA, async_ipcam_update)
         )
-
-    @property
-    def should_poll(self):
-        """Return True if entity has to be polled for state."""
-        return False
 
     @property
     def available(self):
