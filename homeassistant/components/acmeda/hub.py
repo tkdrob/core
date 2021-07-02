@@ -22,11 +22,7 @@ class PulseHub:
         self.tasks = []
         self.current_rollers = {}
         self.cleanup_callbacks = []
-
-    @property
-    def title(self):
-        """Return the title of the hub shown in the integrations list."""
-        return f"{self.api.id} ({self.api.host})"
+        self._attr_title = f"{self.api.id} ({self.api.host})"
 
     @property
     def host(self):
