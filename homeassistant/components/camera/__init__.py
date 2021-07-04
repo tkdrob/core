@@ -325,21 +325,11 @@ class Camera(Entity):
         self.content_type: str = DEFAULT_CONTENT_TYPE
         self.access_tokens: collections.deque = collections.deque([], 2)
         self.async_update_token()
-
-    @property
-    def should_poll(self) -> bool:
-        """No need to poll cameras."""
-        return False
-
-    @property
-    def entity_picture(self) -> str:
-        """Return a link to the camera feed as entity picture."""
-        return ENTITY_IMAGE_URL.format(self.entity_id, self.access_tokens[-1])
-
-    @property
-    def supported_features(self) -> int:
-        """Flag supported features."""
-        return 0
+        self._attr_should_poll = False
+        self._attr_entity_picture = ENTITY_IMAGE_URL.format(
+            self.entity_id, self.access_tokens[-1]
+        )
+        self._attr_supported_features = 0
 
     @property
     def is_recording(self) -> bool:
