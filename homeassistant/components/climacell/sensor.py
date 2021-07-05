@@ -30,6 +30,7 @@ from .const import (
     ATTR_METRIC_CONVERSION,
     ATTR_SCALE,
     ATTR_VALUE_MAP,
+    ATTRIBUTION,
     CC_SENSOR_TYPES,
     CC_V3_SENSOR_TYPES,
     DOMAIN,
@@ -63,6 +64,8 @@ async def async_setup_entry(
 class BaseClimaCellSensorEntity(ClimaCellEntity, SensorEntity):
     """Base ClimaCell sensor entity."""
 
+    _attr_entity_registry_enabled_default = False
+
     def __init__(
         self,
         config_entry: ConfigEntry,
@@ -73,26 +76,17 @@ class BaseClimaCellSensorEntity(ClimaCellEntity, SensorEntity):
         """Initialize ClimaCell Sensor Entity."""
         super().__init__(config_entry, coordinator, api_version)
         self.sensor_type = sensor_type
-
-    @property
-    def entity_registry_enabled_default(self) -> bool:
-        """Return if the entity should be enabled when first added to the entity registry."""
-        return False
-
-    @property
-    def name(self) -> str:
-        """Return the name of the entity."""
-        return f"{self._config_entry.data[CONF_NAME]} - {self.sensor_type[ATTR_NAME]}"
-
-    @property
-    def unique_id(self) -> str:
-        """Return the unique id of the entity."""
-        return f"{self._config_entry.unique_id}_{slugify(self.sensor_type[ATTR_NAME])}"
+        self._attr_name = (
+            f"{self._config_entry.data[CONF_NAME]} - {self.sensor_type[ATTR_NAME]}"
+        )
+        self._attr_unique_id = (
+            f"{self._config_entry.unique_id}_{slugify(self.sensor_type[ATTR_NAME])}"
+        )
 
     @property
     def extra_state_attributes(self) -> Mapping[str, Any] | None:
         """Return entity specific state attributes."""
-        return {ATTR_ATTRIBUTION: self.attribution}
+        return {ATTR_ATTRIBUTION: ATTRIBUTION}
 
     @property
     def unit_of_measurement(self) -> str | None:

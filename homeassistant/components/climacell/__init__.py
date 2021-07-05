@@ -27,7 +27,6 @@ from homeassistant.const import (
 )
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.aiohttp_client import async_get_clientsession
-from homeassistant.helpers.entity import DeviceInfo
 from homeassistant.helpers.update_coordinator import (
     CoordinatorEntity,
     DataUpdateCoordinator,
@@ -317,8 +316,14 @@ class ClimaCellEntity(CoordinatorEntity):
     ) -> None:
         """Initialize ClimaCell Entity."""
         super().__init__(coordinator)
-        self.api_version = api_version
         self._config_entry = config_entry
+        self._attr_device_info = {
+            "identifiers": {(DOMAIN, self._config_entry.data[CONF_API_KEY])},
+            "name": "ClimaCell",
+            "manufacturer": "ClimaCell",
+            "sw_version": f"v{api_version}",
+            "entry_type": "service",
+        }
 
     @staticmethod
     def _get_cc_value(
@@ -357,14 +362,3 @@ class ClimaCellEntity(CoordinatorEntity):
     def attribution(self):
         """Return the attribution."""
         return ATTRIBUTION
-
-    @property
-    def device_info(self) -> DeviceInfo:
-        """Return device registry information."""
-        return {
-            "identifiers": {(DOMAIN, self._config_entry.data[CONF_API_KEY])},
-            "name": "ClimaCell",
-            "manufacturer": "ClimaCell",
-            "sw_version": f"v{self.api_version}",
-            "entry_type": "service",
-        }
