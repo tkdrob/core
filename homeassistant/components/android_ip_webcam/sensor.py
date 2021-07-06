@@ -39,29 +39,18 @@ class IPWebcamSensor(AndroidIPCamEntity, SensorEntity):
         super().__init__(host, ipcam)
 
         self._sensor = sensor
-        self._mapped_name = KEY_MAP.get(self._sensor, self._sensor)
-        self._attr_name = f"{name} {self._mapped_name}"
-        self._state = None
-        self._attr_unit = None
-
-    @property
-    def state(self):
-        """Return the state of the sensor."""
-        return self._state
+        self._attr_name = f"{name} {KEY_MAP.get(sensor, sensor)}"
 
     async def async_update(self):
         """Retrieve latest state."""
         if self._sensor in ("audio_connections", "video_connections"):
             if not self._ipcam.status_data:
                 return
-            self._state = self._ipcam.status_data.get(self._sensor)
-            self._Attr_unit = "Connections"
+            self._attr_state = self._ipcam.status_data.get(self._sensor)
+            self._attr_unit = "Connections"
         else:
-            self._state, self._attr_unit = self._ipcam.export_sensor(self._sensor)
-
-    @property
-    def icon(self):
-        """Return the icon for the sensor."""
+            self._attr_state, self._attr_unit = self._ipcam.export_sensor(self._sensor)
         if self._sensor == "battery_level" and self._state is not None:
-            return icon_for_battery_level(int(self._state))
-        return ICON_MAP.get(self._sensor, "mdi:eye")
+            self._attr_icon = icon_for_battery_level(int(self._state))
+        else:
+            self._attr_icon = ICON_MAP.get(self._sensor, "mdi:eye")

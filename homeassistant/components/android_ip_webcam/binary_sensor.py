@@ -29,17 +29,9 @@ class IPWebcamBinarySensor(AndroidIPCamEntity, BinarySensorEntity):
         super().__init__(host, ipcam)
 
         self._sensor = sensor
-        self._mapped_name = KEY_MAP.get(self._sensor, self._sensor)
-        self._attr_name = f"{name} {self._mapped_name}"
-        self._state = None
-        self._unit = None
-
-    @property
-    def is_on(self):
-        """Return true if the binary sensor is on."""
-        return self._state
+        self._attr_name = f"{name} {KEY_MAP.get(sensor, sensor)}"
 
     async def async_update(self):
         """Retrieve latest state."""
         state, _ = self._ipcam.export_sensor(self._sensor)
-        self._state = state == 1.0
+        self._attr_state = state == 1.0
