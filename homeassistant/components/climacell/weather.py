@@ -130,7 +130,7 @@ class BaseClimaCellWeatherEntity(ClimaCellEntity, WeatherEntity):
             f"{self._config_entry.data[CONF_NAME]} - {self.forecast_type.title()}"
         )
         self._attr_entity_registry_enabled_default = (
-            True if self.forecast_type == DEFAULT_FORECAST_TYPE else False
+            self.forecast_type == DEFAULT_FORECAST_TYPE
         )
         self._attr_unique_id = f"{self._config_entry.unique_id}_{self.forecast_type}"
 
@@ -201,6 +201,24 @@ class BaseClimaCellWeatherEntity(ClimaCellEntity, WeatherEntity):
             ATTR_WIND_GUST: wind_gust,
             ATTR_PRECIPITATION_TYPE: self.precipitation_type,
         }
+        if self.hass.config.units.is_metric and self._visibility:
+            self._attr_visibility = round(
+                distance_convert(self._visibility, LENGTH_MILES, LENGTH_KILOMETERS), 4
+            )
+        else:
+            self._attr_visibility = self.visibility
+        if self.hass.config.units.is_metric and self._pressure:
+            self._attr_pressure = round(
+                pressure_convert(self._pressure, PRESSURE_INHG, PRESSURE_HPA), 4
+            )
+        else:
+            self._attr_pressure = self._pressure
+        if self.hass.config.units.is_metric and self._wind_speed:
+            self._attr_wind_speed = round(
+                distance_convert(self._wind_speed, LENGTH_MILES, LENGTH_KILOMETERS), 4
+            )
+        else:
+            self._attr_wind_speed = self._wind_speed
 
     @property
     @abstractmethod
@@ -223,41 +241,14 @@ class BaseClimaCellWeatherEntity(ClimaCellEntity, WeatherEntity):
         """Return the raw pressure."""
 
     @property
-    def pressure(self):
-        """Return the pressure."""
-        if self.hass.config.units.is_metric and self._pressure:
-            return round(
-                pressure_convert(self._pressure, PRESSURE_INHG, PRESSURE_HPA), 4
-            )
-        return self._pressure
-
-    @property
     @abstractmethod
     def _wind_speed(self):
         """Return the raw wind speed."""
 
     @property
-    def wind_speed(self):
-        """Return the wind speed."""
-        if self.hass.config.units.is_metric and self._wind_speed:
-            return round(
-                distance_convert(self._wind_speed, LENGTH_MILES, LENGTH_KILOMETERS), 4
-            )
-        return self._wind_speed
-
-    @property
     @abstractmethod
     def _visibility(self):
         """Return the raw visibility."""
-
-    @property
-    def visibility(self):
-        """Return the visibility."""
-        if self.hass.config.units.is_metric and self._visibility:
-            return round(
-                distance_convert(self._visibility, LENGTH_MILES, LENGTH_KILOMETERS), 4
-            )
-        return self._visibility
 
 
 class ClimaCellWeatherEntity(BaseClimaCellWeatherEntity):

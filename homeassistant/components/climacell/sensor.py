@@ -76,11 +76,9 @@ class BaseClimaCellSensorEntity(ClimaCellEntity, SensorEntity):
         """Initialize ClimaCell Sensor Entity."""
         super().__init__(config_entry, coordinator, api_version)
         self.sensor_type = sensor_type
-        self._attr_name = (
-            f"{self._config_entry.data[CONF_NAME]} - {self.sensor_type[ATTR_NAME]}"
-        )
+        self._attr_name = f"{config_entry.data[CONF_NAME]} - {sensor_type[ATTR_NAME]}"
         self._attr_unique_id = (
-            f"{self._config_entry.unique_id}_{slugify(self.sensor_type[ATTR_NAME])}"
+            f"{config_entry.unique_id}_{slugify(sensor_type[ATTR_NAME])}"
         )
 
     @property
@@ -92,19 +90,19 @@ class BaseClimaCellSensorEntity(ClimaCellEntity, SensorEntity):
     def unit_of_measurement(self) -> str | None:
         """Return the unit of measurement."""
         if CONF_UNIT_OF_MEASUREMENT in self.sensor_type:
-            return self.sensor_type[CONF_UNIT_OF_MEASUREMENT]
+            self._attr_unit_of_measurement = self.sensor_type[CONF_UNIT_OF_MEASUREMENT]
 
-        if (
+        elif (
             CONF_UNIT_SYSTEM_IMPERIAL in self.sensor_type
             and CONF_UNIT_SYSTEM_METRIC in self.sensor_type
         ):
-            return (
+            self._attr_unit_of_measurement = (
                 self.sensor_type[CONF_UNIT_SYSTEM_METRIC]
                 if self.hass.config.units.is_metric
                 else self.sensor_type[CONF_UNIT_SYSTEM_IMPERIAL]
             )
-
-        return None
+        else:
+            self._attr_unit_of_measurement = None
 
     @property
     @abstractmethod
