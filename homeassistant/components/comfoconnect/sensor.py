@@ -260,12 +260,18 @@ def setup_platform(hass, config, add_entities, discovery_info=None):
 class ComfoConnectSensor(SensorEntity):
     """Representation of a ComfoConnect sensor."""
 
+    _attr_should_poll = False
+
     def __init__(self, name, ccb: ComfoConnectBridge, sensor_type) -> None:
         """Initialize the ComfoConnect sensor."""
         self._ccb = ccb
         self._sensor_type = sensor_type
-        self._sensor_id = SENSOR_TYPES[self._sensor_type][ATTR_ID]
-        self._name = name
+        self._sensor_id = SENSOR_TYPES[sensor_type][ATTR_ID]
+        self._attr_name = name
+        self._attr_unique_id = f"{ccb.unique_id}-{sensor_type}"
+        self._attr_icon = str(SENSOR_TYPES[sensor_type][ATTR_ICON])
+        self._attr_unit_of_measurement = str(SENSOR_TYPES[sensor_type][ATTR_UNIT])
+        self._attr_device_class = str(SENSOR_TYPES[sensor_type][ATTR_DEVICE_CLASS])
 
     async def async_added_to_hass(self):
         """Register for sensor updates."""
@@ -303,33 +309,3 @@ class ComfoConnectSensor(SensorEntity):
             return self._ccb.data[self._sensor_id]
         except KeyError:
             return None
-
-    @property
-    def should_poll(self) -> bool:
-        """Do not poll."""
-        return False
-
-    @property
-    def unique_id(self):
-        """Return a unique_id for this entity."""
-        return f"{self._ccb.unique_id}-{self._sensor_type}"
-
-    @property
-    def name(self):
-        """Return the name of the sensor."""
-        return self._name
-
-    @property
-    def icon(self):
-        """Return the icon to use in the frontend."""
-        return SENSOR_TYPES[self._sensor_type][ATTR_ICON]
-
-    @property
-    def unit_of_measurement(self):
-        """Return the unit of measurement of this entity."""
-        return SENSOR_TYPES[self._sensor_type][ATTR_UNIT]
-
-    @property
-    def device_class(self):
-        """Return the device_class."""
-        return SENSOR_TYPES[self._sensor_type][ATTR_DEVICE_CLASS]

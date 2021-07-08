@@ -44,10 +44,15 @@ def setup_platform(hass, config, add_entities, discovery_info=None):
 class ComfoConnectFan(FanEntity):
     """Representation of the ComfoConnect fan platform."""
 
+    _attr_icon = "mdi:air-conditioner"
+    _attr_should_poll = False
+    _attr_supported_features = SUPPORT_SET_SPEED
+
     def __init__(self, name, ccb: ComfoConnectBridge) -> None:
         """Initialize the ComfoConnect fan."""
         self._ccb = ccb
-        self._name = name
+        self._attr_name = name
+        self._attr_unique_id = ccb.unique_id
 
     async def async_added_to_hass(self):
         """Register for sensor updates."""
@@ -70,31 +75,6 @@ class ComfoConnectFan(FanEntity):
         )
         self._ccb.data[SENSOR_FAN_SPEED_MODE] = value
         self.schedule_update_ha_state()
-
-    @property
-    def should_poll(self) -> bool:
-        """Do not poll."""
-        return False
-
-    @property
-    def unique_id(self):
-        """Return a unique_id for this entity."""
-        return self._ccb.unique_id
-
-    @property
-    def name(self):
-        """Return the name of the fan."""
-        return self._name
-
-    @property
-    def icon(self):
-        """Return the icon to use in the frontend."""
-        return "mdi:air-conditioner"
-
-    @property
-    def supported_features(self) -> int:
-        """Flag supported features."""
-        return SUPPORT_SET_SPEED
 
     @property
     def percentage(self) -> int | None:
