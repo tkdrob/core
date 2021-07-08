@@ -53,7 +53,6 @@ def setup_platform(hass, config, add_entities, discovery_info=None):
 
         covers.append(
             CommandCover(
-                hass,
                 device_config.get(CONF_FRIENDLY_NAME, device_name),
                 device_config[CONF_COMMAND_OPEN],
                 device_config[CONF_COMMAND_CLOSE],
@@ -76,7 +75,6 @@ class CommandCover(CoverEntity):
 
     def __init__(
         self,
-        hass,
         name,
         command_open,
         command_close,
@@ -86,15 +84,14 @@ class CommandCover(CoverEntity):
         timeout,
     ):
         """Initialize the cover."""
-        self._hass = hass
-        self._name = name
-        self._state = None
+        self._attr_name = name
         self._command_open = command_open
         self._command_close = command_close
         self._command_stop = command_stop
         self._command_state = command_state
         self._value_template = value_template
         self._timeout = timeout
+        self._attr_should_poll = command_state is not None
 
     def _move_cover(self, command):
         """Execute the actual commands."""
@@ -108,28 +105,10 @@ class CommandCover(CoverEntity):
         return success
 
     @property
-    def should_poll(self):
-        """Only poll if we have state command."""
-        return self._command_state is not None
-
-    @property
-    def name(self):
-        """Return the name of the cover."""
-        return self._name
-
-    @property
     def is_closed(self):
         """Return if the cover is closed."""
         if self.current_cover_position is not None:
             return self.current_cover_position == 0
-
-    @property
-    def current_cover_position(self):
-        """Return current position of cover.
-
-        None is unknown, 0 is closed, 100 is fully open.
-        """
-        return self._state
 
     def _query_state(self):
         """Query for the state."""
@@ -142,7 +121,7 @@ class CommandCover(CoverEntity):
             payload = str(self._query_state())
             if self._value_template:
                 payload = self._value_template.render_with_possible_json_value(payload)
-            self._state = int(payload)
+            self._attr_current_cover_position = int(payload)
 
     def open_cover(self, **kwargs):
         """Open the cover."""

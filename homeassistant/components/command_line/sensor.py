@@ -58,7 +58,7 @@ def setup_platform(hass, config, add_entities, discovery_info=None):
     data = CommandSensorData(hass, command, command_timeout)
 
     add_entities(
-        [CommandSensor(hass, data, name, unit, value_template, json_attributes)], True
+        [CommandSensor(data, name, unit, value_template, json_attributes)], True
     )
 
 
@@ -66,37 +66,14 @@ class CommandSensor(SensorEntity):
     """Representation of a sensor that is using shell commands."""
 
     def __init__(
-        self, hass, data, name, unit_of_measurement, value_template, json_attributes
+        self, data, name, unit_of_measurement, value_template, json_attributes
     ):
         """Initialize the sensor."""
-        self._hass = hass
         self.data = data
-        self._attributes = None
         self._json_attributes = json_attributes
-        self._name = name
-        self._state = None
-        self._unit_of_measurement = unit_of_measurement
+        self._attr_name = name
+        self._attr_unit_of_measurement = unit_of_measurement
         self._value_template = value_template
-
-    @property
-    def name(self):
-        """Return the name of the sensor."""
-        return self._name
-
-    @property
-    def unit_of_measurement(self):
-        """Return the unit the value is expressed in."""
-        return self._unit_of_measurement
-
-    @property
-    def state(self):
-        """Return the state of the device."""
-        return self._state
-
-    @property
-    def extra_state_attributes(self):
-        """Return the state attributes."""
-        return self._attributes
 
     def update(self):
         """Get the latest data and updates the state."""
@@ -104,12 +81,12 @@ class CommandSensor(SensorEntity):
         value = self.data.value
 
         if self._json_attributes:
-            self._attributes = {}
+            self._attr_extra_state_attributes = {}
             if value:
                 try:
                     json_dict = json.loads(value)
                     if isinstance(json_dict, Mapping):
-                        self._attributes = {
+                        self._attr_extra_state_attributes = {
                             k: json_dict[k]
                             for k in self._json_attributes
                             if k in json_dict
@@ -124,11 +101,11 @@ class CommandSensor(SensorEntity):
         if value is None:
             value = STATE_UNKNOWN
         elif self._value_template is not None:
-            self._state = self._value_template.render_with_possible_json_value(
+            self._attr_state = self._value_template.render_with_possible_json_value(
                 value, STATE_UNKNOWN
             )
         else:
-            self._state = value
+            self._attr_state = value
 
 
 class CommandSensorData:

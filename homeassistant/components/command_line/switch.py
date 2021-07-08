@@ -91,13 +91,14 @@ class CommandSwitch(SwitchEntity):
         """Initialize the switch."""
         self._hass = hass
         self.entity_id = ENTITY_ID_FORMAT.format(object_id)
-        self._name = friendly_name
-        self._state = False
+        self._attr_name = friendly_name
+        self._attr_is_on = False
         self._command_on = command_on
         self._command_off = command_off
         self._command_state = command_state
         self._value_template = value_template
         self._timeout = timeout
+        self._attr_should_poll = command_state is not None
 
     def _switch(self, command):
         """Execute the actual commands."""
@@ -123,21 +124,6 @@ class CommandSwitch(SwitchEntity):
         )
 
     @property
-    def should_poll(self):
-        """Only poll if we have state command."""
-        return self._command_state is not None
-
-    @property
-    def name(self):
-        """Return the name of the switch."""
-        return self._name
-
-    @property
-    def is_on(self):
-        """Return true if device is on."""
-        return self._state
-
-    @property
     def assumed_state(self):
         """Return true if we do optimistic updates."""
         return self._command_state is None
@@ -154,16 +140,16 @@ class CommandSwitch(SwitchEntity):
             payload = str(self._query_state())
             if self._value_template:
                 payload = self._value_template.render_with_possible_json_value(payload)
-            self._state = payload.lower() == "true"
+            self._attr_is_on = payload.lower() == "true"
 
     def turn_on(self, **kwargs):
         """Turn the device on."""
         if self._switch(self._command_on) and not self._command_state:
-            self._state = True
+            self._attr_is_on = True
             self.schedule_update_ha_state()
 
     def turn_off(self, **kwargs):
         """Turn the device off."""
         if self._switch(self._command_off) and not self._command_state:
-            self._state = False
+            self._attr_is_on = False
             self.schedule_update_ha_state()

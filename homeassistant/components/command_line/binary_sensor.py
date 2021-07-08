@@ -61,7 +61,7 @@ def setup_platform(hass, config, add_entities, discovery_info=None):
     add_entities(
         [
             CommandBinarySensor(
-                hass, data, name, device_class, payload_on, payload_off, value_template
+                data, name, device_class, payload_on, payload_off, value_template
             )
         ],
         True,
@@ -72,32 +72,16 @@ class CommandBinarySensor(BinarySensorEntity):
     """Representation of a command line binary sensor."""
 
     def __init__(
-        self, hass, data, name, device_class, payload_on, payload_off, value_template
+        self, data, name, device_class, payload_on, payload_off, value_template
     ):
         """Initialize the Command line binary sensor."""
-        self._hass = hass
         self.data = data
-        self._name = name
-        self._device_class = device_class
-        self._state = False
+        self._attr_name = name
+        self._attr_device_class = device_class
+        self._attr_is_on = False
         self._payload_on = payload_on
         self._payload_off = payload_off
         self._value_template = value_template
-
-    @property
-    def name(self):
-        """Return the name of the sensor."""
-        return self._name
-
-    @property
-    def is_on(self):
-        """Return true if the binary sensor is on."""
-        return self._state
-
-    @property
-    def device_class(self):
-        """Return the class of the binary sensor."""
-        return self._device_class
 
     def update(self):
         """Get the latest data and updates the state."""
@@ -107,6 +91,6 @@ class CommandBinarySensor(BinarySensorEntity):
         if self._value_template is not None:
             value = self._value_template.render_with_possible_json_value(value, False)
         if value == self._payload_on:
-            self._state = True
+            self._attr_is_on = True
         elif value == self._payload_off:
-            self._state = False
+            self._attr_is_on = False
