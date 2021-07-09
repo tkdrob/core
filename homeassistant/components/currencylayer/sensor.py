@@ -57,44 +57,21 @@ def setup_platform(hass, config, add_entities, discovery_info=None):
 class CurrencylayerSensor(SensorEntity):
     """Implementing the Currencylayer sensor."""
 
+    _attr_icon = ICON
+
     def __init__(self, rest, base, quote):
         """Initialize the sensor."""
         self.rest = rest
-        self._quote = quote
-        self._base = base
-        self._state = None
-
-    @property
-    def unit_of_measurement(self):
-        """Return the unit of measurement of this entity, if any."""
-        return self._quote
-
-    @property
-    def name(self):
-        """Return the name of the sensor."""
-        return self._base
-
-    @property
-    def icon(self):
-        """Return the icon to use in the frontend, if any."""
-        return ICON
-
-    @property
-    def state(self):
-        """Return the state of the sensor."""
-        return self._state
-
-    @property
-    def extra_state_attributes(self):
-        """Return the state attributes of the sensor."""
-        return {ATTR_ATTRIBUTION: ATTRIBUTION}
+        self._attr_unit_of_measurement = quote
+        self._attr_name = base
 
     def update(self):
         """Update current date."""
         self.rest.update()
         value = self.rest.data
         if value is not None:
-            self._state = round(value[f"{self._base}{self._quote}"], 4)
+            self._attr_state = round(value[f"{self.name}{self.unit_of_measurement}"], 4)
+        self._attr_extra_state_attributes = {ATTR_ATTRIBUTION: ATTRIBUTION}
 
 
 class CurrencylayerData:
