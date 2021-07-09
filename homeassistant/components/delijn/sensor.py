@@ -61,26 +61,24 @@ class DeLijnPublicTransportSensor(SensorEntity):
     """Representation of a Ruter sensor."""
 
     _attr_device_class = DEVICE_CLASS_TIMESTAMP
+    _attr_icon = "mdi:bus"
 
     def __init__(self, line):
         """Initialize the sensor."""
         self.line = line
-        self._attributes = {ATTR_ATTRIBUTION: ATTRIBUTION}
-        self._name = None
-        self._state = None
-        self._available = True
+        self._attr_extra_state_attributes = {ATTR_ATTRIBUTION: ATTRIBUTION}
 
     async def async_update(self):
         """Get the latest data from the De Lijn API."""
         try:
             await self.line.get_passages()
-            self._name = await self.line.get_stopname()
+            self._attr_name = await self.line.get_stopname()
         except HttpException:
-            self._available = False
+            self._attr_available = False
             _LOGGER.error("De Lijn http error")
             return
 
-        self._attributes["stopname"] = self._name
+        self._attr_extra_state_attributes["stopname"] = self.name
 
         try:
             first = self.line.passages[0]
@@ -88,40 +86,25 @@ class DeLijnPublicTransportSensor(SensorEntity):
                 first_passage = first["due_at_realtime"]
             else:
                 first_passage = first["due_at_schedule"]
-            self._state = first_passage
-            self._attributes["line_number_public"] = first["line_number_public"]
-            self._attributes["line_transport_type"] = first["line_transport_type"]
-            self._attributes["final_destination"] = first["final_destination"]
-            self._attributes["due_at_schedule"] = first["due_at_schedule"]
-            self._attributes["due_at_realtime"] = first["due_at_realtime"]
-            self._attributes["is_realtime"] = first["is_realtime"]
-            self._attributes["next_passages"] = self.line.passages
-            self._available = True
+            self._attr_state = first_passage
+            self._attr_extra_state_attributes["line_number_public"] = first[
+                "line_number_public"
+            ]
+            self._attr_extra_state_attributes["line_transport_type"] = first[
+                "line_transport_type"
+            ]
+            self._attr_extra_state_attributes["final_destination"] = first[
+                "final_destination"
+            ]
+            self._attr_extra_state_attributes["due_at_schedule"] = first[
+                "due_at_schedule"
+            ]
+            self._attr_extra_state_attributes["due_at_realtime"] = first[
+                "due_at_realtime"
+            ]
+            self._attr_extra_state_attributes["is_realtime"] = first["is_realtime"]
+            self._attr_extra_state_attributes["next_passages"] = self.line.passages
+            self._attr_available = True
         except (KeyError, IndexError):
             _LOGGER.error("Invalid data received from De Lijn")
-            self._available = False
-
-    @property
-    def available(self):
-        """Return True if entity is available."""
-        return self._available
-
-    @property
-    def name(self):
-        """Return the name of the sensor."""
-        return self._name
-
-    @property
-    def state(self):
-        """Return the state of the sensor."""
-        return self._state
-
-    @property
-    def icon(self):
-        """Return the icon of the sensor."""
-        return "mdi:bus"
-
-    @property
-    def extra_state_attributes(self):
-        """Return attributes for the sensor."""
-        return self._attributes
+            self._attr_available = False
