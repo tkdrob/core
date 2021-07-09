@@ -132,6 +132,7 @@ class DeconzBaseLight(DeconzDevice, LightEntity):
 
         if device.effect is not None:
             self._attr_supported_features |= SUPPORT_EFFECT
+        self._attr_effect_list = [EFFECT_COLORLOOP]
 
     @property
     def color_mode(self) -> str:
@@ -152,11 +153,6 @@ class DeconzBaseLight(DeconzDevice, LightEntity):
     def brightness(self):
         """Return the brightness of this light between 0..255."""
         return self._device.brightness
-
-    @property
-    def effect_list(self):
-        """Return the list of supported effects."""
-        return [EFFECT_COLORLOOP]
 
     @property
     def color_temp(self):
