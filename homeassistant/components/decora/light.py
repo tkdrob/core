@@ -88,58 +88,29 @@ def setup_platform(hass, config, add_entities, discovery_info=None):
 class DecoraLight(LightEntity):
     """Representation of an Decora light."""
 
+    _attr_assumed_state = False
+    _attr_supported_features = SUPPORT_DECORA_LED
+
     def __init__(self, device):
         """Initialize the light."""
 
-        self._name = device["name"]
-        self._address = device["address"]
-        self._key = device["key"]
-        self._switch = decora.decora(self._address, self._key)
-        self._brightness = 0
-        self._state = False
-
-    @property
-    def unique_id(self):
-        """Return the ID of this light."""
-        return self._address
-
-    @property
-    def name(self):
-        """Return the name of the device if any."""
-        return self._name
-
-    @property
-    def is_on(self):
-        """Return true if device is on."""
-        return self._state
-
-    @property
-    def brightness(self):
-        """Return the brightness of this light between 0..255."""
-        return self._brightness
-
-    @property
-    def supported_features(self):
-        """Flag supported features."""
-        return SUPPORT_DECORA_LED
-
-    @property
-    def assumed_state(self):
-        """We can read the actual state."""
-        return False
+        self._attr_name = device["name"]
+        self._attr_unique_id = device["address"]
+        self._switch = decora.decora(self.unique_id, device["key"])
+        self._attr_brightness = 0
 
     @retry
     def set_state(self, brightness):
         """Set the state of this lamp to the provided brightness."""
         self._switch.set_brightness(int(brightness / 2.55))
-        self._brightness = brightness
+        self._attr_brightness = brightness
 
     @retry
     def turn_on(self, **kwargs):
         """Turn the specified or all lights on."""
         brightness = kwargs.get(ATTR_BRIGHTNESS)
         self._switch.on()
-        self._state = True
+        self._attr_state = True
 
         if brightness is not None:
             self.set_state(brightness)
@@ -148,10 +119,10 @@ class DecoraLight(LightEntity):
     def turn_off(self, **kwargs):
         """Turn the specified or all lights off."""
         self._switch.off()
-        self._state = False
+        self._attr_state = False
 
     @retry
     def update(self):
         """Synchronise internal state with the actual light state."""
-        self._brightness = self._switch.get_brightness() * 2.55
-        self._state = self._switch.get_on()
+        self._attr_brightness = self._switch.get_brightness() * 2.55
+        self._attr_state = self._switch.get_on()
