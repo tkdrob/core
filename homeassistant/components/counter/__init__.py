@@ -173,11 +173,16 @@ class CounterStorageCollection(collection.StorageCollection):
 class Counter(RestoreEntity):
     """Representation of a counter."""
 
+    _attr_should_poll = False
+
     def __init__(self, config: dict) -> None:
         """Initialize a counter."""
         self._config: dict = config
-        self._state: int | None = config[CONF_INITIAL]
+        self._attr_state: int | None = config[CONF_INITIAL]
         self.editable: bool = True
+        self._attr_name = config.get(CONF_NAME)
+        self._attr_icon = config.get(CONF_ICON)
+        self._attr_unique_id = config[CONF_ID]
 
     @classmethod
     def from_yaml(cls, config: dict) -> Counter:
@@ -186,26 +191,6 @@ class Counter(RestoreEntity):
         counter.editable = False
         counter.entity_id = ENTITY_ID_FORMAT.format(config[CONF_ID])
         return counter
-
-    @property
-    def should_poll(self) -> bool:
-        """If entity should be polled."""
-        return False
-
-    @property
-    def name(self) -> str | None:
-        """Return name of the counter."""
-        return self._config.get(CONF_NAME)
-
-    @property
-    def icon(self) -> str | None:
-        """Return the icon to be used for this entity."""
-        return self._config.get(CONF_ICON)
-
-    @property
-    def state(self) -> int | None:
-        """Return the current value of the counter."""
-        return self._state
 
     @property
     def extra_state_attributes(self) -> dict:
@@ -221,11 +206,6 @@ class Counter(RestoreEntity):
             ret[CONF_MAXIMUM] = self._config[CONF_MAXIMUM]
         return ret
 
-    @property
-    def unique_id(self) -> str | None:
-        """Return unique id of the entity."""
-        return self._config[CONF_ID]
-
     def compute_next_state(self, state) -> int:
         """Keep the state within the range of min/max values."""
         if self._config[CONF_MINIMUM] is not None:
@@ -238,12 +218,12 @@ class Counter(RestoreEntity):
     async def async_added_to_hass(self) -> None:
         """Call when entity about to be added to Home Assistant."""
         await super().async_added_to_hass()
-        # __init__ will set self._state to self._initial, only override
+        # __init__ will set self._attr_state to self._initial, only override
         # if needed.
         if self._config[CONF_RESTORE]:
             state = await self.async_get_last_state()
             if state is not None:
-                self._state = self.compute_next_state(int(state.state))
+                self._attr_state = self.compute_next_state(int(state.state))
                 self._config[CONF_INITIAL] = state.attributes.get(ATTR_INITIAL)
                 self._config[CONF_MAXIMUM] = state.attributes.get(ATTR_MAXIMUM)
                 self._config[CONF_MINIMUM] = state.attributes.get(ATTR_MINIMUM)
@@ -252,31 +232,31 @@ class Counter(RestoreEntity):
     @callback
     def async_decrement(self) -> None:
         """Decrement the counter."""
-        self._state = self.compute_next_state(self._state - self._config[CONF_STEP])
+        self._attr_state = self.compute_next_state(self.state - self._config[CONF_STEP])
         self.async_write_ha_state()
 
     @callback
     def async_increment(self) -> None:
         """Increment a counter."""
-        self._state = self.compute_next_state(self._state + self._config[CONF_STEP])
+        self._attr_state = self.compute_next_state(self.state + self._config[CONF_STEP])
         self.async_write_ha_state()
 
     @callback
     def async_reset(self) -> None:
         """Reset a counter."""
-        self._state = self.compute_next_state(self._config[CONF_INITIAL])
+        self._attr_state = self.compute_next_state(self._config[CONF_INITIAL])
         self.async_write_ha_state()
 
     @callback
     def async_configure(self, **kwargs) -> None:
         """Change the counter's settings with a service."""
-        new_state = kwargs.pop(VALUE, self._state)
+        new_state = kwargs.pop(VALUE, self.state)
         self._config = {**self._config, **kwargs}
-        self._state = self.compute_next_state(new_state)
+        self._attr_state = self.compute_next_state(new_state)
         self.async_write_ha_state()
 
     async def async_update_config(self, config: dict) -> None:
         """Change the counter's settings WS CRUD."""
         self._config = config
-        self._state = self.compute_next_state(self._state)
+        self._attr_state = self.compute_next_state(self.state)
         self.async_write_ha_state()
