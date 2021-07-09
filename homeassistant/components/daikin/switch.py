@@ -43,39 +43,20 @@ async def async_setup_entry(hass, entry, async_add_entities):
 class DaikinZoneSwitch(ToggleEntity):
     """Representation of a zone."""
 
-    def __init__(self, daikin_api, zone_id):
+    _attr_icon = ZONE_ICON
+
+    def __init__(self, api, zone_id):
         """Initialize the zone."""
-        self._api = daikin_api
+        self._api = api
         self._zone_id = zone_id
-
-    @property
-    def unique_id(self):
-        """Return a unique ID."""
-        return f"{self._api.device.mac}-zone{self._zone_id}"
-
-    @property
-    def icon(self):
-        """Icon to use in the frontend, if any."""
-        return ZONE_ICON
-
-    @property
-    def name(self):
-        """Return the name of the sensor."""
-        return f"{self._api.name} {self._api.device.zones[self._zone_id][0]}"
-
-    @property
-    def is_on(self):
-        """Return the state of the sensor."""
-        return self._api.device.zones[self._zone_id][1] == "1"
-
-    @property
-    def device_info(self):
-        """Return a device description for device registry."""
-        return self._api.device_info
+        self._attr_name = f"{api.name} {api.device.zones[zone_id][0]}"
+        self._attr_unique_id = f"{api.device.mac}-zone{zone_id}"
+        self._attr_device_info = api.device_info
 
     async def async_update(self):
         """Retrieve latest state."""
         await self._api.async_update()
+        self._attr_is_on = self._api.device.zones[self._zone_id][1] == "1"
 
     async def async_turn_on(self, **kwargs):
         """Turn the zone on."""
@@ -89,40 +70,21 @@ class DaikinZoneSwitch(ToggleEntity):
 class DaikinStreamerSwitch(SwitchEntity):
     """Streamer state."""
 
-    def __init__(self, daikin_api):
+    _attr_icon = STREAMER_ICON
+
+    def __init__(self, api):
         """Initialize streamer switch."""
-        self._api = daikin_api
-
-    @property
-    def unique_id(self):
-        """Return a unique ID."""
-        return f"{self._api.device.mac}-streamer"
-
-    @property
-    def icon(self):
-        """Icon to use in the frontend, if any."""
-        return STREAMER_ICON
-
-    @property
-    def name(self):
-        """Return the name of the sensor."""
-        return f"{self._api.name} streamer"
-
-    @property
-    def is_on(self):
-        """Return the state of the sensor."""
-        return (
-            DAIKIN_ATTR_STREAMER in self._api.device.represent(DAIKIN_ATTR_ADVANCED)[1]
-        )
-
-    @property
-    def device_info(self):
-        """Return a device description for device registry."""
-        return self._api.device_info
+        self._api = api
+        self._attr_name = f"{api.name} streamer"
+        self._attr_unique_id = f"{api.device.mac}-streamer"
+        self._attr_device_info = api.device_info
 
     async def async_update(self):
         """Retrieve latest state."""
         await self._api.async_update()
+        self._attr_is_on = (
+            DAIKIN_ATTR_STREAMER in self._api.device.represent(DAIKIN_ATTR_ADVANCED)[1]
+        )
 
     async def async_turn_on(self, **kwargs):
         """Turn the zone on."""

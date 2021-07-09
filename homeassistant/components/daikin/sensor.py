@@ -71,48 +71,24 @@ class DaikinSensor(SensorEntity):
     def __init__(self, api: DaikinApi, monitored_state: str) -> None:
         """Initialize the sensor."""
         self._api = api
-        self._sensor = SENSOR_TYPES[monitored_state]
-        self._name = f"{api.name} {self._sensor[CONF_NAME]}"
+        self._attr_name = f"{api.name} {SENSOR_TYPES[monitored_state][CONF_NAME]}"
         self._device_attribute = monitored_state
-
-    @property
-    def unique_id(self):
-        """Return a unique ID."""
-        return f"{self._api.device.mac}-{self._device_attribute}"
-
-    @property
-    def name(self):
-        """Return the name of the sensor."""
-        return self._name
+        self._attr_unique_id = f"{api.device.mac}-{monitored_state}"
+        self._attr_device_class = SENSOR_TYPES[monitored_state].get(CONF_DEVICE_CLASS)
+        self._attr_icon = SENSOR_TYPES[monitored_state].get(CONF_ICON)
+        self._attr_unit_of_measurement = SENSOR_TYPES[monitored_state][
+            CONF_UNIT_OF_MEASUREMENT
+        ]
+        self._attr_device_info = api.device_info
 
     @property
     def state(self):
         """Return the state of the sensor."""
         raise NotImplementedError
 
-    @property
-    def device_class(self):
-        """Return the class of this device."""
-        return self._sensor.get(CONF_DEVICE_CLASS)
-
-    @property
-    def icon(self):
-        """Return the icon of this device."""
-        return self._sensor.get(CONF_ICON)
-
-    @property
-    def unit_of_measurement(self):
-        """Return the unit of measurement."""
-        return self._sensor[CONF_UNIT_OF_MEASUREMENT]
-
     async def async_update(self):
         """Retrieve latest state."""
         await self._api.async_update()
-
-    @property
-    def device_info(self):
-        """Return a device description for device registry."""
-        return self._api.device_info
 
 
 class DaikinClimateSensor(DaikinSensor):
