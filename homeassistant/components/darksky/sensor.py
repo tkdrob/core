@@ -554,78 +554,40 @@ class DarkSkySensor(SensorEntity):
         self, forecast_data, sensor_type, name, forecast_day=None, forecast_hour=None
     ):
         """Initialize the sensor."""
-        self.client_name = name
-        self._name = SENSOR_TYPES[sensor_type][0]
         self.forecast_data = forecast_data
         self.type = sensor_type
         self.forecast_day = forecast_day
         self.forecast_hour = forecast_hour
-        self._state = None
-        self._icon = None
-        self._unit_of_measurement = None
-
-    @property
-    def name(self):
-        """Return the name of the sensor."""
-        if self.forecast_day is not None:
-            return f"{self.client_name} {self._name} {self.forecast_day}d"
-        if self.forecast_hour is not None:
-            return f"{self.client_name} {self._name} {self.forecast_hour}h"
-        return f"{self.client_name} {self._name}"
-
-    @property
-    def state(self):
-        """Return the state of the sensor."""
-        return self._state
-
-    @property
-    def unit_of_measurement(self):
-        """Return the unit of measurement of this entity, if any."""
-        return self._unit_of_measurement
+        if forecast_day is not None:
+            self._attr_name = f"{name} {SENSOR_TYPES[sensor_type][0]} {forecast_day}d"
+        elif forecast_hour is not None:
+            self._attr_name = f"{name} {SENSOR_TYPES[sensor_type][0]} {forecast_hour}h"
+        else:
+            self._attr_name = f"{name} {SENSOR_TYPES[sensor_type][0]}"
+        if "summary" in sensor_type and self.icon in CONDITION_PICTURES:
+            self._attr_icon = CONDITION_PICTURES[self.icon][1]
+        else:
+            self._attr_icon = SENSOR_TYPES[sensor_type][6]
+        if self.icon in CONDITION_PICTURES:
+            self._attr_entity_picture = CONDITION_PICTURES[self.icon][0]
+        else:
+            self._attr_entity_picture = None
+        if SENSOR_TYPES[sensor_type][1] == TEMP_CELSIUS:
+            self._attr_device_class = DEVICE_CLASS_TEMPERATURE
+        else:
+            self._attr_device_class = None
 
     @property
     def unit_system(self):
         """Return the unit system of this entity."""
         return self.forecast_data.unit_system
 
-    @property
-    def entity_picture(self):
-        """Return the entity picture to use in the frontend, if any."""
-        if self._icon is None or "summary" not in self.type:
-            return None
-
-        if self._icon in CONDITION_PICTURES:
-            return CONDITION_PICTURES[self._icon][0]
-
-        return None
-
     def update_unit_of_measurement(self):
         """Update units based on unit system."""
         unit_index = {"si": 1, "us": 2, "ca": 3, "uk": 4, "uk2": 5}.get(
             self.unit_system, 1
         )
-        self._unit_of_measurement = SENSOR_TYPES[self.type][unit_index]
-
-    @property
-    def icon(self):
-        """Icon to use in the frontend, if any."""
-        if "summary" in self.type and self._icon in CONDITION_PICTURES:
-            return CONDITION_PICTURES[self._icon][1]
-
-        return SENSOR_TYPES[self.type][6]
-
-    @property
-    def device_class(self):
-        """Device class of the entity."""
-        if SENSOR_TYPES[self.type][1] == TEMP_CELSIUS:
-            return DEVICE_CLASS_TEMPERATURE
-
-        return None
-
-    @property
-    def extra_state_attributes(self):
-        """Return the state attributes."""
-        return {ATTR_ATTRIBUTION: ATTRIBUTION}
+        self._attr_unit_of_measurement = SENSOR_TYPES[self.type][unit_index]
 
     def update(self):
         """Get the latest data from Dark Sky and updates the states."""
@@ -639,36 +601,37 @@ class DarkSkySensor(SensorEntity):
         if self.type == "minutely_summary":
             self.forecast_data.update_minutely()
             minutely = self.forecast_data.data_minutely
-            self._state = getattr(minutely, "summary", "")
-            self._icon = getattr(minutely, "icon", "")
+            self._attr_state = getattr(minutely, "summary", "")
+            self._attr_icon = getattr(minutely, "icon", "")
         elif self.type == "hourly_summary":
             self.forecast_data.update_hourly()
             hourly = self.forecast_data.data_hourly
-            self._state = getattr(hourly, "summary", "")
-            self._icon = getattr(hourly, "icon", "")
+            self._attr_state = getattr(hourly, "summary", "")
+            self._attr_icon = getattr(hourly, "icon", "")
         elif self.forecast_hour is not None:
             self.forecast_data.update_hourly()
             hourly = self.forecast_data.data_hourly
             if hasattr(hourly, "data"):
-                self._state = self.get_state(hourly.data[self.forecast_hour])
+                self._attr_state = self.get_state(hourly.data[self.forecast_hour])
             else:
-                self._state = 0
+                self._attr_state = 0
         elif self.type == "daily_summary":
             self.forecast_data.update_daily()
             daily = self.forecast_data.data_daily
-            self._state = getattr(daily, "summary", "")
-            self._icon = getattr(daily, "icon", "")
+            self._attr_state = getattr(daily, "summary", "")
+            self._attr_icon = getattr(daily, "icon", "")
         elif self.forecast_day is not None:
             self.forecast_data.update_daily()
             daily = self.forecast_data.data_daily
             if hasattr(daily, "data"):
-                self._state = self.get_state(daily.data[self.forecast_day])
+                self._attr_state = self.get_state(daily.data[self.forecast_day])
             else:
-                self._state = 0
+                self._attr_state = 0
         else:
             self.forecast_data.update_currently()
             currently = self.forecast_data.data_currently
-            self._state = self.get_state(currently)
+            self._attr_state = self.get_state(currently)
+        self._attr_extra_state_attributes = {ATTR_ATTRIBUTION: ATTRIBUTION}
 
     def get_state(self, data):
         """
@@ -683,7 +646,7 @@ class DarkSkySensor(SensorEntity):
             return state
 
         if "summary" in self.type:
-            self._icon = getattr(data, "icon", "")
+            self._attr_icon = getattr(data, "icon", "")
 
         # Some state data needs to be rounded to whole values or converted to
         # percentages
@@ -716,35 +679,8 @@ class DarkSkyAlertSensor(SensorEntity):
 
     def __init__(self, forecast_data, sensor_type, name):
         """Initialize the sensor."""
-        self.client_name = name
-        self._name = SENSOR_TYPES[sensor_type][0]
+        self._attr_name = f"{name} {SENSOR_TYPES[sensor_type][0]}"
         self.forecast_data = forecast_data
-        self.type = sensor_type
-        self._state = None
-        self._icon = None
-        self._alerts = None
-
-    @property
-    def name(self):
-        """Return the name of the sensor."""
-        return f"{self.client_name} {self._name}"
-
-    @property
-    def state(self):
-        """Return the state of the sensor."""
-        return self._state
-
-    @property
-    def icon(self):
-        """Icon to use in the frontend, if any."""
-        if self._state is not None and self._state > 0:
-            return "mdi:alert-circle"
-        return "mdi:alert-circle-outline"
-
-    @property
-    def extra_state_attributes(self):
-        """Return the state attributes."""
-        return self._alerts
 
     def update(self):
         """Get the latest data from Dark Sky and updates the states."""
@@ -755,7 +691,11 @@ class DarkSkyAlertSensor(SensorEntity):
         self.forecast_data.update()
         self.forecast_data.update_alerts()
         alerts = self.forecast_data.data_alerts
-        self._state = self.get_state(alerts)
+        self._attr_state = self.get_state(alerts)
+        if self.state is not None and self.state > 0:
+            self._attr_icon = "mdi:alert-circle"
+        else:
+            self._attr_icon = "mdi:alert-circle-outline"
 
     def get_state(self, data):
         """
@@ -763,9 +703,8 @@ class DarkSkyAlertSensor(SensorEntity):
 
         If the sensor type is unknown, the current state is returned.
         """
-        alerts = {}
+        self._attr_extra_state_attributes = {}
         if data is None:
-            self._alerts = alerts
             return data
 
         multiple_alerts = len(data) > 1
@@ -775,8 +714,7 @@ class DarkSkyAlertSensor(SensorEntity):
                     dkey = f"{attr}_{i!s}"
                 else:
                     dkey = attr
-                alerts[dkey] = getattr(alert, attr)
-        self._alerts = alerts
+                self._attr_extra_state_attributes[dkey] = getattr(alert, attr)
 
         return len(data)
 

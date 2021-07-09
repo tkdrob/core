@@ -105,79 +105,18 @@ class DarkSkyWeather(WeatherEntity):
 
     def __init__(self, name, dark_sky, mode):
         """Initialize Dark Sky weather."""
-        self._name = name
+        self._attr_name = name
         self._dark_sky = dark_sky
         self._mode = mode
 
-        self._ds_data = None
-        self._ds_currently = None
         self._ds_hourly = None
         self._ds_daily = None
-
-    @property
-    def available(self):
-        """Return if weather data is available from Dark Sky."""
-        return self._ds_data is not None
-
-    @property
-    def attribution(self):
-        """Return the attribution."""
-        return ATTRIBUTION
-
-    @property
-    def name(self):
-        """Return the name of the sensor."""
-        return self._name
-
-    @property
-    def temperature(self):
-        """Return the temperature."""
-        return self._ds_currently.get("temperature")
-
-    @property
-    def temperature_unit(self):
-        """Return the unit of measurement."""
         if self._dark_sky.units is None:
-            return None
-        return TEMP_FAHRENHEIT if "us" in self._dark_sky.units else TEMP_CELSIUS
-
-    @property
-    def humidity(self):
-        """Return the humidity."""
-        return round(self._ds_currently.get("humidity") * 100.0, 2)
-
-    @property
-    def wind_speed(self):
-        """Return the wind speed."""
-        return self._ds_currently.get("windSpeed")
-
-    @property
-    def wind_bearing(self):
-        """Return the wind bearing."""
-        return self._ds_currently.get("windBearing")
-
-    @property
-    def ozone(self):
-        """Return the ozone level."""
-        return self._ds_currently.get("ozone")
-
-    @property
-    def pressure(self):
-        """Return the pressure."""
-        pressure = self._ds_currently.get("pressure")
-        if "us" in self._dark_sky.units:
-            return round(convert_pressure(pressure, PRESSURE_HPA, PRESSURE_INHG), 2)
-        return pressure
-
-    @property
-    def visibility(self):
-        """Return the visibility."""
-        return self._ds_currently.get("visibility")
-
-    @property
-    def condition(self):
-        """Return the weather condition."""
-        return MAP_CONDITION.get(self._ds_currently.get("icon"))
+            self._attr_temperature_unit = None
+        elif "us" in self._dark_sky.units:
+            self._attr_temperature_unit = TEMP_FAHRENHEIT
+        else:
+            self._attr_temperature_unit = TEMP_CELSIUS
 
     @property
     def forecast(self):
@@ -231,11 +170,27 @@ class DarkSkyWeather(WeatherEntity):
         """Get the latest data from Dark Sky."""
         self._dark_sky.update()
 
-        self._ds_data = self._dark_sky.data
-        currently = self._dark_sky.currently
-        self._ds_currently = currently.d if currently else {}
+        self._attr_available = self._dark_sky.data is not None
+        ds_currently = self._dark_sky.currently.d if self._dark_sky.currently else {}
         self._ds_hourly = self._dark_sky.hourly
         self._ds_daily = self._dark_sky.daily
+        self._attr_attribution = ATTRIBUTION
+        self._attr_temperature = ds_currently.get("temperature")
+        self._attr_humidity = round(ds_currently.get("humidity") * 100.0, 2)
+        self._attr_wind_speed = ds_currently.get("windSpeed")
+        self._attr_wind_bearing = ds_currently.get("windBearing")
+        self._attr_ozone = ds_currently.get("ozone")
+        if "us" in self._dark_sky.units:
+            self._attr_pressure = round(
+                convert_pressure(
+                    ds_currently.get("pressure"), PRESSURE_HPA, PRESSURE_INHG
+                ),
+                2,
+            )
+        else:
+            self._attr_pressure = ds_currently.get("pressure")
+        self._attr_visibility = ds_currently.get("visibility")
+        self._attr_condition = MAP_CONDITION.get(ds_currently.get("icon"))
 
 
 class DarkSkyData:
