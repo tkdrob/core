@@ -17,22 +17,14 @@ async def async_setup_entry(hass, config_entry, async_add_entities):
 class DemoAirQuality(AirQualityEntity):
     """Representation of Air Quality data."""
 
+    _attr_should_poll = False
+
     def __init__(self, name, pm_2_5, pm_10, n2o):
         """Initialize the Demo Air Quality."""
-        self._name = name
+        self._attr_name = f"Demo Air Quality {name}"
         self._pm_2_5 = pm_2_5
         self._pm_10 = pm_10
         self._n2o = n2o
-
-    @property
-    def name(self):
-        """Return the name of the sensor."""
-        return f"Demo Air Quality {self._name}"
-
-    @property
-    def should_poll(self):
-        """No polling needed for Demo Air Quality."""
-        return False
 
     @property
     def particulate_matter_2_5(self):

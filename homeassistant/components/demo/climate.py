@@ -97,6 +97,8 @@ async def async_setup_entry(hass, config_entry, async_add_entities):
 class DemoClimate(ClimateEntity):
     """Representation of a demo climate device."""
 
+    _attr_should_poll = False
+
     def __init__(
         self,
         unique_id,
@@ -118,28 +120,36 @@ class DemoClimate(ClimateEntity):
         preset_modes=None,
     ):
         """Initialize the climate device."""
-        self._unique_id = unique_id
-        self._name = name
-        self._support_flags = SUPPORT_FLAGS
+        self._attr_unique_id = unique_id
+        self._attr_name = name
+        self._attr_supported_features = SUPPORT_FLAGS
         if target_temperature is not None:
-            self._support_flags = self._support_flags | SUPPORT_TARGET_TEMPERATURE
+            self._attr_supported_features = (
+                self.supported_features | SUPPORT_TARGET_TEMPERATURE
+            )
         if preset is not None:
-            self._support_flags = self._support_flags | SUPPORT_PRESET_MODE
+            self._attr_supported_features = (
+                self.supported_features | SUPPORT_PRESET_MODE
+            )
         if fan_mode is not None:
-            self._support_flags = self._support_flags | SUPPORT_FAN_MODE
+            self._attr_supported_features = self.supported_features | SUPPORT_FAN_MODE
         if target_humidity is not None:
-            self._support_flags = self._support_flags | SUPPORT_TARGET_HUMIDITY
+            self._attr_supported_features = (
+                self.supported_features | SUPPORT_TARGET_HUMIDITY
+            )
         if swing_mode is not None:
-            self._support_flags = self._support_flags | SUPPORT_SWING_MODE
+            self._attr_supported_features = self.supported_features | SUPPORT_SWING_MODE
         if aux is not None:
-            self._support_flags = self._support_flags | SUPPORT_AUX_HEAT
+            self._attr_supported_features = self.supported_features | SUPPORT_AUX_HEAT
         if HVAC_MODE_HEAT_COOL in hvac_modes or HVAC_MODE_AUTO in hvac_modes:
-            self._support_flags = self._support_flags | SUPPORT_TARGET_TEMPERATURE_RANGE
+            self._attr_supported_features = (
+                self.supported_features | SUPPORT_TARGET_TEMPERATURE_RANGE
+            )
         self._target_temperature = target_temperature
         self._target_humidity = target_humidity
-        self._unit_of_measurement = unit_of_measurement
+        self._attr_temperature_unit = unit_of_measurement
         self._preset = preset
-        self._preset_modes = preset_modes
+        self._attr_preset_modes = preset_modes
         self._current_temperature = current_temperature
         self._current_humidity = current_humidity
         self._current_fan_mode = fan_mode
@@ -147,47 +157,18 @@ class DemoClimate(ClimateEntity):
         self._hvac_mode = hvac_mode
         self._aux = aux
         self._current_swing_mode = swing_mode
-        self._fan_modes = ["On Low", "On High", "Auto Low", "Auto High", "Off"]
-        self._hvac_modes = hvac_modes
-        self._swing_modes = ["Auto", "1", "2", "3", "Off"]
+        self._attr_fan_modes = ["On Low", "On High", "Auto Low", "Auto High", "Off"]
+        self._attr_hvac_modes = hvac_modes
+        self._attr_swing_modes = ["Auto", "1", "2", "3", "Off"]
         self._target_temperature_high = target_temp_high
         self._target_temperature_low = target_temp_low
-
-    @property
-    def device_info(self):
-        """Return device info."""
-        return {
+        self._attr_device_info = {
             "identifiers": {
                 # Serial numbers are unique identifiers within a specific domain
-                (DOMAIN, self.unique_id)
+                (DOMAIN, unique_id)
             },
-            "name": self.name,
+            "name": name,
         }
-
-    @property
-    def unique_id(self):
-        """Return the unique id."""
-        return self._unique_id
-
-    @property
-    def supported_features(self):
-        """Return the list of supported features."""
-        return self._support_flags
-
-    @property
-    def should_poll(self):
-        """Return the polling state."""
-        return False
-
-    @property
-    def name(self):
-        """Return the name of the climate device."""
-        return self._name
-
-    @property
-    def temperature_unit(self):
-        """Return the unit of measurement."""
-        return self._unit_of_measurement
 
     @property
     def current_temperature(self):
@@ -230,19 +211,9 @@ class DemoClimate(ClimateEntity):
         return self._hvac_mode
 
     @property
-    def hvac_modes(self):
-        """Return the list of available operation modes."""
-        return self._hvac_modes
-
-    @property
     def preset_mode(self):
         """Return preset mode."""
         return self._preset
-
-    @property
-    def preset_modes(self):
-        """Return preset modes."""
-        return self._preset_modes
 
     @property
     def is_aux_heat(self):
@@ -255,19 +226,9 @@ class DemoClimate(ClimateEntity):
         return self._current_fan_mode
 
     @property
-    def fan_modes(self):
-        """Return the list of available fan modes."""
-        return self._fan_modes
-
-    @property
     def swing_mode(self):
         """Return the swing setting."""
         return self._current_swing_mode
-
-    @property
-    def swing_modes(self):
-        """List of available swing modes."""
-        return self._swing_modes
 
     async def async_set_temperature(self, **kwargs):
         """Set new target temperatures."""

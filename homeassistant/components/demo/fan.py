@@ -104,6 +104,8 @@ async def async_setup_entry(hass, config_entry, async_add_entities):
 class BaseDemoFan(FanEntity):
     """A demonstration fan component that uses legacy fan speeds."""
 
+    _attr_should_poll = False
+
     def __init__(
         self,
         hass,
@@ -115,7 +117,7 @@ class BaseDemoFan(FanEntity):
     ) -> None:
         """Initialize the entity."""
         self.hass = hass
-        self._unique_id = unique_id
+        self._attr_unique_id = unique_id
         self._supported_features = supported_features
         self._speed = SPEED_OFF
         self._percentage = None
@@ -124,26 +126,11 @@ class BaseDemoFan(FanEntity):
         self._preset_mode = None
         self._oscillating = None
         self._direction = None
-        self._name = name
+        self._attr_name = name
         if supported_features & SUPPORT_OSCILLATE:
             self._oscillating = False
         if supported_features & SUPPORT_DIRECTION:
             self._direction = "forward"
-
-    @property
-    def unique_id(self):
-        """Return the unique id."""
-        return self._unique_id
-
-    @property
-    def name(self) -> str:
-        """Get entity name."""
-        return self._name
-
-    @property
-    def should_poll(self):
-        """No polling needed for a demo fan."""
-        return False
 
     @property
     def current_direction(self) -> str:

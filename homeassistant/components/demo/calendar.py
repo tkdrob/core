@@ -11,8 +11,8 @@ def setup_platform(hass, config, add_entities, discovery_info=None):
     calendar_data_current = DemoGoogleCalendarDataCurrent()
     add_entities(
         [
-            DemoGoogleCalendar(hass, calendar_data_future, "Calendar 1"),
-            DemoGoogleCalendar(hass, calendar_data_current, "Calendar 2"),
+            DemoGoogleCalendar(calendar_data_future, "Calendar 1"),
+            DemoGoogleCalendar(calendar_data_current, "Calendar 2"),
         ]
     )
 
@@ -22,7 +22,7 @@ class DemoGoogleCalendarData:
 
     event = None
 
-    async def async_get_events(self, hass, start_date, end_date):
+    async def async_get_events(self, start_date, end_date):
         """Get all events in a specific time frame."""
         event = copy.copy(self.event)
         event["title"] = event["summary"]
@@ -68,20 +68,15 @@ class DemoGoogleCalendarDataCurrent(DemoGoogleCalendarData):
 class DemoGoogleCalendar(CalendarEventDevice):
     """Representation of a Demo Calendar element."""
 
-    def __init__(self, hass, calendar_data, name):
+    def __init__(self, calendar_data, name):
         """Initialize demo calendar."""
         self.data = calendar_data
-        self._name = name
+        self._attr_name = name
 
     @property
     def event(self):
         """Return the next upcoming event."""
         return self.data.event
-
-    @property
-    def name(self):
-        """Return the name of the entity."""
-        return self._name
 
     async def async_get_events(self, hass, start_date, end_date):
         """Return calendar events within a datetime range."""

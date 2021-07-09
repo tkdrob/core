@@ -54,6 +54,8 @@ async def async_setup_entry(hass, config_entry, async_add_entities):
 class DemoCover(CoverEntity):
     """Representation of a demo cover."""
 
+    _attr_should_poll = False
+
     def __init__(
         self,
         hass,
@@ -66,10 +68,10 @@ class DemoCover(CoverEntity):
     ):
         """Initialize the cover."""
         self.hass = hass
-        self._unique_id = unique_id
-        self._name = name
+        self._attr_unique_id = unique_id
+        self._attr_name = name
         self._position = position
-        self._device_class = device_class
+        self._attr_device_class = device_class
         self._supported_features = supported_features
         self._set_position = None
         self._set_tilt_position = None
@@ -84,32 +86,13 @@ class DemoCover(CoverEntity):
             self._closed = True
         else:
             self._closed = self.current_cover_position <= 0
-
-    @property
-    def device_info(self):
-        """Return device info."""
-        return {
+        self._attr_device_info = {
             "identifiers": {
                 # Serial numbers are unique identifiers within a specific domain
-                (DOMAIN, self.unique_id)
+                (DOMAIN, unique_id)
             },
-            "name": self.name,
+            "name": name,
         }
-
-    @property
-    def unique_id(self):
-        """Return unique ID for cover."""
-        return self._unique_id
-
-    @property
-    def name(self):
-        """Return the name of the cover."""
-        return self._name
-
-    @property
-    def should_poll(self):
-        """No polling needed for a demo cover."""
-        return False
 
     @property
     def current_cover_position(self):
@@ -135,11 +118,6 @@ class DemoCover(CoverEntity):
     def is_opening(self):
         """Return if the cover is opening."""
         return self._is_opening
-
-    @property
-    def device_class(self):
-        """Return the class of this device, from component DEVICE_CLASSES."""
-        return self._device_class
 
     @property
     def supported_features(self):

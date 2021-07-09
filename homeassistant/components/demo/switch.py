@@ -50,13 +50,9 @@ class DemoSwitch(SwitchEntity):
         self._attr_is_on = state
         self._attr_name = name or DEVICE_DEFAULT_NAME
         self._attr_unique_id = unique_id
-
-    @property
-    def device_info(self):
-        """Return device info."""
-        return {
-            "identifiers": {(DOMAIN, self.unique_id)},
-            "name": self.name,
+        self._attr_device_info = {
+            "identifiers": {(DOMAIN, unique_id)},
+            "name": name,
         }
 
     def turn_on(self, **kwargs):

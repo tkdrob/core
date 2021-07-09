@@ -105,28 +105,20 @@ NETFLIX_PLAYER_SUPPORT = (
 class AbstractDemoPlayer(MediaPlayerEntity):
     """A demo media players."""
 
+    _attr_should_poll = False
+
     # We only implement the methods that we support
 
     def __init__(self, name, device_class=None):
         """Initialize the demo device."""
-        self._name = name
+        self._attr_name = name
         self._player_state = STATE_PLAYING
         self._volume_level = 1.0
         self._volume_muted = False
         self._shuffle = False
-        self._sound_mode_list = SOUND_MODE_LIST
+        self._attr_sound_mode_list = SOUND_MODE_LIST
         self._sound_mode = DEFAULT_SOUND_MODE
-        self._device_class = device_class
-
-    @property
-    def should_poll(self):
-        """Push an update after each command."""
-        return False
-
-    @property
-    def name(self):
-        """Return the name of the media player."""
-        return self._name
+        self._attr_device_class = device_class
 
     @property
     def state(self):
@@ -152,16 +144,6 @@ class AbstractDemoPlayer(MediaPlayerEntity):
     def sound_mode(self):
         """Return the current sound mode."""
         return self._sound_mode
-
-    @property
-    def sound_mode_list(self):
-        """Return a list of available sound modes."""
-        return self._sound_mode_list
-
-    @property
-    def device_class(self):
-        """Return the device class of the media player."""
-        return self._device_class
 
     def turn_on(self):
         """Turn the media player on."""
@@ -222,6 +204,10 @@ class AbstractDemoPlayer(MediaPlayerEntity):
 class DemoYoutubePlayer(AbstractDemoPlayer):
     """A Demo media player that only supports YouTube."""
 
+    _attr_app_name = "YouTube"
+    _attr_media_content_type = MEDIA_TYPE_MOVIE
+    _attr_supported_features = YOUTUBE_PLAYER_SUPPORT
+
     # We only implement the methods that we support
 
     def __init__(self, name, youtube_id=None, media_title=None, duration=360):
@@ -239,11 +225,6 @@ class DemoYoutubePlayer(AbstractDemoPlayer):
         return self.youtube_id
 
     @property
-    def media_content_type(self):
-        """Return the content type of current playing media."""
-        return MEDIA_TYPE_MOVIE
-
-    @property
     def media_duration(self):
         """Return the duration of current playing media in seconds."""
         return self._duration
@@ -257,16 +238,6 @@ class DemoYoutubePlayer(AbstractDemoPlayer):
     def media_title(self):
         """Return the title of current playing media."""
         return self._media_title
-
-    @property
-    def app_name(self):
-        """Return the current running application."""
-        return "YouTube"
-
-    @property
-    def supported_features(self):
-        """Flag media player features that are supported."""
-        return YOUTUBE_PLAYER_SUPPORT
 
     @property
     def media_position(self):
@@ -305,6 +276,15 @@ class DemoYoutubePlayer(AbstractDemoPlayer):
 class DemoMusicPlayer(AbstractDemoPlayer):
     """A Demo media player."""
 
+    _attr_media_album_name = "Bounzz"
+    _attr_media_content_id = "bounzz-1"
+    _attr_media_content_type = MEDIA_TYPE_MUSIC
+    _attr_media_duration = 213
+    _attr_media_image_url = (
+        "https://graph.facebook.com/v2.5/107771475912710/picture?type=large"
+    )
+    _attr_supported_features = MUSIC_PLAYER_SUPPORT
+
     # We only implement the methods that we support
 
     tracks = [
@@ -334,33 +314,8 @@ class DemoMusicPlayer(AbstractDemoPlayer):
         """Initialize the demo device."""
         super().__init__(name)
         self._cur_track = 0
-        self._group_members = []
+        self._attr_group_members = []
         self._repeat = REPEAT_MODE_OFF
-
-    @property
-    def group_members(self):
-        """List of players which are currently grouped together."""
-        return self._group_members
-
-    @property
-    def media_content_id(self):
-        """Return the content ID of current playing media."""
-        return "bounzz-1"
-
-    @property
-    def media_content_type(self):
-        """Return the content type of current playing media."""
-        return MEDIA_TYPE_MUSIC
-
-    @property
-    def media_duration(self):
-        """Return the duration of current playing media in seconds."""
-        return 213
-
-    @property
-    def media_image_url(self):
-        """Return the image url of current playing media."""
-        return "https://graph.facebook.com/v2.5/107771475912710/picture?type=large"
 
     @property
     def media_title(self):
@@ -373,11 +328,6 @@ class DemoMusicPlayer(AbstractDemoPlayer):
         return self.tracks[self._cur_track][0] if self.tracks else ""
 
     @property
-    def media_album_name(self):
-        """Return the album of current playing media (Music track only)."""
-        return "Bounzz"
-
-    @property
     def media_track(self):
         """Return the track number of current media (Music track only)."""
         return self._cur_track + 1
@@ -386,11 +336,6 @@ class DemoMusicPlayer(AbstractDemoPlayer):
     def repeat(self):
         """Return current repeat mode."""
         return self._repeat
-
-    @property
-    def supported_features(self):
-        """Flag media player features that are supported."""
-        return MUSIC_PLAYER_SUPPORT
 
     def media_previous_track(self):
         """Send previous track command."""
@@ -418,19 +363,30 @@ class DemoMusicPlayer(AbstractDemoPlayer):
 
     def join_players(self, group_members):
         """Join `group_members` as a player group with the current player."""
-        self._group_members = [
+        self._attr_group_members = [
             self.entity_id,
         ] + group_members
         self.schedule_update_ha_state()
 
     def unjoin_player(self):
         """Remove this player from any group."""
-        self._group_members = []
+        self._attr_group_members = []
         self.schedule_update_ha_state()
 
 
 class DemoTVShowPlayer(AbstractDemoPlayer):
     """A Demo media player that only supports YouTube."""
+
+    _attr_media_content_id = "house-of-cards-1"
+    _attr_media_content_type = MEDIA_TYPE_TVSHOW
+    _attr_media_duration = 3600
+    _attr_media_image_url = (
+        "https://graph.facebook.com/v2.5/HouseofCards/picture?width=400"
+    )
+    _attr_media_series_title = "House of Cards"
+    _attr_media_season = 1
+    _attr_app_name = "Netflix"
+    _attr_supported_features = NETFLIX_PLAYER_SUPPORT
 
     # We only implement the methods that we support
 
@@ -441,51 +397,12 @@ class DemoTVShowPlayer(AbstractDemoPlayer):
         self._episode_count = 13
         self._source = "dvd"
         self._source_list = ["dvd", "youtube"]
-
-    @property
-    def media_content_id(self):
-        """Return the content ID of current playing media."""
-        return "house-of-cards-1"
-
-    @property
-    def media_content_type(self):
-        """Return the content type of current playing media."""
-        return MEDIA_TYPE_TVSHOW
-
-    @property
-    def media_duration(self):
-        """Return the duration of current playing media in seconds."""
-        return 3600
-
-    @property
-    def media_image_url(self):
-        """Return the image url of current playing media."""
-        return "https://graph.facebook.com/v2.5/HouseofCards/picture?width=400"
-
-    @property
-    def media_title(self):
-        """Return the title of current playing media."""
-        return f"Chapter {self._cur_episode}"
-
-    @property
-    def media_series_title(self):
-        """Return the series title of current playing media (TV Show only)."""
-        return "House of Cards"
-
-    @property
-    def media_season(self):
-        """Return the season of current playing media (TV Show only)."""
-        return 1
+        self._attr_media_title = f"Chapter {self._cur_episode}"
 
     @property
     def media_episode(self):
         """Return the episode of current playing media (TV Show only)."""
         return self._cur_episode
-
-    @property
-    def app_name(self):
-        """Return the current running application."""
-        return "Netflix"
 
     @property
     def source(self):
@@ -496,11 +413,6 @@ class DemoTVShowPlayer(AbstractDemoPlayer):
     def source_list(self):
         """List of available sources."""
         return self._source_list
-
-    @property
-    def supported_features(self):
-        """Flag media player features that are supported."""
-        return NETFLIX_PLAYER_SUPPORT
 
     def media_previous_track(self):
         """Send previous track command."""

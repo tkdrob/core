@@ -17,10 +17,12 @@ async def async_setup_entry(hass, config_entry, async_add_entities):
 class DemoCamera(Camera):
     """The representation of a Demo camera."""
 
+    _attr_supported_features = SUPPORT_ON_OFF
+
     def __init__(self, name):
         """Initialize demo camera component."""
         super().__init__()
-        self._name = name
+        self._attr_name = name
         self._motion_status = False
         self.is_streaming = True
         self._images_index = 0
@@ -31,16 +33,6 @@ class DemoCamera(Camera):
         image_path = Path(__file__).parent / f"demo_{self._images_index}.jpg"
 
         return await self.hass.async_add_executor_job(image_path.read_bytes)
-
-    @property
-    def name(self):
-        """Return the name of this camera."""
-        return self._name
-
-    @property
-    def supported_features(self):
-        """Camera support turn on/off features."""
-        return SUPPORT_ON_OFF
 
     @property
     def is_on(self):
