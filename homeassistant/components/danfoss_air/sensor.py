@@ -83,31 +83,10 @@ class DanfossAir(SensorEntity):
     def __init__(self, data, name, sensor_unit, sensor_type, device_class):
         """Initialize the sensor."""
         self._data = data
-        self._name = name
-        self._state = None
+        self._attr_name = name
         self._type = sensor_type
-        self._unit = sensor_unit
-        self._device_class = device_class
-
-    @property
-    def name(self):
-        """Return the name of the sensor."""
-        return self._name
-
-    @property
-    def device_class(self):
-        """Return the device class of the sensor."""
-        return self._device_class
-
-    @property
-    def state(self):
-        """Return the state of the sensor."""
-        return self._state
-
-    @property
-    def unit_of_measurement(self):
-        """Return the unit of measurement."""
-        return self._unit
+        self._attr_unit_of_measurement = sensor_unit
+        self._attr_device_class = device_class
 
     def update(self):
         """Update the new state of the sensor.
@@ -117,6 +96,6 @@ class DanfossAir(SensorEntity):
         """
         self._data.update()
 
-        self._state = self._data.get_value(self._type)
-        if self._state is None:
+        self.state = self._data.get_value(self._type)
+        if self._attr_state is None:
             _LOGGER.debug("Could not get data for %s", self._type)
