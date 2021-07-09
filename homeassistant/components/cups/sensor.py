@@ -237,37 +237,17 @@ class MarkerSensor(SensorEntity):
     This sensor represents the percentage of ink or toner.
     """
 
+    _attr_icon = ICON_MARKER
+    _attr_unit_of_measurement = PERCENTAGE
+
     def __init__(self, data, printer, name, is_cups):
         """Initialize the sensor."""
         self.data = data
-        self._name = name
+        self._attr_name = name
         self._printer = printer
         self._index = data.attributes[printer]["marker-names"].index(name)
         self._is_cups = is_cups
         self._attributes = None
-
-    @property
-    def name(self):
-        """Return the name of the sensor."""
-        return self._name
-
-    @property
-    def icon(self):
-        """Return the icon to use in the frontend."""
-        return ICON_MARKER
-
-    @property
-    def state(self):
-        """Return the state of the sensor."""
-        if self._attributes is None:
-            return None
-
-        return self._attributes[self._printer]["marker-levels"][self._index]
-
-    @property
-    def unit_of_measurement(self):
-        """Return the unit of measurement."""
-        return PERCENTAGE
 
     @property
     def extra_state_attributes(self):
@@ -303,6 +283,12 @@ class MarkerSensor(SensorEntity):
         """Update the state of the sensor."""
         # Data fetching is done by CupsSensor/IPPSensor
         self._attributes = self.data.attributes
+        if self._attributes is None:
+            self._attr_state = None
+        else:
+            self._attr_state = self._attributes[self._printer]["marker-levels"][
+                self._index
+            ]
 
 
 class CupsData:
