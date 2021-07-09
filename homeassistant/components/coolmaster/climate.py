@@ -59,52 +59,31 @@ async def async_setup_entry(hass, config_entry, async_add_devices):
 class CoolmasterClimate(CoordinatorEntity, ClimateEntity):
     """Representation of a coolmaster climate device."""
 
+    _attr_fan_modes = FAN_MODES
+    _attr_supported_features = SUPPORT_FLAGS
+
     def __init__(self, coordinator, unit_id, unit, supported_modes, info):
         """Initialize the climate device."""
         super().__init__(coordinator)
-        self._unit_id = unit_id
+        self._attr_unique_id = self._attr_name = unit_id
         self._unit = unit
-        self._hvac_modes = supported_modes
+        self._attr_hvac_modes = supported_modes
         self._info = info
+        self._attr_temperature_unit = (
+            TEMP_CELSIUS if unit.temperature_unit == "celsius" else TEMP_FAHRENHEIT
+        )
+        self._attr_device_info = {
+            "identifiers": {(DOMAIN, unit_id)},
+            "name": unit_id,
+            "manufacturer": "CoolAutomation",
+            "model": "CoolMasterNet",
+            "sw_version": info["version"],
+        }
 
     @callback
     def _handle_coordinator_update(self):
-        self._unit = self.coordinator.data[self._unit_id]
+        self._unit = self.coordinator.data[self.unique_id]
         super()._handle_coordinator_update()
-
-    @property
-    def device_info(self):
-        """Return device info for this device."""
-        return {
-            "identifiers": {(DOMAIN, self.unique_id)},
-            "name": self.name,
-            "manufacturer": "CoolAutomation",
-            "model": "CoolMasterNet",
-            "sw_version": self._info["version"],
-        }
-
-    @property
-    def unique_id(self):
-        """Return unique ID for this device."""
-        return self._unit_id
-
-    @property
-    def supported_features(self):
-        """Return the list of supported features."""
-        return SUPPORT_FLAGS
-
-    @property
-    def name(self):
-        """Return the name of the climate device."""
-        return self.unique_id
-
-    @property
-    def temperature_unit(self):
-        """Return the unit of measurement."""
-        if self._unit.temperature_unit == "celsius":
-            return TEMP_CELSIUS
-
-        return TEMP_FAHRENHEIT
 
     @property
     def current_temperature(self):
@@ -127,19 +106,9 @@ class CoolmasterClimate(CoordinatorEntity, ClimateEntity):
         return CM_TO_HA_STATE[mode]
 
     @property
-    def hvac_modes(self):
-        """Return the list of available operation modes."""
-        return self._hvac_modes
-
-    @property
     def fan_mode(self):
         """Return the fan setting."""
         return self._unit.fan_speed
-
-    @property
-    def fan_modes(self):
-        """Return the list of available fan modes."""
-        return FAN_MODES
 
     async def async_set_temperature(self, **kwargs):
         """Set new target temperatures."""
