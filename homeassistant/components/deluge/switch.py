@@ -50,7 +50,7 @@ def setup_platform(hass, config, add_entities, discovery_info=None):
         _LOGGER.error("Connection to Deluge Daemon failed")
         raise PlatformNotReady from err
 
-    add_entities([DelugeSwitch(deluge_api, name)])
+    add_entities([DelugeSwitch(deluge_api, name)], True)
 
 
 class DelugeSwitch(ToggleEntity):
@@ -58,30 +58,8 @@ class DelugeSwitch(ToggleEntity):
 
     def __init__(self, deluge_client, name):
         """Initialize the Deluge switch."""
-        self._name = name
+        self._attr_name = name
         self.deluge_client = deluge_client
-        self._state = STATE_OFF
-        self._available = False
-
-    @property
-    def name(self):
-        """Return the name of the switch."""
-        return self._name
-
-    @property
-    def state(self):
-        """Return the state of the device."""
-        return self._state
-
-    @property
-    def is_on(self):
-        """Return true if device is on."""
-        return self._state == STATE_ON
-
-    @property
-    def available(self):
-        """Return true if device is available."""
-        return self._available
 
     def turn_on(self, **kwargs):
         """Turn the device on."""
@@ -100,15 +78,17 @@ class DelugeSwitch(ToggleEntity):
             torrent_list = self.deluge_client.call(
                 "core.get_torrents_status", {}, ["paused"]
             )
-            self._available = True
+            self._attr_available = True
         except FailedToReconnectException:
             _LOGGER.error("Connection to Deluge Daemon Lost")
-            self._available = False
+            self._attr_available = False
             return
         for torrent in torrent_list.values():
             item = torrent.popitem()
             if not item[1]:
-                self._state = STATE_ON
+                self._attr_state = STATE_ON
+                self._attr_is_on = True
                 return
 
-        self._state = STATE_OFF
+        self._attr_state = STATE_OFF
+        self._attr_is_on = False

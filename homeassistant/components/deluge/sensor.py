@@ -64,7 +64,7 @@ def setup_platform(hass, config, add_entities, discovery_info=None):
     for variable in config[CONF_MONITORED_VARIABLES]:
         dev.append(DelugeSensor(variable, deluge_api, name))
 
-    add_entities(dev)
+    add_entities(dev, True)
 
 
 class DelugeSensor(SensorEntity):
@@ -72,34 +72,11 @@ class DelugeSensor(SensorEntity):
 
     def __init__(self, sensor_type, deluge_client, client_name):
         """Initialize the sensor."""
-        self._name = SENSOR_TYPES[sensor_type][0]
+        self._attr_name = f"{client_name} {SENSOR_TYPES[sensor_type][0]}"
         self.client = deluge_client
         self.type = sensor_type
-        self.client_name = client_name
-        self._state = None
-        self._unit_of_measurement = SENSOR_TYPES[sensor_type][1]
+        self._attr_unit_of_measurement = SENSOR_TYPES[sensor_type][1]
         self.data = None
-        self._available = False
-
-    @property
-    def name(self):
-        """Return the name of the sensor."""
-        return f"{self.client_name} {self._name}"
-
-    @property
-    def state(self):
-        """Return the state of the sensor."""
-        return self._state
-
-    @property
-    def available(self):
-        """Return true if device is available."""
-        return self._available
-
-    @property
-    def unit_of_measurement(self):
-        """Return the unit of measurement of this entity, if any."""
-        return self._unit_of_measurement
 
     def update(self):
         """Get the latest data from Deluge and updates the state."""
@@ -114,10 +91,10 @@ class DelugeSensor(SensorEntity):
                     "dht_download_rate",
                 ],
             )
-            self._available = True
+            self._attr_available = True
         except FailedToReconnectException:
             _LOGGER.error("Connection to Deluge Daemon Lost")
-            self._available = False
+            self._attr_available = False
             return
 
         upload = self.data[b"upload_rate"] - self.data[b"dht_upload_rate"]
@@ -126,22 +103,22 @@ class DelugeSensor(SensorEntity):
         if self.type == "current_status":
             if self.data:
                 if upload > 0 and download > 0:
-                    self._state = "Up/Down"
+                    self._attr_state = "Up/Down"
                 elif upload > 0 and download == 0:
-                    self._state = "Seeding"
+                    self._attr_state = "Seeding"
                 elif upload == 0 and download > 0:
-                    self._state = "Downloading"
+                    self._attr_state = "Downloading"
                 else:
-                    self._state = STATE_IDLE
+                    self._attr_state = STATE_IDLE
             else:
-                self._state = None
+                self._attr_state = None
 
         if self.data:
             if self.type == "download_speed":
                 kb_spd = float(download)
                 kb_spd = kb_spd / 1024
-                self._state = round(kb_spd, 2 if kb_spd < 0.1 else 1)
+                self._attr_state = round(kb_spd, 2 if kb_spd < 0.1 else 1)
             elif self.type == "upload_speed":
                 kb_spd = float(upload)
                 kb_spd = kb_spd / 1024
-                self._state = round(kb_spd, 2 if kb_spd < 0.1 else 1)
+                self._attr_state = round(kb_spd, 2 if kb_spd < 0.1 else 1)
