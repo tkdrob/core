@@ -164,32 +164,28 @@ class Control4Light(Control4Entity, LightEntity):
             device_id,
         )
         self._is_dimmer = is_dimmer
+        self._attr_supported_features = (
+            SUPPORT_BRIGHTNESS | SUPPORT_TRANSITION if is_dimmer else 0
+        )
 
     def create_api_object(self):
         """Create a pyControl4 device object.
 
         This exists so the director token used is always the latest one, without needing to re-init the entire entity.
         """
-        return C4Light(self.entry_data[CONF_DIRECTOR], self._idx)
+        return C4Light(self.entry_data[CONF_DIRECTOR], self.unique_id)
 
     @property
     def is_on(self):
         """Return whether this light is on or off."""
-        return self.coordinator.data[self._idx]["value"] > 0
+        return self.coordinator.data[self.unique_id]["value"] > 0
 
     @property
     def brightness(self):
         """Return the brightness of this light between 0..255."""
         if self._is_dimmer:
-            return round(self.coordinator.data[self._idx]["value"] * 2.55)
+            return round(self.coordinator.data[self.unique_id]["value"] * 2.55)
         return None
-
-    @property
-    def supported_features(self) -> int:
-        """Flag supported features."""
-        if self._is_dimmer:
-            return SUPPORT_BRIGHTNESS | SUPPORT_TRANSITION
-        return 0
 
     async def async_turn_on(self, **kwargs) -> None:
         """Turn the entity on."""
