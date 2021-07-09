@@ -86,28 +86,10 @@ class DecoraWifiLight(LightEntity):
     def __init__(self, switch):
         """Initialize the switch."""
         self._switch = switch
-
-    @property
-    def supported_features(self):
-        """Return supported features."""
-        if self._switch.canSetLevel:
-            return SUPPORT_BRIGHTNESS | SUPPORT_TRANSITION
-        return 0
-
-    @property
-    def name(self):
-        """Return the display name of this switch."""
-        return self._switch.name
-
-    @property
-    def brightness(self):
-        """Return the brightness of the dimmer switch."""
-        return int(self._switch.brightness * 255 / 100)
-
-    @property
-    def is_on(self):
-        """Return true if switch is on."""
-        return self._switch.power == "ON"
+        self._attr_name = switch.name
+        if switch.canSetLevel:
+            self._attr_supported_features = SUPPORT_BRIGHTNESS | SUPPORT_TRANSITION
+        self._attr_supported_features = 0
 
     def turn_on(self, **kwargs):
         """Instruct the switch to turn on & adjust brightness."""
@@ -126,6 +108,7 @@ class DecoraWifiLight(LightEntity):
 
         try:
             self._switch.update_attributes(attribs)
+            self._attr_brightness = int(self._switch.brightness * 255 / 100)
         except ValueError:
             _LOGGER.error("Failed to turn on myLeviton switch")
 
@@ -134,6 +117,7 @@ class DecoraWifiLight(LightEntity):
         attribs = {"power": "OFF"}
         try:
             self._switch.update_attributes(attribs)
+            self._attr_brightness = int(self._switch.brightness * 255 / 100)
         except ValueError:
             _LOGGER.error("Failed to turn off myLeviton switch")
 
@@ -143,3 +127,5 @@ class DecoraWifiLight(LightEntity):
             self._switch.refresh()
         except ValueError:
             _LOGGER.error("Failed to update myLeviton switch data")
+        self._attr_is_on = self._switch.power == "ON"
+        self._attr_brightness = int(self._switch.brightness * 255 / 100)
