@@ -37,24 +37,19 @@ class CpuSpeedSensor(SensorEntity):
     def __init__(self, name):
         """Initialize the CPU sensor."""
         self._attr_name = name
-        self.info = None
-
-    @property
-    def extra_state_attributes(self):
-        """Return the state attributes."""
-        if self.info is not None:
-            attrs = {
-                ATTR_ARCH: self.info["arch_string_raw"],
-                ATTR_BRAND: self.info["brand_raw"],
-            }
-            if HZ_ADVERTISED in self.info:
-                attrs[ATTR_HZ] = round(self.info[HZ_ADVERTISED][0] / 10 ** 9, 2)
-            return attrs
 
     def update(self):
         """Get the latest data and updates the state."""
-        self.info = cpuinfo.get_cpu_info()
-        if HZ_ACTUAL in self.info:
-            self._attr_state = round(float(self.info[HZ_ACTUAL][0]) / 10 ** 9, 2)
+        info = cpuinfo.get_cpu_info()
+        if HZ_ACTUAL in info:
+            self._attr_state = round(float(info[HZ_ACTUAL][0]) / 10 ** 9, 2)
         else:
             self._attr_state = None
+        if info is not None:
+            attrs = {
+                ATTR_ARCH: info["arch_string_raw"],
+                ATTR_BRAND: info["brand_raw"],
+            }
+            if HZ_ADVERTISED in info:
+                attrs[ATTR_HZ] = round(info[HZ_ADVERTISED][0] / 10 ** 9, 2)
+            self._attr_extra_state_attributes = attrs
