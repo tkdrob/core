@@ -94,52 +94,11 @@ class DiscogsSensor(SensorEntity):
     def __init__(self, discogs_data, name, sensor_type):
         """Initialize the Discogs sensor."""
         self._discogs_data = discogs_data
-        self._name = name
+        self._attr_name = f"{name} {SENSORS[sensor_type]['name']}"
+        self._attr_icon = SENSORS[sensor_type]["icon"]
+        self._attr_unit_of_measurement = SENSORS[sensor_type]["unit_of_measurement"]
         self._type = sensor_type
-        self._state = None
         self._attrs = {}
-
-    @property
-    def name(self):
-        """Return the name of the sensor."""
-        return f"{self._name} {SENSORS[self._type]['name']}"
-
-    @property
-    def state(self):
-        """Return the state of the sensor."""
-        return self._state
-
-    @property
-    def icon(self):
-        """Return the icon to use in the frontend, if any."""
-        return SENSORS[self._type]["icon"]
-
-    @property
-    def unit_of_measurement(self):
-        """Return the unit this state is expressed in."""
-        return SENSORS[self._type]["unit_of_measurement"]
-
-    @property
-    def extra_state_attributes(self):
-        """Return the device state attributes of the sensor."""
-        if self._state is None or self._attrs is None:
-            return None
-
-        if self._type == SENSOR_RANDOM_RECORD_TYPE and self._state is not None:
-            return {
-                "cat_no": self._attrs["labels"][0]["catno"],
-                "cover_image": self._attrs["cover_image"],
-                "format": f"{self._attrs['formats'][0]['name']} ({self._attrs['formats'][0]['descriptions'][0]})",
-                "label": self._attrs["labels"][0]["name"],
-                "released": self._attrs["year"],
-                ATTR_ATTRIBUTION: ATTRIBUTION,
-                ATTR_IDENTITY: self._discogs_data["user"],
-            }
-
-        return {
-            ATTR_ATTRIBUTION: ATTRIBUTION,
-            ATTR_IDENTITY: self._discogs_data["user"],
-        }
 
     def get_random_record(self):
         """Get a random record suggestion from the user's collection."""
@@ -157,8 +116,25 @@ class DiscogsSensor(SensorEntity):
     def update(self):
         """Set state to the amount of records in user's collection."""
         if self._type == SENSOR_COLLECTION_TYPE:
-            self._state = self._discogs_data["collection_count"]
+            self._attr_state = self._discogs_data["collection_count"]
         elif self._type == SENSOR_WANTLIST_TYPE:
-            self._state = self._discogs_data["wantlist_count"]
+            self._attr_state = self._discogs_data["wantlist_count"]
         else:
-            self._state = self.get_random_record()
+            self._attr_state = self.get_random_record()
+        if self.state is None or self._attrs is None:
+            self._attr_extra_state_attributes = None
+        elif self._type == SENSOR_RANDOM_RECORD_TYPE and self.state is not None:
+            self._attr_extra_state_attributes = {
+                "cat_no": self._attrs["labels"][0]["catno"],
+                "cover_image": self._attrs["cover_image"],
+                "format": f"{self._attrs['formats'][0]['name']} ({self._attrs['formats'][0]['descriptions'][0]})",
+                "label": self._attrs["labels"][0]["name"],
+                "released": self._attrs["year"],
+                ATTR_ATTRIBUTION: ATTRIBUTION,
+                ATTR_IDENTITY: self._discogs_data["user"],
+            }
+        else:
+            self._attr_extra_state_attributes = {
+                ATTR_ATTRIBUTION: ATTRIBUTION,
+                ATTR_IDENTITY: self._discogs_data["user"],
+            }
