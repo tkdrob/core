@@ -121,10 +121,10 @@ class Doods(ImageProcessingEntity):
         self.hass = hass
         self._camera_entity = camera_entity
         if name:
-            self._name = name
+            self._attr_name = name
         else:
             name = split_entity_id(camera_entity)[1]
-            self._name = f"Doods {name}"
+            self._attr_name = f"Doods {name}"
         self._doods = doods
         self._file_out = config[CONF_FILE_OUT]
         self._detector_name = detector["name"]
@@ -209,11 +209,6 @@ class Doods(ImageProcessingEntity):
     def camera_entity(self):
         """Return camera entity id from process pictures."""
         return self._camera_entity
-
-    @property
-    def name(self):
-        """Return the name of the image processor."""
-        return self._name
 
     @property
     def state(self):
