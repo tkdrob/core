@@ -177,15 +177,10 @@ class DominosOrder(Entity):
 
     def __init__(self, order_info, dominos):
         """Set up the entity."""
-        self._name = order_info["name"]
+        self._attr_name = order_info["name"]
         self._product_codes = order_info["codes"]
         self._orderable = False
         self.dominos = dominos
-
-    @property
-    def name(self):
-        """Return the orders name."""
-        return self._name
 
     @property
     def product_codes(self):
@@ -196,13 +191,6 @@ class DominosOrder(Entity):
     def orderable(self):
         """Return the true if orderable."""
         return self._orderable
-
-    @property
-    def state(self):
-        """Return the state either closed, orderable or unorderable."""
-        if self.dominos.closest_store is None:
-            return "closed"
-        return "orderable" if self._orderable else "unorderable"
 
     @Throttle(MIN_TIME_BETWEEN_UPDATES)
     def update(self):
@@ -219,6 +207,11 @@ class DominosOrder(Entity):
             self._orderable = True
         except StoreException:
             self._orderable = False
+
+        if self.dominos.closest_store is None:
+            self._attr_state = "closed"
+        else:
+            self._attr_state = "orderable" if self._orderable else "unorderable"
 
     def order(self):
         """Create the order object."""
