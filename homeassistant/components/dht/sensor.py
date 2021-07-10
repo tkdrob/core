@@ -115,30 +115,13 @@ class DHTSensor(SensorEntity):
         humidity_offset,
     ):
         """Initialize the sensor."""
-        self.client_name = name
-        self._name = SENSOR_TYPES[sensor_type][0]
+        self._attr_name = f"{name} {SENSOR_TYPES[sensor_type][0]}"
         self.dht_client = dht_client
         self.temp_unit = temp_unit
         self.type = sensor_type
         self.temperature_offset = temperature_offset
         self.humidity_offset = humidity_offset
-        self._state = None
-        self._unit_of_measurement = SENSOR_TYPES[sensor_type][1]
-
-    @property
-    def name(self):
-        """Return the name of the sensor."""
-        return f"{self.client_name} {self._name}"
-
-    @property
-    def state(self):
-        """Return the state of the sensor."""
-        return self._state
-
-    @property
-    def unit_of_measurement(self):
-        """Return the unit of measurement of this entity, if any."""
-        return self._unit_of_measurement
+        self._attr_unit_of_measurement = SENSOR_TYPES[sensor_type][1]
 
     def update(self):
         """Get the latest data from the DHT and updates the states."""
@@ -155,14 +138,14 @@ class DHTSensor(SensorEntity):
                 temperature_offset,
             )
             if -20 <= temperature < 80:
-                self._state = round(temperature + temperature_offset, 1)
+                self._attr_state = round(temperature + temperature_offset, 1)
                 if self.temp_unit == TEMP_FAHRENHEIT:
-                    self._state = round(celsius_to_fahrenheit(temperature), 1)
+                    self._attr_state = round(celsius_to_fahrenheit(temperature), 1)
         elif self.type == SENSOR_HUMIDITY and SENSOR_HUMIDITY in data:
             humidity = data[SENSOR_HUMIDITY]
             _LOGGER.debug("Humidity %.1f%% + offset %.1f", humidity, humidity_offset)
             if 0 <= humidity <= 100:
-                self._state = round(humidity + humidity_offset, 1)
+                self._attr_state = round(humidity + humidity_offset, 1)
 
 
 class DHTClient:
