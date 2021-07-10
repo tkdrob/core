@@ -170,11 +170,29 @@ class DlnaDmrDevice(MediaPlayerEntity):
 
     def __init__(self, dmr_device, name=None):
         """Initialize DLNA DMR device."""
-        self._device = dmr_device
-        self._name = name
+        self._device = self._attr_name = dmr_device
+        self._attr_unique_id = dmr_device.udn
 
-        self._available = False
         self._subscription_renew_time = None
+        self._attr_supported_features = 0
+        if dmr_device.has_volume_level:
+            self._attr_supported_features |= SUPPORT_VOLUME_SET
+        if dmr_device.has_volume_mute:
+            self._attr_supported_features |= SUPPORT_VOLUME_MUTE
+        if dmr_device.has_play:
+            self._attr_supported_features |= SUPPORT_PLAY
+        if dmr_device.has_pause:
+            self._attr_supported_features |= SUPPORT_PAUSE
+        if dmr_device.has_stop:
+            self._attr_supported_features |= SUPPORT_STOP
+        if dmr_device.has_previous:
+            self._attr_supported_features |= SUPPORT_PREVIOUS_TRACK
+        if dmr_device.has_next:
+            self._attr_supported_features |= SUPPORT_NEXT_TRACK
+        if dmr_device.has_play_media:
+            self._attr_supported_features |= SUPPORT_PLAY_MEDIA
+        if dmr_device.has_seek_rel_time:
+            self._attr_supported_features |= SUPPORT_SEEK
 
     async def async_added_to_hass(self):
         """Handle addition."""
@@ -184,11 +202,6 @@ class DlnaDmrDevice(MediaPlayerEntity):
         bus = self.hass.bus
         bus.async_listen_once(EVENT_HOMEASSISTANT_STOP, self._async_on_hass_stop)
 
-    @property
-    def available(self):
-        """Device is available."""
-        return self._available
-
     async def _async_on_hass_stop(self, event):
         """Event handler on Home Assistant stop."""
         async with self.hass.data[DLNA_DMR_DATA]["lock"]:
@@ -196,13 +209,13 @@ class DlnaDmrDevice(MediaPlayerEntity):
 
     async def async_update(self):
         """Retrieve the latest data."""
-        was_available = self._available
+        was_available = self.available
 
         try:
             await self._device.async_update()
-            self._available = True
+            self._attr_available = True
         except (asyncio.TimeoutError, aiohttp.ClientError):
-            self._available = False
+            self._attr_available = False
             _LOGGER.debug("Device unavailable")
             return
 
@@ -211,60 +224,44 @@ class DlnaDmrDevice(MediaPlayerEntity):
         should_renew = (
             self._subscription_renew_time and now >= self._subscription_renew_time
         )
-        if should_renew or not was_available and self._available:
+        if should_renew or not was_available and self.available:
             try:
                 timeout = await self._device.async_subscribe_services()
                 self._subscription_renew_time = dt_util.utcnow() + timeout / 2
             except (asyncio.TimeoutError, aiohttp.ClientError):
-                self._available = False
+                self._attr_available = False
                 _LOGGER.debug("Could not (re)subscribe")
+        if not self.available:
+            self._attr_state = STATE_OFF
+        elif self._device.state is None:
+            self._attr_state = STATE_ON
+        elif self._device.state == DeviceState.PLAYING:
+            self._attr_state = STATE_PLAYING
+        elif self._device.state == DeviceState.PAUSED:
+            self._attr_state = STATE_PAUSED
+        else:
+            self._attr_state = STATE_IDLE
+
+        if self._device.has_volume_level:
+            self._attr_volume_level = self._device.volume_level
+        else:
+            self._attr_volume_level = 0
+        self._attr_is_volume_muted = self._device.is_volume_muted
+
+        self._attr_media_title = self._device.media_title
+        self._attr_media_image_url = self._device.media_image_url
+        self._attr_media_duration = self._device.media_duration
+        self._attr_media_position = self._device.media_position
+        self._attr_media_position_updated_at = self._device.media_position_updated_at
 
     def _on_event(self, service, state_variables):
         """State variable(s) changed, let home-assistant know."""
         self.schedule_update_ha_state()
 
-    @property
-    def supported_features(self):
-        """Flag media player features that are supported."""
-        supported_features = 0
-
-        if self._device.has_volume_level:
-            supported_features |= SUPPORT_VOLUME_SET
-        if self._device.has_volume_mute:
-            supported_features |= SUPPORT_VOLUME_MUTE
-        if self._device.has_play:
-            supported_features |= SUPPORT_PLAY
-        if self._device.has_pause:
-            supported_features |= SUPPORT_PAUSE
-        if self._device.has_stop:
-            supported_features |= SUPPORT_STOP
-        if self._device.has_previous:
-            supported_features |= SUPPORT_PREVIOUS_TRACK
-        if self._device.has_next:
-            supported_features |= SUPPORT_NEXT_TRACK
-        if self._device.has_play_media:
-            supported_features |= SUPPORT_PLAY_MEDIA
-        if self._device.has_seek_rel_time:
-            supported_features |= SUPPORT_SEEK
-
-        return supported_features
-
-    @property
-    def volume_level(self):
-        """Volume level of the media player (0..1)."""
-        if self._device.has_volume_level:
-            return self._device.volume_level
-        return 0
-
     @catch_request_errors()
     async def async_set_volume_level(self, volume):
         """Set volume level, range 0..1."""
         await self._device.async_set_volume_level(volume)
-
-    @property
-    def is_volume_muted(self):
-        """Boolean if volume is currently muted."""
-        return self._device.is_volume_muted
 
     @catch_request_errors()
     async def async_mute_volume(self, mute):
@@ -347,58 +344,3 @@ class DlnaDmrDevice(MediaPlayerEntity):
             return
 
         await self._device.async_next()
-
-    @property
-    def media_title(self):
-        """Title of current playing media."""
-        return self._device.media_title
-
-    @property
-    def media_image_url(self):
-        """Image url of current playing media."""
-        return self._device.media_image_url
-
-    @property
-    def state(self):
-        """State of the player."""
-        if not self._available:
-            return STATE_OFF
-
-        if self._device.state is None:
-            return STATE_ON
-        if self._device.state == DeviceState.PLAYING:
-            return STATE_PLAYING
-        if self._device.state == DeviceState.PAUSED:
-            return STATE_PAUSED
-
-        return STATE_IDLE
-
-    @property
-    def media_duration(self):
-        """Duration of current playing media in seconds."""
-        return self._device.media_duration
-
-    @property
-    def media_position(self):
-        """Position of current playing media in seconds."""
-        return self._device.media_position
-
-    @property
-    def media_position_updated_at(self):
-        """When was the position of the current playing media valid.
-
-        Returns value from homeassistant.util.dt.utcnow().
-        """
-        return self._device.media_position_updated_at
-
-    @property
-    def name(self) -> str:
-        """Return the name of the device."""
-        if self._name:
-            return self._name
-        return self._device.name
-
-    @property
-    def unique_id(self) -> str:
-        """Return an unique ID."""
-        return self._device.udn
