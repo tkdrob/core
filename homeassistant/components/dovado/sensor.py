@@ -49,7 +49,7 @@ def setup_platform(hass, config, add_entities, discovery_info=None):
     for sensor in config[CONF_SENSORS]:
         entities.append(DovadoSensor(dovado, sensor))
 
-    add_entities(entities)
+    add_entities(entities, True)
 
 
 class DovadoSensor(SensorEntity):
@@ -58,8 +58,10 @@ class DovadoSensor(SensorEntity):
     def __init__(self, data, sensor):
         """Initialize the sensor."""
         self._data = data
+        self._attr_name = f"{data.name} {SENSORS[sensor][1]}"
+        self._attr_icon = SENSORS[sensor][3]
+        self._attr_unit_of_measurement = SENSORS[sensor][2]
         self._sensor = sensor
-        self._state = self._compute_state()
 
     def _compute_state(self):
         """Compute the state of the sensor."""
@@ -81,29 +83,7 @@ class DovadoSensor(SensorEntity):
     def update(self):
         """Update sensor values."""
         self._data.update()
-        self._state = self._compute_state()
-
-    @property
-    def name(self):
-        """Return the name of the sensor."""
-        return f"{self._data.name} {SENSORS[self._sensor][1]}"
-
-    @property
-    def state(self):
-        """Return the sensor state."""
-        return self._state
-
-    @property
-    def icon(self):
-        """Return the icon for the sensor."""
-        return SENSORS[self._sensor][3]
-
-    @property
-    def unit_of_measurement(self):
-        """Return the unit of measurement."""
-        return SENSORS[self._sensor][2]
-
-    @property
-    def extra_state_attributes(self):
-        """Return the state attributes."""
-        return {k: v for k, v in self._data.state.items() if k not in ["date", "time"]}
+        self._attr_state = self._compute_state()
+        self._attr_extra_state_attributes = {
+            k: v for k, v in self._data.state.items() if k not in ["date", "time"]
+        }
