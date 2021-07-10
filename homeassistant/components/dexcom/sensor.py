@@ -20,31 +20,18 @@ async def async_setup_entry(hass, config_entry, async_add_entities):
 class DexcomGlucoseValueSensor(CoordinatorEntity, SensorEntity):
     """Representation of a Dexcom glucose value sensor."""
 
+    _attr_icon = GLUCOSE_VALUE_ICON
+
     def __init__(self, coordinator, username, unit_of_measurement):
         """Initialize the sensor."""
         super().__init__(coordinator)
         self._state = None
-        self._unit_of_measurement = unit_of_measurement
+        self._attr_unit_of_measurement = unit_of_measurement
         self._attribute_unit_of_measurement = (
             "mg_dl" if unit_of_measurement == MG_DL else "mmol_l"
         )
-        self._name = f"{DOMAIN}_{username}_glucose_value"
-        self._unique_id = f"{username}-value"
-
-    @property
-    def name(self):
-        """Return the name of the sensor."""
-        return self._name
-
-    @property
-    def icon(self):
-        """Return the icon for the frontend."""
-        return GLUCOSE_VALUE_ICON
-
-    @property
-    def unit_of_measurement(self):
-        """Return the unit of measurement of the device."""
-        return self._unit_of_measurement
+        self._attr_name = f"{DOMAIN}_{username}_glucose_value"
+        self._attr_unique_id = f"{username}-value"
 
     @property
     def state(self):
@@ -52,11 +39,6 @@ class DexcomGlucoseValueSensor(CoordinatorEntity, SensorEntity):
         if self.coordinator.data:
             return getattr(self.coordinator.data, self._attribute_unit_of_measurement)
         return None
-
-    @property
-    def unique_id(self):
-        """Device unique id."""
-        return self._unique_id
 
 
 class DexcomGlucoseTrendSensor(CoordinatorEntity, SensorEntity):
@@ -66,20 +48,12 @@ class DexcomGlucoseTrendSensor(CoordinatorEntity, SensorEntity):
         """Initialize the sensor."""
         super().__init__(coordinator)
         self._state = None
-        self._name = f"{DOMAIN}_{username}_glucose_trend"
-        self._unique_id = f"{username}-trend"
-
-    @property
-    def name(self):
-        """Return the name of the sensor."""
-        return self._name
-
-    @property
-    def icon(self):
-        """Return the icon for the frontend."""
-        if self.coordinator.data:
-            return GLUCOSE_TREND_ICON[self.coordinator.data.trend]
-        return GLUCOSE_TREND_ICON[0]
+        self._attr_name = f"{DOMAIN}_{username}_glucose_trend"
+        self._attr_unique_id = f"{username}-trend"
+        if coordinator.data:
+            self._attr_icon = GLUCOSE_TREND_ICON[coordinator.data.trend]
+        else:
+            self._attr_icon = GLUCOSE_TREND_ICON[0]
 
     @property
     def state(self):
@@ -87,8 +61,3 @@ class DexcomGlucoseTrendSensor(CoordinatorEntity, SensorEntity):
         if self.coordinator.data:
             return self.coordinator.data.trend_description
         return None
-
-    @property
-    def unique_id(self):
-        """Device unique id."""
-        return self._unique_id
