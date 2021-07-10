@@ -34,42 +34,26 @@ async def async_setup_entry(hass, config_entry, async_add_entities):
 class DoorBirdSwitch(DoorBirdEntity, SwitchEntity):
     """A relay in a DoorBird device."""
 
+    _attr_should_poll = False
+
     def __init__(self, doorstation, doorstation_info, relay):
         """Initialize a relay in a DoorBird device."""
         super().__init__(doorstation, doorstation_info)
         self._doorstation = doorstation
         self._relay = relay
         self._state = False
+        if relay == IR_RELAY:
+            self._attr_name = f"{doorstation.name} IR"
+        else:
+            self._attr_name = f"{doorstation.name} Relay {relay}"
+        self._attr_icon = "mdi:lightbulb" if relay == IR_RELAY else "mdi:dip-switch"
+        self._attr_unique_id = f"{self._mac_addr}_{relay}"
 
         if relay == IR_RELAY:
             self._time = datetime.timedelta(minutes=5)
         else:
             self._time = datetime.timedelta(seconds=5)
-        self._unique_id = f"{self._mac_addr}_{self._relay}"
         self._reset_sub = None
-
-    @property
-    def unique_id(self):
-        """Switch unique id."""
-        return self._unique_id
-
-    @property
-    def name(self):
-        """Return the name of the switch."""
-        if self._relay == IR_RELAY:
-            return f"{self._doorstation.name} IR"
-
-        return f"{self._doorstation.name} Relay {self._relay}"
-
-    @property
-    def icon(self):
-        """Return the icon to display."""
-        return "mdi:lightbulb" if self._relay == IR_RELAY else "mdi:dip-switch"
-
-    @property
-    def should_poll(self):
-        """No need to poll."""
-        return False
 
     @property
     def is_on(self):

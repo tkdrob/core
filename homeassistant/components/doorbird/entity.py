@@ -18,19 +18,15 @@ class DoorBirdEntity(Entity):
     def __init__(self, doorstation, doorstation_info):
         """Initialize the entity."""
         super().__init__()
-        self._doorstation_info = doorstation_info
-        self._doorstation = doorstation
-        self._mac_addr = get_mac_address_from_doorstation_info(doorstation_info)
-
-    @property
-    def device_info(self):
-        """Doorbird device info."""
-        firmware = self._doorstation_info[DOORBIRD_INFO_KEY_FIRMWARE]
-        firmware_build = self._doorstation_info[DOORBIRD_INFO_KEY_BUILD_NUMBER]
-        return {
-            "connections": {(dr.CONNECTION_NETWORK_MAC, self._mac_addr)},
-            "name": self._doorstation.name,
+        self._attr_device_info = {
+            "connections": {
+                (
+                    dr.CONNECTION_NETWORK_MAC,
+                    get_mac_address_from_doorstation_info(doorstation_info),
+                )
+            },
+            "name": doorstation.name,
             "manufacturer": MANUFACTURER,
-            "sw_version": f"{firmware} {firmware_build}",
-            "model": self._doorstation_info[DOORBIRD_INFO_KEY_DEVICE_TYPE],
+            "sw_version": f"{doorstation_info[DOORBIRD_INFO_KEY_FIRMWARE]} {doorstation_info[DOORBIRD_INFO_KEY_BUILD_NUMBER]}",
+            "model": doorstation_info[DOORBIRD_INFO_KEY_DEVICE_TYPE],
         }
