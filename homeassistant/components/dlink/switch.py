@@ -63,16 +63,26 @@ class SmartPlugSwitch(SwitchEntity):
         """Initialize the switch."""
         self.units = hass.config.units
         self.data = data
-        self._name = name
+        self._attr_name = name
 
-    @property
-    def name(self):
-        """Return the name of the Smart Plug."""
-        return self._name
+    def turn_on(self, **kwargs):
+        """Turn the switch on."""
+        self.data.smartplug.state = "ON"
 
-    @property
-    def extra_state_attributes(self):
-        """Return the state attributes of the device."""
+    def turn_off(self, **kwargs):
+        """Turn the switch off."""
+        self.data.smartplug.state = "OFF"
+
+    def update(self):
+        """Get the latest data from the smart plug and updates the states."""
+        self.data.update()
+        self._attr_available = self.data.available
+        self._attr_is_on = self.data.state == "ON"
+        try:
+            self._attr_current_power_w = float(self.data.current_consumption)
+        except (ValueError, TypeError):
+            self._attr_current_power_w = None
+
         try:
             ui_temp = self.units.temperature(int(self.data.temperature), TEMP_CELSIUS)
             temperature = ui_temp
@@ -89,37 +99,7 @@ class SmartPlugSwitch(SwitchEntity):
             ATTR_TEMPERATURE: temperature,
         }
 
-        return attrs
-
-    @property
-    def current_power_w(self):
-        """Return the current power usage in Watt."""
-        try:
-            return float(self.data.current_consumption)
-        except (ValueError, TypeError):
-            return None
-
-    @property
-    def is_on(self):
-        """Return true if switch is on."""
-        return self.data.state == "ON"
-
-    def turn_on(self, **kwargs):
-        """Turn the switch on."""
-        self.data.smartplug.state = "ON"
-
-    def turn_off(self, **kwargs):
-        """Turn the switch off."""
-        self.data.smartplug.state = "OFF"
-
-    def update(self):
-        """Get the latest data from the smart plug and updates the states."""
-        self.data.update()
-
-    @property
-    def available(self) -> bool:
-        """Return True if entity is available."""
-        return self.data.available
+        self._attr_extra_state_attributes = attrs
 
 
 class SmartPlugData:
