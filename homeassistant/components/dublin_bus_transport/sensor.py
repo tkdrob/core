@@ -68,58 +68,34 @@ def setup_platform(hass, config, add_entities, discovery_info=None):
 class DublinPublicTransportSensor(SensorEntity):
     """Implementation of an Dublin public transport sensor."""
 
+    _attr_icon = ICON
+    _attr_unit_of_measurement = TIME_MINUTES
+
     def __init__(self, data, stop, route, name):
         """Initialize the sensor."""
         self.data = data
-        self._name = name
+        self._attr_name = name
         self._stop = stop
-        self._route = route
-        self._times = self._state = None
-
-    @property
-    def name(self):
-        """Return the name of the sensor."""
-        return self._name
-
-    @property
-    def state(self):
-        """Return the state of the sensor."""
-        return self._state
-
-    @property
-    def extra_state_attributes(self):
-        """Return the state attributes."""
-        if self._times is not None:
-            next_up = "None"
-            if len(self._times) > 1:
-                next_up = f"{self._times[1][ATTR_ROUTE]} in "
-                next_up += self._times[1][ATTR_DUE_IN]
-
-            return {
-                ATTR_DUE_IN: self._times[0][ATTR_DUE_IN],
-                ATTR_DUE_AT: self._times[0][ATTR_DUE_AT],
-                ATTR_STOP_ID: self._stop,
-                ATTR_ROUTE: self._times[0][ATTR_ROUTE],
-                ATTR_ATTRIBUTION: ATTRIBUTION,
-                ATTR_NEXT_UP: next_up,
-            }
-
-    @property
-    def unit_of_measurement(self):
-        """Return the unit this state is expressed in."""
-        return TIME_MINUTES
-
-    @property
-    def icon(self):
-        """Icon to use in the frontend, if any."""
-        return ICON
 
     def update(self):
         """Get the latest data from opendata.ch and update the states."""
         self.data.update()
-        self._times = self.data.info
         with suppress(TypeError):
-            self._state = self._times[0][ATTR_DUE_IN]
+            self._attr_state = self.data.info[0][ATTR_DUE_IN]
+        if self.data.info is not None:
+            next_up = "None"
+            if len(self.data.info) > 1:
+                next_up = f"{self.data.info[1][ATTR_ROUTE]} in "
+                next_up += self.data.info[1][ATTR_DUE_IN]
+
+            self._attr_extra_state_attributes = {
+                ATTR_DUE_IN: self.data.info[0][ATTR_DUE_IN],
+                ATTR_DUE_AT: self.data.info[0][ATTR_DUE_AT],
+                ATTR_STOP_ID: self._stop,
+                ATTR_ROUTE: self.data.info[0][ATTR_ROUTE],
+                ATTR_ATTRIBUTION: ATTRIBUTION,
+                ATTR_NEXT_UP: next_up,
+            }
 
 
 class PublicTransportData:
