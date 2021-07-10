@@ -56,43 +56,12 @@ def setup_platform(hass, config, add_entities, discovery_info=None):
 class DigitalOceanBinarySensor(BinarySensorEntity):
     """Representation of a Digital Ocean droplet sensor."""
 
+    _attr_device_class = DEVICE_CLASS_MOVING
+
     def __init__(self, do, droplet_id):
         """Initialize a new Digital Ocean sensor."""
         self._digital_ocean = do
         self._droplet_id = droplet_id
-        self._state = None
-        self.data = None
-
-    @property
-    def name(self):
-        """Return the name of the sensor."""
-        return self.data.name
-
-    @property
-    def is_on(self):
-        """Return true if the binary sensor is on."""
-        return self.data.status == "active"
-
-    @property
-    def device_class(self):
-        """Return the class of this sensor."""
-        return DEVICE_CLASS_MOVING
-
-    @property
-    def extra_state_attributes(self):
-        """Return the state attributes of the Digital Ocean droplet."""
-        return {
-            ATTR_ATTRIBUTION: ATTRIBUTION,
-            ATTR_CREATED_AT: self.data.created_at,
-            ATTR_DROPLET_ID: self.data.id,
-            ATTR_DROPLET_NAME: self.data.name,
-            ATTR_FEATURES: self.data.features,
-            ATTR_IPV4_ADDRESS: self.data.ip_address,
-            ATTR_IPV6_ADDRESS: self.data.ip_v6_address,
-            ATTR_MEMORY: self.data.memory,
-            ATTR_REGION: self.data.region["name"],
-            ATTR_VCPUS: self.data.vcpus,
-        }
 
     def update(self):
         """Update state of sensor."""
@@ -100,4 +69,17 @@ class DigitalOceanBinarySensor(BinarySensorEntity):
 
         for droplet in self._digital_ocean.data:
             if droplet.id == self._droplet_id:
-                self.data = droplet
+                self._attr_is_on = droplet.status == "active"
+                self._attr_name = droplet.name
+                self._attr_extra_state_attributes = {
+                    ATTR_ATTRIBUTION: ATTRIBUTION,
+                    ATTR_CREATED_AT: droplet.created_at,
+                    ATTR_DROPLET_ID: droplet.id,
+                    ATTR_DROPLET_NAME: droplet.name,
+                    ATTR_FEATURES: droplet.features,
+                    ATTR_IPV4_ADDRESS: droplet.ip_address,
+                    ATTR_IPV6_ADDRESS: droplet.ip_v6_address,
+                    ATTR_MEMORY: droplet.memory,
+                    ATTR_REGION: droplet.region["name"],
+                    ATTR_VCPUS: droplet.vcpus,
+                }
