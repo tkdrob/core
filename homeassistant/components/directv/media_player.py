@@ -104,6 +104,7 @@ class DIRECTVMediaPlayer(DIRECTVEntity, MediaPlayerEntity):
         self._is_standby = True
         self._last_position = None
         self._last_update = None
+        self._paused = None
         self._program = None
         self._attr_supported_features = (
             SUPPORT_DTV_CLIENT if self._is_client else SUPPORT_DTV
@@ -121,9 +122,9 @@ class DIRECTVMediaPlayer(DIRECTVEntity, MediaPlayerEntity):
             self._is_recorded = None
             self._last_position = None
             self._last_update = None
-            paused = None
+            self._paused = None
         elif self._program is not None:
-            paused = self._last_position == self._program.position
+            self._paused = self._last_position == self._program.position
             self._is_recorded = self._program.recorded
             self._last_position = self._program.position
             self._last_update = state.at
@@ -136,7 +137,7 @@ class DIRECTVMediaPlayer(DIRECTVEntity, MediaPlayerEntity):
             # For recorded media we can determine if it is paused or not.
             # For live media we're unable to determine and will always return
             # playing instead.
-            if paused:
+            if self._paused:
                 self._attr_state = STATE_PAUSED
             else:
                 self._attr_state = STATE_PLAYING
