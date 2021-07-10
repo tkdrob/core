@@ -104,99 +104,81 @@ class DIRECTVMediaPlayer(DIRECTVEntity, MediaPlayerEntity):
         self._is_standby = True
         self._last_position = None
         self._last_update = None
-        self._paused = None
         self._program = None
-        self._state = None
+        self._attr_supported_features = (
+            SUPPORT_DTV_CLIENT if self._is_client else SUPPORT_DTV
+        )
 
     async def async_update(self):
         """Retrieve latest state."""
-        self._state = await self.dtv.state(self._address)
-        self._attr_available = self._state.available
-        self._is_standby = self._state.standby
-        self._program = self._state.program
+        state = await self.dtv.state(self._address)
+        self._attr_available = state.available
+        self._is_standby = state.standby
+        self._program = state.program
 
         if self._is_standby:
             self._attr_assumed_state = False
             self._is_recorded = None
             self._last_position = None
             self._last_update = None
-            self._paused = None
+            paused = None
         elif self._program is not None:
-            self._paused = self._last_position == self._program.position
+            paused = self._last_position == self._program.position
             self._is_recorded = self._program.recorded
             self._last_position = self._program.position
-            self._last_update = self._state.at
+            self._last_update = state.at
             self._attr_assumed_state = self._is_recorded
 
-    @property
-    def extra_state_attributes(self):
-        """Return device specific state attributes."""
         if self._is_standby:
-            return {}
-        return {
-            ATTR_MEDIA_CURRENTLY_RECORDING: self.media_currently_recording,
-            ATTR_MEDIA_RATING: self.media_rating,
-            ATTR_MEDIA_RECORDED: self.media_recorded,
-            ATTR_MEDIA_START_TIME: self.media_start_time,
-        }
+            self._attr_state = STATE_OFF
+            self._attr_extra_state_attributes = {}
+        else:
+            # For recorded media we can determine if it is paused or not.
+            # For live media we're unable to determine and will always return
+            # playing instead.
+            if paused:
+                self._attr_state = STATE_PAUSED
+            else:
+                self._attr_state = STATE_PLAYING
+            self._attr_extra_state_attributes = {
+                ATTR_MEDIA_CURRENTLY_RECORDING: self.media_currently_recording,
+                ATTR_MEDIA_RATING: self.media_rating,
+                ATTR_MEDIA_RECORDED: self.media_recorded,
+                ATTR_MEDIA_START_TIME: self.media_start_time,
+            }
+        self.update_media()
 
-    # MediaPlayerEntity properties and methods
-    @property
-    def state(self):
-        """Return the state of the device."""
-        if self._is_standby:
-            return STATE_OFF
-
-        # For recorded media we can determine if it is paused or not.
-        # For live media we're unable to determine and will always return
-        # playing instead.
-        if self._paused:
-            return STATE_PAUSED
-
-        return STATE_PLAYING
-
-    @property
-    def media_content_id(self):
-        """Return the content ID of current playing media."""
+    def update_media(self):
+        """Update media attributes."""
         if self._is_standby or self._program is None:
-            return None
-
-        return self._program.program_id
-
-    @property
-    def media_content_type(self):
-        """Return the content type of current playing media."""
-        if self._is_standby or self._program is None:
-            return None
-
-        if self._program.program_type in KNOWN_MEDIA_TYPES:
-            return self._program.program_type
-
-        return MEDIA_TYPE_MOVIE
-
-    @property
-    def media_duration(self):
-        """Return the duration of current playing media in seconds."""
-        if self._is_standby or self._program is None:
-            return None
-
-        return self._program.duration
-
-    @property
-    def media_position(self):
-        """Position of current playing media in seconds."""
+            self._attr_media_content_id = None
+            self._attr_media_content_type = None
+            self._attr_media_duration = None
+            self._attr_media_artist = None
+            self._attr_media_album_name = None
+            self._attr_media_series_title = None
+            self._attr_media_channel = None
+            self._attr_source = None
+        else:
+            if self._program.program_type in KNOWN_MEDIA_TYPES:
+                self._attr_media_content_type = self._program.program_type
+            else:
+                self._attr_media_content_type = MEDIA_TYPE_MOVIE
+            self._attr_media_content_id = self._program.program_id
+            self._attr_media_duration = self._program.duration
+            self._attr_media_artist = self._program.music_artist
+            self._attr_media_album_name = self._program.music_album
+            self._attr_media_series_title = self._program.episode_title
+            self._attr_media_channel = (
+                f"{self._program.channel_name} ({self._program.channel})"
+            )
+            self._attr_source = self._program.channel
         if self._is_standby:
-            return None
-
-        return self._last_position
-
-    @property
-    def media_position_updated_at(self):
-        """When was the position of the current playing media valid."""
-        if self._is_standby:
-            return None
-
-        return self._last_update
+            self._attr_media_position = None
+            self._attr_media_position_updated_at = None
+        else:
+            self._attr_media_position = self._last_position
+            self._attr_media_position_updated_at = self._last_update
 
     @property
     def media_title(self):
@@ -208,51 +190,6 @@ class DIRECTVMediaPlayer(DIRECTVEntity, MediaPlayerEntity):
             return self._program.music_title
 
         return self._program.title
-
-    @property
-    def media_artist(self):
-        """Artist of current playing media, music track only."""
-        if self._is_standby or self._program is None:
-            return None
-
-        return self._program.music_artist
-
-    @property
-    def media_album_name(self):
-        """Album name of current playing media, music track only."""
-        if self._is_standby or self._program is None:
-            return None
-
-        return self._program.music_album
-
-    @property
-    def media_series_title(self):
-        """Return the title of current episode of TV show."""
-        if self._is_standby or self._program is None:
-            return None
-
-        return self._program.episode_title
-
-    @property
-    def media_channel(self):
-        """Return the channel current playing media."""
-        if self._is_standby or self._program is None:
-            return None
-
-        return f"{self._program.channel_name} ({self._program.channel})"
-
-    @property
-    def source(self):
-        """Name of the current input source."""
-        if self._is_standby or self._program is None:
-            return None
-
-        return self._program.channel
-
-    @property
-    def supported_features(self):
-        """Flag media player features that are supported."""
-        return SUPPORT_DTV_CLIENT if self._is_client else SUPPORT_DTV
 
     @property
     def media_currently_recording(self):
