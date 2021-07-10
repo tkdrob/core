@@ -136,6 +136,14 @@ async def async_setup_entry(
 class DenonDevice(MediaPlayerEntity):
     """Representation of a Denon Media Player Device."""
 
+    _attr_media_album_artist = None
+    _attr_media_content_id = None
+    _attr_media_duration = None
+    _attr_media_episode = None
+    _attr_media_season = None
+    _attr_media_series_title = None
+    _attr_media_track = None
+
     def __init__(
         self,
         receiver: DenonAVR,
@@ -145,15 +153,25 @@ class DenonDevice(MediaPlayerEntity):
     ) -> None:
         """Initialize the device."""
         self._receiver = receiver
-        self._unique_id = unique_id
+        self._attr_name = receiver.name
+        self._attr_unique_id = unique_id
         self._config_entry = config_entry
         self._update_audyssey = update_audyssey
 
         self._supported_features_base = SUPPORT_DENON
         self._supported_features_base |= (
-            self._receiver.support_sound_mode and SUPPORT_SELECT_SOUND_MODE
+            receiver.support_sound_mode and SUPPORT_SELECT_SOUND_MODE
         )
         self._available = True
+        if config_entry.data[CONF_SERIAL_NUMBER]:
+            self._attr_device_info = {
+                "identifiers": {(DOMAIN, config_entry.unique_id)},
+                "manufacturer": config_entry.data[CONF_MANUFACTURER],
+                "name": config_entry.title,
+                "model": f"{config_entry.data[CONF_MODEL]}-{config_entry.data[CONF_TYPE]}",
+            }
+        else:
+            self._attr_device_info = None
 
     def async_log_errors(
         func: Coroutine,
@@ -231,31 +249,6 @@ class DenonDevice(MediaPlayerEntity):
         return self._available
 
     @property
-    def unique_id(self):
-        """Return the unique id of the zone."""
-        return self._unique_id
-
-    @property
-    def device_info(self):
-        """Return the device info of the receiver."""
-        if self._config_entry.data[CONF_SERIAL_NUMBER] is None:
-            return None
-
-        device_info = {
-            "identifiers": {(DOMAIN, self._config_entry.unique_id)},
-            "manufacturer": self._config_entry.data[CONF_MANUFACTURER],
-            "name": self._config_entry.title,
-            "model": f"{self._config_entry.data[CONF_MODEL]}-{self._config_entry.data[CONF_TYPE]}",
-        }
-
-        return device_info
-
-    @property
-    def name(self):
-        """Return the name of the device."""
-        return self._receiver.name
-
-    @property
     def state(self):
         """Return the state of the device."""
         return self._receiver.state
@@ -302,11 +295,6 @@ class DenonDevice(MediaPlayerEntity):
         return self._supported_features_base
 
     @property
-    def media_content_id(self):
-        """Content ID of current playing media."""
-        return None
-
-    @property
     def media_content_type(self):
         """Content type of current playing media."""
         if (
@@ -315,11 +303,6 @@ class DenonDevice(MediaPlayerEntity):
         ):
             return MEDIA_TYPE_MUSIC
         return MEDIA_TYPE_CHANNEL
-
-    @property
-    def media_duration(self):
-        """Duration of current playing media in seconds."""
-        return None
 
     @property
     def media_image_url(self):
@@ -350,31 +333,6 @@ class DenonDevice(MediaPlayerEntity):
         if self._receiver.album is not None:
             return self._receiver.album
         return self._receiver.station
-
-    @property
-    def media_album_artist(self):
-        """Album artist of current playing media, music track only."""
-        return None
-
-    @property
-    def media_track(self):
-        """Track number of current playing media, music track only."""
-        return None
-
-    @property
-    def media_series_title(self):
-        """Title of series of current playing media, TV show only."""
-        return None
-
-    @property
-    def media_season(self):
-        """Season of current playing media, TV show only."""
-        return None
-
-    @property
-    def media_episode(self):
-        """Episode of current playing media, TV show only."""
-        return None
 
     @property
     def extra_state_attributes(self):
