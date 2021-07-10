@@ -42,43 +42,28 @@ def setup_platform(hass, config, add_entities, discovery_info=None):
 class DeutscheBahnSensor(SensorEntity):
     """Implementation of a Deutsche Bahn sensor."""
 
+    _attr_icon = ICON
+
     def __init__(self, start, goal, offset, only_direct):
         """Initialize the sensor."""
-        self._name = f"{start} to {goal}"
+        self._attr_name = f"{start} to {goal}"
         self.data = SchieneData(start, goal, offset, only_direct)
-        self._state = None
-
-    @property
-    def name(self):
-        """Return the name of the sensor."""
-        return self._name
-
-    @property
-    def icon(self):
-        """Return the icon for the frontend."""
-        return ICON
-
-    @property
-    def state(self):
-        """Return the departure time of the next train."""
-        return self._state
-
-    @property
-    def extra_state_attributes(self):
-        """Return the state attributes."""
-        connections = self.data.connections[0]
-        if len(self.data.connections) > 1:
-            connections["next"] = self.data.connections[1]["departure"]
-        if len(self.data.connections) > 2:
-            connections["next_on"] = self.data.connections[2]["departure"]
-        return connections
 
     def update(self):
         """Get the latest delay from bahn.de and updates the state."""
         self.data.update()
-        self._state = self.data.connections[0].get("departure", "Unknown")
+        self._attr_state = self.data.connections[0].get("departure", "Unknown")
         if self.data.connections[0].get("delay", 0) != 0:
-            self._state += f" + {self.data.connections[0]['delay']}"
+            self._attr_state += f" + {self.data.connections[0]['delay']}"
+        self._attr_extra_state_attributes = self.data.connections[0]
+        if len(self.data.connections) > 1:
+            self._attr_extra_state_attributes["next"] = self.data.connections[1][
+                "departure"
+            ]
+        if len(self.data.connections) > 2:
+            self._attr_extra_state_attributes["next_on"] = self.data.connections[2][
+                "departure"
+            ]
 
 
 class SchieneData:
