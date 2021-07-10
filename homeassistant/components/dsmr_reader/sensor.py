@@ -25,17 +25,17 @@ class DSMRSensor(SensorEntity):
     def __init__(self, topic):
         """Initialize the sensor."""
 
-        self._definition = DEFINITIONS[topic]
+        definition = DEFINITIONS[topic]
 
         self._entity_id = slugify(topic.replace("/", "_"))
         self._topic = topic
 
-        self._name = self._definition.get("name", topic.split("/")[-1])
-        self._device_class = self._definition.get("device_class")
-        self._enable_default = self._definition.get("enable_default")
-        self._unit_of_measurement = self._definition.get("unit")
-        self._icon = self._definition.get("icon")
-        self._transform = self._definition.get("transform")
+        self._attr_name = definition.get("name", topic.split("/")[-1])
+        self._attr_device_class = definition.get("device_class")
+        self._attr_enable_default = definition.get("enable_default")
+        self._attr_unit_of_measurement = definition.get("unit")
+        self._attr_icon = definition.get("icon")
+        self._transform = definition.get("transform")
         self._state = None
 
     async def async_added_to_hass(self):
@@ -55,11 +55,6 @@ class DSMRSensor(SensorEntity):
         await mqtt.async_subscribe(self.hass, self._topic, message_received, 1)
 
     @property
-    def name(self):
-        """Return the name of the sensor supplied in constructor."""
-        return self._name
-
-    @property
     def entity_id(self):
         """Return the entity ID for this sensor."""
         return f"sensor.{self._entity_id}"
@@ -68,23 +63,3 @@ class DSMRSensor(SensorEntity):
     def state(self):
         """Return the current state of the entity."""
         return self._state
-
-    @property
-    def device_class(self):
-        """Return the device_class of this sensor."""
-        return self._device_class
-
-    @property
-    def unit_of_measurement(self):
-        """Return the unit_of_measurement of this sensor."""
-        return self._unit_of_measurement
-
-    @property
-    def entity_registry_enabled_default(self) -> bool:
-        """Return if the entity should be enabled when first added to the entity registry."""
-        return self._enable_default
-
-    @property
-    def icon(self):
-        """Return the icon of this sensor."""
-        return self._icon
