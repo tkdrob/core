@@ -59,10 +59,10 @@ def setup_platform(hass, config, add_entities, discovery_info=None):
             _LOGGER.error("Skipping %s", dev_name)
             continue
 
-        devices.append(EddystoneTemp(name, namespace, instance))
+        devices.append(EddystoneTemp(name))
 
     if devices:
-        mon = Monitor(hass, devices, bt_device_id)
+        mon = Monitor(devices, bt_device_id)
 
         def monitor_stop(_service_or_event):
             """Stop the monitor thread."""
@@ -99,48 +99,29 @@ def get_from_conf(config, config_key, length):
 class EddystoneTemp(SensorEntity):
     """Representation of a temperature sensor."""
 
-    def __init__(self, name, namespace, instance):
-        """Initialize a sensor."""
-        self._name = name
-        self.namespace = namespace
-        self.instance = instance
-        self.bt_addr = None
-        self.temperature = STATE_UNKNOWN
+    _attr_should_poll = False
+    _attr_unit_of_measurement = TEMP_CELSIUS
 
-    @property
-    def name(self):
-        """Return the name of the sensor."""
-        return self._name
+    def __init__(self, name):
+        """Initialize a sensor."""
+        self._attr_name = name
+        self.temperature = STATE_UNKNOWN
 
     @property
     def state(self):
         """Return the state of the device."""
         return self.temperature
 
-    @property
-    def unit_of_measurement(self):
-        """Return the unit the value is expressed in."""
-        return TEMP_CELSIUS
-
-    @property
-    def should_poll(self):
-        """Return the polling state."""
-        return False
-
 
 class Monitor:
     """Continuously scan for BLE advertisements."""
 
-    def __init__(self, hass, devices, bt_device_id):
+    def __init__(self, devices, bt_device_id):
         """Construct interface object."""
-        self.hass = hass
-
         # List of beacons to monitor
         self.devices = devices
-        # Number of the bt device (hciX)
-        self.bt_device_id = bt_device_id
 
-        def callback(bt_addr, _, packet, additional_info):
+        def callback(_, __, packet, additional_info):
             """Handle new packets."""
             self.process_packet(
                 additional_info["namespace"],
