@@ -28,7 +28,6 @@ async def async_setup_platform(hass, config, async_add_entities, discovery_info=
     for zone_num in configured_zones:
         device_config_data = ZONE_SCHEMA(configured_zones[zone_num])
         device = EnvisalinkBinarySensor(
-            hass,
             zone_num,
             device_config_data[CONF_ZONENAME],
             device_config_data[CONF_ZONETYPE],
@@ -43,10 +42,10 @@ async def async_setup_platform(hass, config, async_add_entities, discovery_info=
 class EnvisalinkBinarySensor(EnvisalinkDevice, BinarySensorEntity):
     """Representation of an Envisalink binary sensor."""
 
-    def __init__(self, hass, zone_number, zone_name, zone_type, info, controller):
+    def __init__(self, zone_number, zone_name, zone_type, info, controller):
         """Initialize the binary_sensor."""
-        self._zone_type = zone_type
         self._zone_number = zone_number
+        self._attr_device_class = zone_type
 
         _LOGGER.debug("Setting up zone: %s", zone_name)
         super().__init__(zone_name, info, controller)
@@ -84,11 +83,6 @@ class EnvisalinkBinarySensor(EnvisalinkDevice, BinarySensorEntity):
     def is_on(self):
         """Return true if sensor is on."""
         return self._info["status"]["open"]
-
-    @property
-    def device_class(self):
-        """Return the class of this sensor, from DEVICE_CLASSES."""
-        return self._zone_type
 
     @callback
     def _update_callback(self, zone):

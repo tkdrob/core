@@ -61,7 +61,6 @@ async def async_setup_platform(hass, config, async_add_entities, discovery_info=
     for part_num in configured_partitions:
         device_config_data = PARTITION_SCHEMA(configured_partitions[part_num])
         device = EnvisalinkAlarm(
-            hass,
             part_num,
             device_config_data[CONF_PARTITIONNAME],
             code,
@@ -100,12 +99,20 @@ class EnvisalinkAlarm(EnvisalinkDevice, AlarmControlPanelEntity):
     """Representation of an Envisalink-based alarm panel."""
 
     def __init__(
-        self, hass, partition_number, alarm_name, code, panic_type, info, controller
+        self, partition_number, alarm_name, code, panic_type, info, controller
     ):
         """Initialize the alarm panel."""
         self._partition_number = partition_number
         self._code = code
         self._panic_type = panic_type
+        if not code:
+            self._attr_code_format = FORMAT_NUMBER
+        self._attr_supported_features = (
+            SUPPORT_ALARM_ARM_HOME
+            | SUPPORT_ALARM_ARM_AWAY
+            | SUPPORT_ALARM_ARM_NIGHT
+            | SUPPORT_ALARM_TRIGGER
+        )
 
         _LOGGER.debug("Setting up alarm: %s", alarm_name)
         super().__init__(alarm_name, info, controller)
@@ -130,13 +137,6 @@ class EnvisalinkAlarm(EnvisalinkDevice, AlarmControlPanelEntity):
             self.async_write_ha_state()
 
     @property
-    def code_format(self):
-        """Regex for code format or None if no code is required."""
-        if self._code:
-            return None
-        return FORMAT_NUMBER
-
-    @property
     def state(self):
         """Return the state of the device."""
         state = STATE_UNKNOWN
@@ -156,16 +156,6 @@ class EnvisalinkAlarm(EnvisalinkDevice, AlarmControlPanelEntity):
         elif self._info["status"]["alpha"]:
             state = STATE_ALARM_DISARMED
         return state
-
-    @property
-    def supported_features(self) -> int:
-        """Return the list of supported features."""
-        return (
-            SUPPORT_ALARM_ARM_HOME
-            | SUPPORT_ALARM_ARM_AWAY
-            | SUPPORT_ALARM_ARM_NIGHT
-            | SUPPORT_ALARM_TRIGGER
-        )
 
     async def async_alarm_disarm(self, code=None):
         """Send disarm command."""

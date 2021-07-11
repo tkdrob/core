@@ -25,7 +25,6 @@ async def async_setup_platform(hass, config, async_add_entities, discovery_info=
     for part_num in configured_partitions:
         device_config_data = PARTITION_SCHEMA(configured_partitions[part_num])
         device = EnvisalinkSensor(
-            hass,
             device_config_data[CONF_PARTITIONNAME],
             part_num,
             hass.data[DATA_EVL].alarm_state["partition"][part_num],
@@ -40,9 +39,10 @@ async def async_setup_platform(hass, config, async_add_entities, discovery_info=
 class EnvisalinkSensor(EnvisalinkDevice, SensorEntity):
     """Representation of an Envisalink keypad."""
 
-    def __init__(self, hass, partition_name, partition_number, info, controller):
+    _icon = "mdi:alarm"
+
+    def __init__(self, partition_name, partition_number, info, controller):
         """Initialize the sensor."""
-        self._icon = "mdi:alarm"
         self._partition_number = partition_number
 
         _LOGGER.debug("Setting up sensor for partition: %s", partition_name)
@@ -54,11 +54,6 @@ class EnvisalinkSensor(EnvisalinkDevice, SensorEntity):
         async_dispatcher_connect(
             self.hass, SIGNAL_PARTITION_UPDATE, self._update_callback
         )
-
-    @property
-    def icon(self):
-        """Return the icon if any."""
-        return self._icon
 
     @property
     def state(self):
