@@ -73,67 +73,20 @@ def setup_platform(hass, config, add_entities, discovery_info=None):
 class EphEmberThermostat(ClimateEntity):
     """Representation of a EphEmber thermostat."""
 
+    _attr_hvac_modes = OPERATION_LIST
+    _attr_temperature_unit = TEMP_CELSIUS
+
     def __init__(self, ember, zone):
         """Initialize the thermostat."""
         self._ember = ember
-        self._zone_name = zone_name(zone)
+        self._zone_name = self._attr_name = zone_name(zone)
         self._zone = zone
         self._hot_water = zone_is_hot_water(zone)
-
-    @property
-    def supported_features(self):
-        """Return the list of supported features."""
+        self._attr_supported_features = SUPPORT_TARGET_TEMPERATURE | SUPPORT_AUX_HEAT
         if self._hot_water:
-            return SUPPORT_AUX_HEAT
-
-        return SUPPORT_TARGET_TEMPERATURE | SUPPORT_AUX_HEAT
-
-    @property
-    def name(self):
-        """Return the name of the thermostat, if any."""
-        return self._zone_name
-
-    @property
-    def temperature_unit(self):
-        """Return the unit of measurement which this thermostat uses."""
-        return TEMP_CELSIUS
-
-    @property
-    def current_temperature(self):
-        """Return the current temperature."""
-        return zone_current_temperature(self._zone)
-
-    @property
-    def target_temperature(self):
-        """Return the temperature we try to reach."""
-        return zone_target_temperature(self._zone)
-
-    @property
-    def target_temperature_step(self):
-        """Return the supported step of target temperature."""
-        if self._hot_water:
-            return None
-
-        return 0.5
-
-    @property
-    def hvac_action(self):
-        """Return current HVAC action."""
-        if zone_is_active(self._zone):
-            return CURRENT_HVAC_HEAT
-
-        return CURRENT_HVAC_IDLE
-
-    @property
-    def hvac_mode(self):
-        """Return current operation ie. heat, cool, idle."""
-        mode = zone_mode(self._zone)
-        return self.map_mode_eph_hass(mode)
-
-    @property
-    def hvac_modes(self):
-        """Return the supported operations."""
-        return OPERATION_LIST
+            self._attr_supported_features = SUPPORT_AUX_HEAT
+        else:
+            self._attr_target_temperature_step = 0.5
 
     def set_hvac_mode(self, hvac_mode):
         """Set the operation mode."""
@@ -142,12 +95,6 @@ class EphEmberThermostat(ClimateEntity):
             self._ember.set_mode_by_name(self._zone_name, mode)
         else:
             _LOGGER.error("Invalid operation mode provided %s", hvac_mode)
-
-    @property
-    def is_aux_heat(self):
-        """Return true if aux heater."""
-
-        return zone_is_boost_active(self._zone)
 
     def turn_aux_heat_on(self):
         """Turn auxiliary heater on."""
@@ -176,26 +123,21 @@ class EphEmberThermostat(ClimateEntity):
 
         self._ember.set_target_temperture_by_name(self._zone_name, temperature)
 
-    @property
-    def min_temp(self):
-        """Return the minimum temperature."""
-        # Hot water temp doesn't support being changed
-        if self._hot_water:
-            return zone_target_temperature(self._zone)
-
-        return 5.0
-
-    @property
-    def max_temp(self):
-        """Return the maximum temperature."""
-        if self._hot_water:
-            return zone_target_temperature(self._zone)
-
-        return 35.0
-
     def update(self):
         """Get the latest data."""
         self._zone = self._ember.get_zone(self._zone_name)
+        self._attr_current_temperature = zone_current_temperature(self._zone)
+        self._attr_target_temperature = zone_target_temperature(self._zone)
+        self._attr_hvac = CURRENT_HVAC_IDLE
+        if zone_is_active(self._zone):
+            self._attr_hvac_action = CURRENT_HVAC_HEAT
+        self._attr_hvac_mode = self.map_mode_eph_hass(zone_mode(self._zone))
+        self._attr_min_temp = 5.0
+        self._attr_max_temp = 35.0
+        if self._hot_water:
+            self._attr_min_temp = zone_target_temperature(self._zone)
+            self._attr_max_temp = zone_target_temperature(self._zone)
+        self._attr_is_aux_heat = zone_is_boost_active(self._zone)
 
     @staticmethod
     def map_mode_hass_eph(operation_mode):
