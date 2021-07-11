@@ -31,33 +31,23 @@ async def async_setup_platform(hass, config, async_add_entities, discovery_info=
 class EightHeatSensor(EightSleepHeatEntity, BinarySensorEntity):
     """Representation of a Eight Sleep heat-based sensor."""
 
+    _attr_device_class = DEVICE_CLASS_OCCUPANCY
+
     def __init__(self, name, eight, sensor):
         """Initialize the sensor."""
-        super().__init__(eight)
+        side = sensor.split("_")[0]
+        userid = eight.fetch_userid(side)
+        self._usrobj = eight.users[userid]
 
-        self._sensor = sensor
-        self._mapped_name = NAME_MAP.get(self._sensor, self._sensor)
-        self._state = None
-
-        self._side = self._sensor.split("_")[0]
-        self._userid = self._eight.fetch_userid(self._side)
-        self._usrobj = self._eight.users[self._userid]
-
-        self._attr_name = f"{name} {self._mapped_name}"
-        self._attr_device_class = DEVICE_CLASS_OCCUPANCY
+        self._attr_name = f"{name} {NAME_MAP.get(sensor, sensor)}"
 
         _LOGGER.debug(
             "Presence Sensor: %s, Side: %s, User: %s",
-            self._sensor,
-            self._side,
-            self._userid,
+            sensor,
+            side,
+            userid,
         )
-
-    @property
-    def is_on(self):
-        """Return true if the binary sensor is on."""
-        return self._state
 
     async def async_update(self):
         """Retrieve latest state."""
-        self._state = self._usrobj.bed_presence
+        self._attr_state = self._usrobj.bed_presence

@@ -197,6 +197,8 @@ async def async_setup(hass, config):
 class EightSleepUserEntity(Entity):
     """The Eight Sleep device entity."""
 
+    _attr_should_poll = False
+
     def __init__(self, eight):
         """Initialize the data object."""
         self._eight = eight
@@ -215,18 +217,11 @@ class EightSleepUserEntity(Entity):
             )
         )
 
-    @property
-    def should_poll(self):
-        """Return True if entity has to be polled for state."""
-        return False
-
 
 class EightSleepHeatEntity(Entity):
     """The Eight Sleep device entity."""
 
-    def __init__(self, eight):
-        """Initialize the data object."""
-        self._eight = eight
+    _attr_should_poll = False
 
     async def async_added_to_hass(self):
         """Register update dispatcher."""
@@ -241,8 +236,3 @@ class EightSleepHeatEntity(Entity):
                 self.hass, SIGNAL_UPDATE_HEAT, async_eight_heat_update
             )
         )
-
-    @property
-    def should_poll(self):
-        """Return True if entity has to be polled for state."""
-        return False
