@@ -86,35 +86,14 @@ class EssentMeter(SensorEntity):
 
     def __init__(self, essent_base, meter, meter_type, tariff, unit):
         """Initialize the sensor."""
-        self._state = None
+        self._attr_name = f"Essent {meter_type} ({tariff})"
+        self._attr_unique_id = f"{meter}-{meter_type}-{tariff}"
         self._essent_base = essent_base
         self._meter = meter
-        self._type = meter_type
         self._tariff = tariff
-        self._unit = unit
-
-    @property
-    def unique_id(self) -> str | None:
-        """Return a unique ID."""
-        return f"{self._meter}-{self._type}-{self._tariff}"
-
-    @property
-    def name(self):
-        """Return the name of the sensor."""
-        return f"Essent {self._type} ({self._tariff})"
-
-    @property
-    def state(self):
-        """Return the state of the sensor."""
-        return self._state
-
-    @property
-    def unit_of_measurement(self):
-        """Return the unit of measurement."""
-        if self._unit.lower() == "kwh":
-            return ENERGY_KILO_WATT_HOUR
-
-        return self._unit
+        self._attr_unit_of_measurement = unit
+        if unit.lower() == "kwh":
+            self._attr_unit_of_measurement = ENERGY_KILO_WATT_HOUR
 
     def update(self):
         """Fetch the energy usage."""
@@ -125,6 +104,6 @@ class EssentMeter(SensorEntity):
         data = self._essent_base.retrieve_meter_data(self._meter)
 
         # Set our value
-        self._state = next(
+        self._attr_state = next(
             iter(data["values"]["LVR"][self._tariff]["records"].values())
         )
