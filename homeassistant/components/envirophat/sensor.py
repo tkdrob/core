@@ -76,67 +76,47 @@ class EnvirophatSensor(SensorEntity):
     def __init__(self, data, sensor_types):
         """Initialize the sensor."""
         self.data = data
-        self._name = SENSOR_TYPES[sensor_types][0]
-        self._unit_of_measurement = SENSOR_TYPES[sensor_types][1]
+        self._attr_name = SENSOR_TYPES[sensor_types][0]
+        self._attr_icon = SENSOR_TYPES[sensor_types][2]
+        self._attr_unit_of_measurement = SENSOR_TYPES[sensor_types][1]
         self.type = sensor_types
-        self._state = None
-
-    @property
-    def name(self):
-        """Return the name of the sensor."""
-        return self._name
-
-    @property
-    def state(self):
-        """Return the state of the sensor."""
-        return self._state
-
-    @property
-    def icon(self):
-        """Icon to use in the frontend, if any."""
-        return SENSOR_TYPES[self.type][2]
-
-    @property
-    def unit_of_measurement(self):
-        """Return the unit the value is expressed in."""
-        return self._unit_of_measurement
 
     def update(self):
         """Get the latest data and updates the states."""
         self.data.update()
 
         if self.type == "light":
-            self._state = self.data.light
-        if self.type == "light_red":
-            self._state = self.data.light_red
-        if self.type == "light_green":
-            self._state = self.data.light_green
-        if self.type == "light_blue":
-            self._state = self.data.light_blue
-        if self.type == "accelerometer_x":
-            self._state = self.data.accelerometer_x
-        if self.type == "accelerometer_y":
-            self._state = self.data.accelerometer_y
-        if self.type == "accelerometer_z":
-            self._state = self.data.accelerometer_z
-        if self.type == "magnetometer_x":
-            self._state = self.data.magnetometer_x
-        if self.type == "magnetometer_y":
-            self._state = self.data.magnetometer_y
-        if self.type == "magnetometer_z":
-            self._state = self.data.magnetometer_z
-        if self.type == "temperature":
-            self._state = self.data.temperature
-        if self.type == "pressure":
-            self._state = self.data.pressure
-        if self.type == "voltage_0":
-            self._state = self.data.voltage_0
-        if self.type == "voltage_1":
-            self._state = self.data.voltage_1
-        if self.type == "voltage_2":
-            self._state = self.data.voltage_2
-        if self.type == "voltage_3":
-            self._state = self.data.voltage_3
+            self._attr_state = self.data.light
+        elif self.type == "light_red":
+            self._attr_state = self.data.light_red
+        elif self.type == "light_green":
+            self._attr_state = self.data.light_green
+        elif self.type == "light_blue":
+            self._attr_state = self.data.light_blue
+        elif self.type == "accelerometer_x":
+            self._attr_state = self.data.accelerometer_x
+        elif self.type == "accelerometer_y":
+            self._attr_state = self.data.accelerometer_y
+        elif self.type == "accelerometer_z":
+            self._attr_state = self.data.accelerometer_z
+        elif self.type == "magnetometer_x":
+            self._attr_state = self.data.magnetometer_x
+        elif self.type == "magnetometer_y":
+            self._attr_state = self.data.magnetometer_y
+        elif self.type == "magnetometer_z":
+            self._attr_state = self.data.magnetometer_z
+        elif self.type == "temperature":
+            self._attr_state = self.data.temperature
+        elif self.type == "pressure":
+            self._attr_state = self.data.pressure
+        elif self.type == "voltage_0":
+            self._attr_state = self.data.voltage_0
+        elif self.type == "voltage_1":
+            self._attr_state = self.data.voltage_1
+        elif self.type == "voltage_2":
+            self._attr_state = self.data.voltage_2
+        elif self.type == "voltage_3":
+            self._attr_state = self.data.voltage_3
 
 
 class EnvirophatData:
@@ -147,22 +127,11 @@ class EnvirophatData:
         self.envirophat = envirophat
         self.use_leds = use_leds
         # sensors readings
-        self.light = None
-        self.light_red = None
-        self.light_green = None
-        self.light_blue = None
-        self.accelerometer_x = None
-        self.accelerometer_y = None
-        self.accelerometer_z = None
-        self.magnetometer_x = None
-        self.magnetometer_y = None
-        self.magnetometer_z = None
-        self.temperature = None
-        self.pressure = None
-        self.voltage_0 = None
-        self.voltage_1 = None
-        self.voltage_2 = None
-        self.voltage_3 = None
+        self.light = self.light_red = self.light_green = self.light_blue = None
+        self.accelerometer_x = self.accelerometer_y = self.accelerometer_z = None
+        self.magnetometer_x = self.magnetometer_y = self.magnetometer_z = None
+        self.temperature = self.pressure = self.voltage_0 = None
+        self.voltage_1 = self.voltage_2 = self.voltage_3 = None
 
     @Throttle(MIN_TIME_BETWEEN_UPDATES)
     def update(self):
