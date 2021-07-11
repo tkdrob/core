@@ -49,6 +49,25 @@ async def async_setup_entry(
 class EsphomeLight(EsphomeEntity, LightEntity):
     """A switch implementation for ESPHome."""
 
+    def __init__(self, entry_data, component_key: str, key: int) -> None:
+        """Initialize a switch implementation for ESPHome."""
+        super().__init__(entry_data, component_key, key)
+        self._attr_supported_features = SUPPORT_FLASH
+        if self._static_info.supports_brightness:
+            self._attr_supported_features |= SUPPORT_BRIGHTNESS
+            self._attr_supported_features |= SUPPORT_TRANSITION
+        if self._static_info.supports_rgb:
+            self._attr_supported_features |= SUPPORT_COLOR
+        if self._static_info.supports_white_value:
+            self._attr_supported_features |= SUPPORT_WHITE_VALUE
+        if self._static_info.supports_color_temperature:
+            self._attr_supported_features |= SUPPORT_COLOR_TEMP
+        if self._static_info.effects:
+            self._attr_supported_features |= SUPPORT_EFFECT
+        self._attr_effect_list = self._static_info.effects
+        self._attr_min_mireds = self._static_info.min_mireds
+        self._attr_max_mireds = self._static_info.max_mireds
+
     @property
     def _static_info(self) -> LightInfo:
         return super()._static_info
@@ -121,35 +140,3 @@ class EsphomeLight(EsphomeEntity, LightEntity):
     def effect(self) -> str | None:
         """Return the current effect."""
         return self._state.effect
-
-    @property
-    def supported_features(self) -> int:
-        """Flag supported features."""
-        flags = SUPPORT_FLASH
-        if self._static_info.supports_brightness:
-            flags |= SUPPORT_BRIGHTNESS
-            flags |= SUPPORT_TRANSITION
-        if self._static_info.supports_rgb:
-            flags |= SUPPORT_COLOR
-        if self._static_info.supports_white_value:
-            flags |= SUPPORT_WHITE_VALUE
-        if self._static_info.supports_color_temperature:
-            flags |= SUPPORT_COLOR_TEMP
-        if self._static_info.effects:
-            flags |= SUPPORT_EFFECT
-        return flags
-
-    @property
-    def effect_list(self) -> list[str]:
-        """Return the list of supported effects."""
-        return self._static_info.effects
-
-    @property
-    def min_mireds(self) -> float:
-        """Return the coldest color_temp that this light supports."""
-        return self._static_info.min_mireds
-
-    @property
-    def max_mireds(self) -> float:
-        """Return the warmest color_temp that this light supports."""
-        return self._static_info.max_mireds

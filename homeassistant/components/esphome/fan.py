@@ -58,6 +58,17 @@ _FAN_DIRECTIONS: EsphomeEnumMapper[FanDirection] = EsphomeEnumMapper(
 class EsphomeFan(EsphomeEntity, FanEntity):
     """A fan implementation for ESPHome."""
 
+    def __init__(self, entry_data, component_key: str, key: int) -> None:
+        """Initialize a fan implementation for ESPHome."""
+        super().__init__(entry_data, component_key, key)
+        self._attr_supported_features = 0
+        if self._static_info.supports_oscillation:
+            self._attr_supported_features |= SUPPORT_OSCILLATE
+        if self._static_info.supports_speed:
+            self._attr_supported_features |= SUPPORT_SET_SPEED
+        if self._static_info.supports_direction:
+            self._attr_supported_features |= SUPPORT_DIRECTION
+
     @property
     def _static_info(self) -> FanInfo:
         return super()._static_info
@@ -161,15 +172,3 @@ class EsphomeFan(EsphomeEntity, FanEntity):
         if not self._static_info.supports_direction:
             return None
         return _FAN_DIRECTIONS.from_esphome(self._state.direction)
-
-    @property
-    def supported_features(self) -> int:
-        """Flag supported features."""
-        flags = 0
-        if self._static_info.supports_oscillation:
-            flags |= SUPPORT_OSCILLATE
-        if self._static_info.supports_speed:
-            flags |= SUPPORT_SET_SPEED
-        if self._static_info.supports_direction:
-            flags |= SUPPORT_DIRECTION
-        return flags

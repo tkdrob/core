@@ -72,6 +72,22 @@ _STATE_CLASSES: EsphomeEnumMapper[SensorStateClass] = EsphomeEnumMapper(
 class EsphomeSensor(EsphomeEntity, SensorEntity):
     """A sensor implementation for esphome."""
 
+    def __init__(self, entry_data, component_key: str, key: int) -> None:
+        """Initialize a sensor implementation for esphome."""
+        super().__init__(entry_data, component_key, key)
+        if not self._static_info.icon or self._static_info.device_class:
+            self._attr_icon = None
+        else:
+            self._attr_icon = ICON_SCHEMA(self._static_info.icon)
+        if self._static_info.unit_of_measurement:
+            self._attr_unit_of_measurement = self._static_info.unit_of_measurement
+        if self._static_info.device_class in DEVICE_CLASSES:
+            self._attr_device_class = self._static_info.device_class
+        if self._static_info.state_class:
+            self._attr_state_class = _STATE_CLASSES.from_esphome(
+                self._static_info.state_class
+            )
+
     @property
     def _static_info(self) -> SensorInfo:
         return super()._static_info
@@ -79,13 +95,6 @@ class EsphomeSensor(EsphomeEntity, SensorEntity):
     @property
     def _state(self) -> SensorState | None:
         return super()._state
-
-    @property
-    def icon(self) -> str:
-        """Return the icon."""
-        if not self._static_info.icon or self._static_info.device_class:
-            return None
-        return ICON_SCHEMA(self._static_info.icon)
 
     @property
     def force_update(self) -> bool:
@@ -102,27 +111,6 @@ class EsphomeSensor(EsphomeEntity, SensorEntity):
         if self.device_class == DEVICE_CLASS_TIMESTAMP:
             return dt.utc_from_timestamp(self._state.state).isoformat()
         return f"{self._state.state:.{self._static_info.accuracy_decimals}f}"
-
-    @property
-    def unit_of_measurement(self) -> str:
-        """Return the unit the value is expressed in."""
-        if not self._static_info.unit_of_measurement:
-            return None
-        return self._static_info.unit_of_measurement
-
-    @property
-    def device_class(self) -> str:
-        """Return the class of this device, from component DEVICE_CLASSES."""
-        if self._static_info.device_class not in DEVICE_CLASSES:
-            return None
-        return self._static_info.device_class
-
-    @property
-    def state_class(self) -> str | None:
-        """Return the state class of this entity."""
-        if not self._static_info.state_class:
-            return None
-        return _STATE_CLASSES.from_esphome(self._static_info.state_class)
 
 
 class EsphomeTextSensor(EsphomeEntity, SensorEntity):

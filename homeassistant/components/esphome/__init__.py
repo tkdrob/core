@@ -38,7 +38,7 @@ from homeassistant.helpers import template
 import homeassistant.helpers.config_validation as cv
 import homeassistant.helpers.device_registry as dr
 from homeassistant.helpers.dispatcher import async_dispatcher_connect
-from homeassistant.helpers.entity import DeviceInfo, Entity
+from homeassistant.helpers.entity import Entity
 from homeassistant.helpers.event import async_track_state_change_event
 from homeassistant.helpers.json import JSONEncoder
 from homeassistant.helpers.service import async_set_service_schema
@@ -802,6 +802,8 @@ class EsphomeEnumMapper(Generic[_T]):
 class EsphomeBaseEntity(Entity):
     """Define a base esphome entity."""
 
+    _attr_should_poll = False
+
     def __init__(
         self, entry_data: RuntimeEntryData, component_key: str, key: int
     ) -> None:
@@ -809,6 +811,12 @@ class EsphomeBaseEntity(Entity):
         self._entry_data = entry_data
         self._component_key = component_key
         self._key = key
+        self._attr_name = self._static_info.name
+        if self._static_info.unique_id:
+            self._attr_unique_id = self._static_info.unique_id
+        self._attr_device_info = {
+            "connections": {(dr.CONNECTION_NETWORK_MAC, self._device_info.mac_address)}
+        }
 
     async def async_added_to_hass(self) -> None:
         """Register callbacks."""
@@ -885,30 +893,6 @@ class EsphomeBaseEntity(Entity):
             return True
 
         return self._entry_data.available
-
-    @property
-    def unique_id(self) -> str | None:
-        """Return a unique id identifying the entity."""
-        if not self._static_info.unique_id:
-            return None
-        return self._static_info.unique_id
-
-    @property
-    def device_info(self) -> DeviceInfo:
-        """Return device registry information for this entity."""
-        return {
-            "connections": {(dr.CONNECTION_NETWORK_MAC, self._device_info.mac_address)}
-        }
-
-    @property
-    def name(self) -> str:
-        """Return the name of the entity."""
-        return self._static_info.name
-
-    @property
-    def should_poll(self) -> bool:
-        """Disable polling."""
-        return False
 
 
 class EsphomeEntity(EsphomeBaseEntity):

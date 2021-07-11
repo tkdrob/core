@@ -39,24 +39,21 @@ async def async_setup_entry(
 class EsphomeCover(EsphomeEntity, CoverEntity):
     """A cover implementation for ESPHome."""
 
+    def __init__(self, entry_data, component_key: str, key: int) -> None:
+        """Initialize a cover implementation for ESPHome."""
+        super().__init__(entry_data, component_key, key)
+        self._attr_supported_features = SUPPORT_OPEN | SUPPORT_CLOSE | SUPPORT_STOP
+        if self._static_info.supports_position:
+            self._attr_supported_features |= SUPPORT_SET_POSITION
+        if self._static_info.supports_tilt:
+            self._attr_supported_features |= (
+                SUPPORT_OPEN_TILT | SUPPORT_CLOSE_TILT | SUPPORT_SET_TILT_POSITION
+            )
+        self._attr_device_class = self._static_info.device_class
+
     @property
     def _static_info(self) -> CoverInfo:
         return super()._static_info
-
-    @property
-    def supported_features(self) -> int:
-        """Flag supported features."""
-        flags = SUPPORT_OPEN | SUPPORT_CLOSE | SUPPORT_STOP
-        if self._static_info.supports_position:
-            flags |= SUPPORT_SET_POSITION
-        if self._static_info.supports_tilt:
-            flags |= SUPPORT_OPEN_TILT | SUPPORT_CLOSE_TILT | SUPPORT_SET_TILT_POSITION
-        return flags
-
-    @property
-    def device_class(self) -> str:
-        """Return the class of this device, from component DEVICE_CLASSES."""
-        return self._static_info.device_class
 
     @property
     def assumed_state(self) -> bool:

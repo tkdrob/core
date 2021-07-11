@@ -144,6 +144,46 @@ _PRESETS: EsphomeEnumMapper[ClimatePreset] = EsphomeEnumMapper(
 class EsphomeClimateEntity(EsphomeEntity, ClimateEntity):
     """A climate implementation for ESPHome."""
 
+    _attr_temperature_unit = TEMP_CELSIUS
+
+    def __init__(self, entry_data, component_key: str, key: int) -> None:
+        """Initialize a climate implementation for ESPHome."""
+        super().__init__(entry_data, component_key, key)
+        self._attr_precision = PRECISION_TENTHS
+        for prec in [PRECISION_WHOLE, PRECISION_HALVES, PRECISION_TENTHS]:
+            if self._static_info.visual_temperature_step >= prec:
+                self._attr_precision = prec
+        self._attr_hvac_modes = [
+            _CLIMATE_MODES.from_esphome(mode)
+            for mode in self._static_info.supported_modes
+        ]
+        self._attr_fan_modes = [
+            _FAN_MODES.from_esphome(mode)
+            for mode in self._static_info.supported_fan_modes
+        ] + self._static_info.supported_custom_fan_modes
+        self._attr_preset_modes = [
+            _PRESETS.from_esphome(preset)
+            for preset in self._static_info.supported_presets_compat(self._api_version)
+        ] + self._static_info.supported_custom_presets
+        self._attr_modes = [
+            _SWING_MODES.from_esphome(mode)
+            for mode in self._static_info.supported_swing_modes
+        ]
+        self._attr_target_temperature_step = round(
+            self._static_info.visual_temperature_step, 1
+        )
+        self._attr_supported_features = 0
+        if self._static_info.supports_two_point_target_temperature:
+            self._attr_supported_features |= SUPPORT_TARGET_TEMPERATURE_RANGE
+        else:
+            self._attr_supported_features |= SUPPORT_TARGET_TEMPERATURE
+        if self.preset_modes:
+            self._attr_supported_features |= SUPPORT_PRESET_MODE
+        if self._static_info.supported_fan_modes:
+            self._attr_supported_features |= SUPPORT_FAN_MODE
+        if self._static_info.supported_swing_modes:
+            self._attr_supported_features |= SUPPORT_SWING_MODE
+
     @property
     def _static_info(self) -> ClimateInfo:
         return super()._static_info
@@ -151,59 +191,6 @@ class EsphomeClimateEntity(EsphomeEntity, ClimateEntity):
     @property
     def _state(self) -> ClimateState | None:
         return super()._state
-
-    @property
-    def precision(self) -> float:
-        """Return the precision of the climate device."""
-        precicions = [PRECISION_WHOLE, PRECISION_HALVES, PRECISION_TENTHS]
-        for prec in precicions:
-            if self._static_info.visual_temperature_step >= prec:
-                return prec
-        # Fall back to highest precision, tenths
-        return PRECISION_TENTHS
-
-    @property
-    def temperature_unit(self) -> str:
-        """Return the unit of measurement used by the platform."""
-        return TEMP_CELSIUS
-
-    @property
-    def hvac_modes(self) -> list[str]:
-        """Return the list of available operation modes."""
-        return [
-            _CLIMATE_MODES.from_esphome(mode)
-            for mode in self._static_info.supported_modes
-        ]
-
-    @property
-    def fan_modes(self) -> list[str]:
-        """Return the list of available fan modes."""
-        return [
-            _FAN_MODES.from_esphome(mode)
-            for mode in self._static_info.supported_fan_modes
-        ] + self._static_info.supported_custom_fan_modes
-
-    @property
-    def preset_modes(self) -> list[str]:
-        """Return preset modes."""
-        return [
-            _PRESETS.from_esphome(preset)
-            for preset in self._static_info.supported_presets_compat(self._api_version)
-        ] + self._static_info.supported_custom_presets
-
-    @property
-    def swing_modes(self):
-        """Return the list of available swing modes."""
-        return [
-            _SWING_MODES.from_esphome(mode)
-            for mode in self._static_info.supported_swing_modes
-        ]
-
-    @property
-    def target_temperature_step(self) -> float:
-        """Return the supported step of target temperature."""
-        # Round to one digit because of floating point math
-        return round(self._static_info.visual_temperature_step, 1)
 
     @property
     def min_temp(self) -> float:
@@ -214,22 +201,6 @@ class EsphomeClimateEntity(EsphomeEntity, ClimateEntity):
     def max_temp(self) -> float:
         """Return the maximum temperature."""
         return self._static_info.visual_max_temperature
-
-    @property
-    def supported_features(self) -> int:
-        """Return the list of supported features."""
-        features = 0
-        if self._static_info.supports_two_point_target_temperature:
-            features |= SUPPORT_TARGET_TEMPERATURE_RANGE
-        else:
-            features |= SUPPORT_TARGET_TEMPERATURE
-        if self.preset_modes:
-            features |= SUPPORT_PRESET_MODE
-        if self._static_info.supported_fan_modes:
-            features |= SUPPORT_FAN_MODE
-        if self._static_info.supported_swing_modes:
-            features |= SUPPORT_SWING_MODE
-        return features
 
     # https://github.com/PyCQA/pylint/issues/3150 for all @esphome_state_property
     # pylint: disable=invalid-overridden-method
