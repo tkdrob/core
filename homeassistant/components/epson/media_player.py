@@ -101,23 +101,20 @@ async def async_setup_platform(hass, config, async_add_entities, discovery_info=
 class EpsonProjectorMediaPlayer(MediaPlayerEntity):
     """Representation of Epson Projector Device."""
 
+    _attr_supported_features = SUPPORT_EPSON
+
     def __init__(self, projector, name, unique_id, entry):
         """Initialize entity to control Epson projector."""
         self._projector = projector
         self._entry = entry
-        self._name = name
-        self._available = False
+        self._attr_name = name
         self._cmode = None
-        self._source_list = list(DEFAULT_SOURCES.values())
-        self._source = None
-        self._volume = None
-        self._state = None
-        self._unique_id = unique_id
+        self._attr_unique_id = unique_id
 
     async def set_unique_id(self):
         """Set unique id for projector config entry."""
         _LOGGER.debug("Setting unique_id for projector")
-        if self._unique_id:
+        if self.unique_id:
             return False
         uid = await self._projector.get_serial_number()
         if uid:
@@ -138,88 +135,44 @@ class EpsonProjectorMediaPlayer(MediaPlayerEntity):
         power_state = await self._projector.get_power()
         _LOGGER.debug("Projector status: %s", power_state)
         if not power_state or power_state == EPSON_STATE_UNAVAILABLE:
-            self._available = False
+            self._attr_available = False
             return
-        self._available = True
+        self._attr_available = True
         if power_state == EPSON_CODES[POWER]:
-            self._state = STATE_ON
+            self._attr_state = STATE_ON
             if await self.set_unique_id():
                 return
-            self._source_list = list(DEFAULT_SOURCES.values())
+            self._attr_source_list = list(DEFAULT_SOURCES.values())
             cmode = await self._projector.get_property(CMODE)
             self._cmode = CMODE_LIST.get(cmode, self._cmode)
             source = await self._projector.get_property(SOURCE)
-            self._source = SOURCE_LIST.get(source, self._source)
+            self._attr_source = SOURCE_LIST.get(source, self.source)
             volume = await self._projector.get_property(VOLUME)
             if volume:
-                self._volume = volume
-        elif power_state == BUSY:
-            self._state = STATE_ON
+                self._attr_volume_level = volume
         else:
-            self._state = STATE_OFF
-
-    @property
-    def device_info(self):
-        """Get attributes about the device."""
-        if not self._unique_id:
-            return None
-        return {
-            "identifiers": {(DOMAIN, self._unique_id)},
-            "manufacturer": "Epson",
-            "name": "Epson projector",
-            "model": "Epson",
-            "via_hub": (DOMAIN, self._unique_id),
-        }
-
-    @property
-    def name(self):
-        """Return the name of the device."""
-        return self._name
-
-    @property
-    def unique_id(self):
-        """Return unique ID."""
-        return self._unique_id
-
-    @property
-    def state(self):
-        """Return the state of the device."""
-        return self._state
-
-    @property
-    def available(self):
-        """Return if projector is available."""
-        return self._available
-
-    @property
-    def supported_features(self):
-        """Flag media player features that are supported."""
-        return SUPPORT_EPSON
+            self._attr_state = STATE_ON if power_state == BUSY else STATE_OFF
+        if self.unique_id:
+            self._attr_device_info = {
+                "identifiers": {(DOMAIN, self.unique_id)},
+                "manufacturer": "Epson",
+                "name": "Epson projector",
+                "model": "Epson",
+                "via_hub": (DOMAIN, self.unique_id),
+            }
+        self._attr_extra_state_attributes = {}
+        if self._cmode is not None:
+            self._attr_extra_state_attributes = {ATTR_CMODE: self._cmode}
 
     async def async_turn_on(self):
         """Turn on epson."""
-        if self._state == STATE_OFF:
+        if self.state == STATE_OFF:
             await self._projector.send_command(TURN_ON)
 
     async def async_turn_off(self):
         """Turn off epson."""
-        if self._state == STATE_ON:
+        if self.state == STATE_ON:
             await self._projector.send_command(TURN_OFF)
-
-    @property
-    def source_list(self):
-        """List of available input sources."""
-        return self._source_list
-
-    @property
-    def source(self):
-        """Get current input sources."""
-        return self._source
-
-    @property
-    def volume_level(self):
-        """Return the volume level of the media player (0..1)."""
-        return self._volume
 
     async def select_cmode(self, cmode):
         """Set color mode in Epson."""
@@ -257,10 +210,3 @@ class EpsonProjectorMediaPlayer(MediaPlayerEntity):
     async def async_media_previous_track(self):
         """Skip to previous."""
         await self._projector.send_command(BACK)
-
-    @property
-    def extra_state_attributes(self):
-        """Return device specific state attributes."""
-        if self._cmode is None:
-            return {}
-        return {ATTR_CMODE: self._cmode}
