@@ -22,29 +22,17 @@ async def async_setup_entry(hass, config_entry, async_add_entities):
 class ElkLight(ElkEntity, LightEntity):
     """Representation of an Elk lighting device."""
 
+    _attr_supported_features = SUPPORT_BRIGHTNESS
+
     def __init__(self, element, elk, elk_data):
         """Initialize the Elk light."""
         super().__init__(element, elk, elk_data)
-        self._brightness = self._element.status
-
-    @property
-    def brightness(self):
-        """Get the brightness."""
-        return self._brightness
-
-    @property
-    def supported_features(self):
-        """Flag supported features."""
-        return SUPPORT_BRIGHTNESS
-
-    @property
-    def is_on(self) -> bool:
-        """Get the current brightness."""
-        return self._brightness != 0
+        self._attr_brightness = self._element.status
 
     def _element_changed(self, element, changeset):
         status = self._element.status if self._element.status != 1 else 100
-        self._brightness = round(status * 2.55)
+        self._attr_brightness = round(status * 2.55)
+        self._attr_is_on = self.brightness != 0
 
     async def async_turn_on(self, **kwargs):
         """Turn on the light."""

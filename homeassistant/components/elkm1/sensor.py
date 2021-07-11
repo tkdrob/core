@@ -109,10 +109,7 @@ class ElkSensor(ElkAttachedEntity, SensorEntity):
 class ElkCounter(ElkSensor):
     """Representation of an Elk-M1 Counter."""
 
-    @property
-    def icon(self):
-        """Icon to use in the frontend."""
-        return "mdi:numeric"
+    _attr_icon = "mdi:numeric"
 
     def _element_changed(self, element, changeset):
         self._state = self._element.value
@@ -120,6 +117,8 @@ class ElkCounter(ElkSensor):
 
 class ElkKeypad(ElkSensor):
     """Representation of an Elk-M1 Keypad."""
+
+    _attr_icon = "mdi:thermometer-lines"
 
     @property
     def temperature_unit(self):
@@ -130,11 +129,6 @@ class ElkKeypad(ElkSensor):
     def unit_of_measurement(self):
         """Return the unit of measurement."""
         return self._temperature_unit
-
-    @property
-    def icon(self):
-        """Icon to use in the frontend."""
-        return "mdi:thermometer-lines"
 
     @property
     def extra_state_attributes(self):
@@ -158,10 +152,7 @@ class ElkKeypad(ElkSensor):
 class ElkPanel(ElkSensor):
     """Representation of an Elk-M1 Panel."""
 
-    @property
-    def icon(self):
-        """Icon to use in the frontend."""
-        return "mdi:home"
+    _attr_icon = "mdi:home"
 
     @property
     def extra_state_attributes(self):
@@ -182,10 +173,7 @@ class ElkPanel(ElkSensor):
 class ElkSetting(ElkSensor):
     """Representation of an Elk-M1 Setting."""
 
-    @property
-    def icon(self):
-        """Icon to use in the frontend."""
-        return "mdi:numeric"
+    _attr_icon = "mdi:numeric"
 
     def _element_changed(self, element, changeset):
         self._state = self._element.value
@@ -201,9 +189,9 @@ class ElkSetting(ElkSensor):
 class ElkZone(ElkSensor):
     """Representation of an Elk-M1 Zone."""
 
-    @property
-    def icon(self):
-        """Icon to use in the frontend."""
+    def __init__(self, element, elk, elk_data):
+        """Initialize an Elk-M1 Zone."""
+        super().__init__(element, elk, elk_data)
         zone_icons = {
             ZoneType.FIRE_ALARM.value: "fire",
             ZoneType.FIRE_VERIFIED.value: "fire",
@@ -225,7 +213,11 @@ class ElkZone(ElkSensor):
             ZoneType.PHONE_KEY.value: "phone-classic",
             ZoneType.INTERCOM_KEY.value: "deskphone",
         }
-        return f"mdi:{zone_icons.get(self._element.definition, 'alarm-bell')}"
+        self._attr_icon = f"mdi:{zone_icons.get(element.definition, 'alarm-bell')}"
+        if element.definition == ZoneType.TEMPERATURE.value:
+            self._attr_unit_of_measurement = self._temperature_unit
+        elif element.definition == ZoneType.ANALOG_ZONE.value:
+            self._attr_unit_of_measurement = VOLT
 
     @property
     def extra_state_attributes(self):
@@ -247,15 +239,6 @@ class ElkZone(ElkSensor):
         """Return the temperature unit."""
         if self._element.definition == ZoneType.TEMPERATURE.value:
             return self._temperature_unit
-        return None
-
-    @property
-    def unit_of_measurement(self):
-        """Return the unit of measurement."""
-        if self._element.definition == ZoneType.TEMPERATURE.value:
-            return self._temperature_unit
-        if self._element.definition == ZoneType.ANALOG_ZONE.value:
-            return VOLT
         return None
 
     def _element_changed(self, element, changeset):

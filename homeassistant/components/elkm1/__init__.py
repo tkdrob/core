@@ -383,6 +383,8 @@ def create_elk_entities(elk_data, elk_elements, element_type, class_, entities):
 class ElkEntity(Entity):
     """Base class for all Elk entities."""
 
+    _attr_should_poll = False
+
     def __init__(self, element, elk, elk_data):
         """Initialize the base of all Elk devices."""
         self._elk = elk
@@ -397,26 +399,14 @@ class ElkEntity(Entity):
         # prefix="", name="foo bar" (which would be elkm1_foo_bar also)
         # we could have used elkm1__foo_bar for the latter, but that
         # would have been a breaking change
-        if self._prefix != "":
-            uid_start = f"elkm1m_{self._prefix}"
-        else:
-            uid_start = "elkm1"
-        self._unique_id = f"{uid_start}_{self._element.default_name('_')}".lower()
-
-    @property
-    def name(self):
-        """Name of the element."""
-        return f"{self._prefix}{self._element.name}"
-
-    @property
-    def unique_id(self):
-        """Return unique id of the element."""
-        return self._unique_id
-
-    @property
-    def should_poll(self) -> bool:
-        """Don't poll this device."""
-        return False
+        uid_start = "elkm1"
+        if elk_data["prefix"] != "":
+            uid_start = f"elkm1m_{elk_data['prefix']}"
+        self._attr_name = f"{elk_data['prefix']}{element.name}"
+        self._attr_unique_id = f"{uid_start}_{element.default_name('_')}".lower()
+        self._attr_device_info = {
+            "via_device": (DOMAIN, f"{elk_data['prefix']}_system"),
+        }
 
     @property
     def extra_state_attributes(self):
@@ -447,13 +437,6 @@ class ElkEntity(Entity):
         """Register callback for ElkM1 changes and update entity state."""
         self._element.add_callback(self._element_callback)
         self._element_callback(self._element, {})
-
-    @property
-    def device_info(self):
-        """Device info connecting via the ElkM1 system."""
-        return {
-            "via_device": (DOMAIN, f"{self._prefix}_system"),
-        }
 
 
 class ElkAttachedEntity(ElkEntity):

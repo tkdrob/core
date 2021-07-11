@@ -98,6 +98,11 @@ async def async_setup_entry(hass, config_entry, async_add_entities):
 class ElkArea(ElkAttachedEntity, AlarmControlPanelEntity, RestoreEntity):
     """Representation of an Area / Partition within the ElkM1 alarm panel."""
 
+    _attr_code_format = FORMAT_NUMBER
+    _attr_supported_features = (
+        SUPPORT_ALARM_ARM_HOME | SUPPORT_ALARM_ARM_AWAY | SUPPORT_ALARM_ARM_NIGHT
+    )
+
     def __init__(self, element, elk, elk_data):
         """Initialize Area as Alarm Control Panel."""
         super().__init__(element, elk, elk_data)
@@ -154,19 +159,9 @@ class ElkArea(ElkAttachedEntity, AlarmControlPanelEntity, RestoreEntity):
         self.async_write_ha_state()
 
     @property
-    def code_format(self):
-        """Return the alarm code format."""
-        return FORMAT_NUMBER
-
-    @property
     def state(self):
         """Return the state of the element."""
         return self._state
-
-    @property
-    def supported_features(self) -> int:
-        """Return the list of supported features."""
-        return SUPPORT_ALARM_ARM_HOME | SUPPORT_ALARM_ARM_AWAY | SUPPORT_ALARM_ARM_NIGHT
 
     @property
     def extra_state_attributes(self):

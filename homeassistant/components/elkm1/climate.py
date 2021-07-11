@@ -42,15 +42,20 @@ async def async_setup_entry(hass, config_entry, async_add_entities):
 class ElkThermostat(ElkEntity, ClimateEntity):
     """Representation of an Elk-M1 Thermostat."""
 
+    _attr_fan_modes = [HVAC_MODE_AUTO, STATE_ON]
+    _attr_hvac_modes = SUPPORT_HVAC
+    _attr_max_temp = 99
+    _attr_min_temp = 1
+    _attr_precision = PRECISION_WHOLE
+    _attr_supported_features = (
+        SUPPORT_FAN_MODE | SUPPORT_AUX_HEAT | SUPPORT_TARGET_TEMPERATURE_RANGE
+    )
+    _attr_target_temperature_step = 1
+
     def __init__(self, element, elk, elk_data):
         """Initialize climate entity."""
         super().__init__(element, elk, elk_data)
         self._state = None
-
-    @property
-    def supported_features(self):
-        """Return the list of supported features."""
-        return SUPPORT_FAN_MODE | SUPPORT_AUX_HEAT | SUPPORT_TARGET_TEMPERATURE_RANGE
 
     @property
     def temperature_unit(self):
@@ -84,11 +89,6 @@ class ElkThermostat(ElkEntity, ClimateEntity):
         return self._element.heat_setpoint
 
     @property
-    def target_temperature_step(self):
-        """Return the supported step of target temperature."""
-        return 1
-
-    @property
     def current_humidity(self):
         """Return the current humidity."""
         return self._element.humidity
@@ -99,29 +99,9 @@ class ElkThermostat(ElkEntity, ClimateEntity):
         return self._state
 
     @property
-    def hvac_modes(self):
-        """Return the list of available operation modes."""
-        return SUPPORT_HVAC
-
-    @property
-    def precision(self):
-        """Return the precision of the system."""
-        return PRECISION_WHOLE
-
-    @property
     def is_aux_heat(self):
         """Return if aux heater is on."""
         return self._element.mode == ThermostatMode.EMERGENCY_HEAT.value
-
-    @property
-    def min_temp(self):
-        """Return the minimum temperature supported."""
-        return 1
-
-    @property
-    def max_temp(self):
-        """Return the maximum temperature supported."""
-        return 99
 
     @property
     def fan_mode(self):
@@ -156,11 +136,6 @@ class ElkThermostat(ElkEntity, ClimateEntity):
     async def async_turn_aux_heat_off(self):
         """Turn auxiliary heater off."""
         self._elk_set(ThermostatMode.HEAT.value, None)
-
-    @property
-    def fan_modes(self):
-        """Return the list of available fan modes."""
-        return [HVAC_MODE_AUTO, STATE_ON]
 
     async def async_set_fan_mode(self, fan_mode):
         """Set new target fan mode."""
