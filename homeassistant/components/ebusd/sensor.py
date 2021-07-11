@@ -39,25 +39,22 @@ class EbusdSensor(SensorEntity):
 
     def __init__(self, data, sensor, name):
         """Initialize the sensor."""
-        self._state = None
-        self._client_name = name
-        self._name, self._unit_of_measurement, self._icon, self._type = sensor
+        sname, self._attr_unit_of_measurement, self._attr_icon, self._type = sensor
+        self._attr_name = f"{name} {sname}"
         self.data = data
 
-    @property
-    def name(self):
-        """Return the name of the sensor."""
-        return f"{self._client_name} {self._name}"
+    @Throttle(MIN_TIME_BETWEEN_UPDATES)
+    def update(self):
+        """Fetch new state data for the sensor."""
+        try:
+            self.data.update(self.name, self._type)
+            if self.name not in self.data.value:
+                return
 
-    @property
-    def state(self):
-        """Return the state of the sensor."""
-        return self._state
-
-    @property
-    def extra_state_attributes(self):
-        """Return the device state attributes."""
-        if self._type == 1 and self._state is not None:
+            self._attr_state = self.data.value[self.name]
+        except RuntimeError:
+            _LOGGER.debug("EbusdData.update exception")
+        if self._type == 1 and self.state is not None:
             schedule = {
                 TIME_FRAME1_BEGIN: None,
                 TIME_FRAME1_END: None,
@@ -66,7 +63,7 @@ class EbusdSensor(SensorEntity):
                 TIME_FRAME3_BEGIN: None,
                 TIME_FRAME3_END: None,
             }
-            time_frame = self._state.split(";")
+            time_frame = self.state.split(";")
             for index, item in enumerate(sorted(schedule.items())):
                 if index < len(time_frame):
                     parsed = datetime.datetime.strptime(time_frame[index], "%H:%M")
@@ -74,27 +71,6 @@ class EbusdSensor(SensorEntity):
                         dt_util.now().year, dt_util.now().month, dt_util.now().day
                     )
                     schedule[item[0]] = parsed.isoformat()
-            return schedule
-        return None
-
-    @property
-    def icon(self):
-        """Icon to use in the frontend, if any."""
-        return self._icon
-
-    @property
-    def unit_of_measurement(self):
-        """Return the unit of measurement."""
-        return self._unit_of_measurement
-
-    @Throttle(MIN_TIME_BETWEEN_UPDATES)
-    def update(self):
-        """Fetch new state data for the sensor."""
-        try:
-            self.data.update(self._name, self._type)
-            if self._name not in self.data.value:
-                return
-
-            self._state = self.data.value[self._name]
-        except RuntimeError:
-            _LOGGER.debug("EbusdData.update exception")
+            self._attr_extra_state_attributes = schedule
+        else:
+            self._attr_extra_state_attributes = None
