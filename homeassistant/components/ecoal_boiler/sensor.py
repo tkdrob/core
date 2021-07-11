@@ -20,27 +20,13 @@ def setup_platform(hass, config, add_entities, discovery_info=None):
 class EcoalTempSensor(SensorEntity):
     """Representation of a temperature sensor using ecoal status data."""
 
+    _attr_unit_of_measurement = TEMP_CELSIUS
+
     def __init__(self, ecoal_contr, name, status_attr):
         """Initialize the sensor."""
         self._ecoal_contr = ecoal_contr
-        self._name = name
+        self._attr_name = name
         self._status_attr = status_attr
-        self._state = None
-
-    @property
-    def name(self):
-        """Return the name of the sensor."""
-        return self._name
-
-    @property
-    def state(self):
-        """Return the state of the sensor."""
-        return self._state
-
-    @property
-    def unit_of_measurement(self):
-        """Return the unit of measurement."""
-        return TEMP_CELSIUS
 
     def update(self):
         """Fetch new state data for the sensor.
@@ -49,4 +35,4 @@ class EcoalTempSensor(SensorEntity):
         """
         # Old values read 0.5 back can still be used
         status = self._ecoal_contr.get_cached_status()
-        self._state = getattr(status, self._status_attr)
+        self._attr_state = getattr(status, self._status_attr)
