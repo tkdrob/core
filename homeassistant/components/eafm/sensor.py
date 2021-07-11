@@ -81,12 +81,14 @@ async def async_setup_entry(hass, config_entry, async_add_entities):
 class Measurement(CoordinatorEntity, SensorEntity):
     """A gauge at a flood monitoring station."""
 
-    attribution = "This uses Environment Agency flood and river level data from the real-time data API"
+    _attr_extra_state_attributes = {
+        ATTR_ATTRIBUTION: "This uses Environment Agency flood and river level data from the real-time data API"
+    }
 
     def __init__(self, coordinator, key):
         """Initialise the gauge with a data instance and station."""
         super().__init__(coordinator)
-        self.key = key
+        self.key = self._attr_unique_id = key
 
     @property
     def station_name(self):
@@ -112,11 +114,6 @@ class Measurement(CoordinatorEntity, SensorEntity):
     def name(self):
         """Return the name of the gauge."""
         return f"{self.station_name} {self.parameter_name} {self.qualifier}"
-
-    @property
-    def unique_id(self):
-        """Return the unique id of the gauge."""
-        return self.key
 
     @property
     def device_info(self):
@@ -155,11 +152,6 @@ class Measurement(CoordinatorEntity, SensorEntity):
         if "unit" not in measure:
             return None
         return UNIT_MAPPING.get(measure["unit"], measure["unitName"])
-
-    @property
-    def extra_state_attributes(self):
-        """Return the sensor specific state attributes."""
-        return {ATTR_ATTRIBUTION: self.attribution}
 
     @property
     def state(self):
