@@ -124,25 +124,13 @@ async def async_setup_platform(
 class EvoClimateEntity(EvoDevice, ClimateEntity):
     """Base for an evohome Climate device."""
 
-    def __init__(self, evo_broker, evo_device) -> None:
-        """Initialize a Climate device."""
-        super().__init__(evo_broker, evo_device)
-
-        self._preset_modes = None
-
-    @property
-    def hvac_modes(self) -> list[str]:
-        """Return a list of available hvac operation modes."""
-        return list(HA_HVAC_TO_TCS)
-
-    @property
-    def preset_modes(self) -> list[str] | None:
-        """Return a list of available preset modes."""
-        return self._preset_modes
+    _attr_hvac_modes = list(HA_HVAC_TO_TCS)
 
 
 class EvoZone(EvoChild, EvoClimateEntity):
     """Base for a Honeywell TCC Zone."""
+
+    _attr_icon = "mdi:radiator"
 
     def __init__(self, evo_broker, evo_device) -> None:
         """Initialize a Honeywell TCC Zone."""
@@ -150,20 +138,20 @@ class EvoZone(EvoChild, EvoClimateEntity):
 
         if evo_device.modelType.startswith("VisionProWifi"):
             # this system does not have a distinct ID for the zone
-            self._unique_id = f"{evo_device.zoneId}z"
+            self._attr_unique_id = f"{evo_device.zoneId}z"
         else:
-            self._unique_id = evo_device.zoneId
+            self._attr_unique_id = evo_device.zoneId
 
-        self._name = evo_device.name
-        self._icon = "mdi:radiator"
+        self._attr_name = evo_device.name
 
-        if evo_broker.client_v1:
-            self._precision = PRECISION_TENTHS
-        else:
-            self._precision = self._evo_device.setpointCapabilities["valueResolution"]
+        self._attr_precision = PRECISION_TENTHS
+        if not evo_broker.client_v1:
+            self._attr_precision = self._evo_device.setpointCapabilities[
+                "valueResolution"
+            ]
 
-        self._preset_modes = list(HA_PRESET_TO_EVO)
-        self._supported_features = SUPPORT_PRESET_MODE | SUPPORT_TARGET_TEMPERATURE
+        self._attr_preset_modes = list(HA_PRESET_TO_EVO)
+        self._attr_supported_features = SUPPORT_PRESET_MODE | SUPPORT_TARGET_TEMPERATURE
 
     async def async_zone_svc_request(self, service: dict, data: dict) -> None:
         """Process a service request (setpoint override) for a zone."""
@@ -190,42 +178,6 @@ class EvoZone(EvoChild, EvoClimateEntity):
         await self._evo_broker.call_client_api(
             self._evo_device.set_temperature(temperature, until=until)
         )
-
-    @property
-    def hvac_mode(self) -> str:
-        """Return the current operating mode of a Zone."""
-        if self._evo_tcs.systemModeStatus["mode"] in [EVO_AWAY, EVO_HEATOFF]:
-            return HVAC_MODE_AUTO
-        is_off = self.target_temperature <= self.min_temp
-        return HVAC_MODE_OFF if is_off else HVAC_MODE_HEAT
-
-    @property
-    def target_temperature(self) -> float:
-        """Return the target temperature of a Zone."""
-        return self._evo_device.setpointStatus["targetHeatTemperature"]
-
-    @property
-    def preset_mode(self) -> str | None:
-        """Return the current preset mode, e.g., home, away, temp."""
-        if self._evo_tcs.systemModeStatus["mode"] in [EVO_AWAY, EVO_HEATOFF]:
-            return TCS_PRESET_TO_HA.get(self._evo_tcs.systemModeStatus["mode"])
-        return EVO_PRESET_TO_HA.get(self._evo_device.setpointStatus["setpointMode"])
-
-    @property
-    def min_temp(self) -> float:
-        """Return the minimum target temperature of a Zone.
-
-        The default is 5, but is user-configurable within 5-35 (in Celsius).
-        """
-        return self._evo_device.setpointCapabilities["minHeatSetpoint"]
-
-    @property
-    def max_temp(self) -> float:
-        """Return the maximum target temperature of a Zone.
-
-        The default is 35, but is user-configurable within 5-35 (in Celsius).
-        """
-        return self._evo_device.setpointCapabilities["maxHeatSetpoint"]
 
     async def async_set_temperature(self, **kwargs) -> None:
         """Set a new target temperature."""
@@ -300,6 +252,24 @@ class EvoZone(EvoChild, EvoClimateEntity):
         for attr in STATE_ATTRS_ZONES:
             self._device_state_attrs[attr] = getattr(self._evo_device, attr)
 
+        self._attr_min_temp = self._evo_device.setpointCapabilities["minHeatSetpoint"]
+        self._attr_max_temp = self._evo_device.setpointCapabilities["maxHeatSetpoint"]
+        self._attr_target_temperature = self._evo_device.setpointStatus[
+            "targetHeatTemperature"
+        ]
+        if self._evo_tcs.systemModeStatus["mode"] in [EVO_AWAY, EVO_HEATOFF]:
+            self._attr_preset_mode = TCS_PRESET_TO_HA.get(
+                self._evo_tcs.systemModeStatus["mode"]
+            )
+        else:
+            self._attr_preset_mode = EVO_PRESET_TO_HA.get(
+                self._evo_device.setpointStatus["setpointMode"]
+            )
+        is_off = self.target_temperature <= self.min_temp
+        self._attr_hvac_mode = HVAC_MODE_OFF if is_off else HVAC_MODE_HEAT
+        if self._evo_tcs.systemModeStatus["mode"] in [EVO_AWAY, EVO_HEATOFF]:
+            self._attr_hvac_mode = HVAC_MODE_AUTO
+
 
 class EvoController(EvoClimateEntity):
     """Base for a Honeywell TCC Controller/Location.
@@ -311,21 +281,23 @@ class EvoController(EvoClimateEntity):
     It is assumed there is only one TCS per location, and they are thus synonymous.
     """
 
+    _attr_icon = "mdi:thermostat"
+    _attr_precision = PRECISION_TENTHS
+    _attr_max_temp = None
+    _attr_min_temp = None
+
     def __init__(self, evo_broker, evo_device) -> None:
         """Initialize a Honeywell TCC Controller/Location."""
         super().__init__(evo_broker, evo_device)
 
-        self._unique_id = evo_device.systemId
-        self._name = evo_device.location.name
-        self._icon = "mdi:thermostat"
-
-        self._precision = PRECISION_TENTHS
+        self._attr_unique_id = evo_device.systemId
+        self._attr_name = evo_device.location.name
 
         modes = [m["systemMode"] for m in evo_broker.config["allowedSystemModes"]]
-        self._preset_modes = [
+        self._attr_preset_modes = [
             TCS_PRESET_TO_HA[m] for m in modes if m in list(TCS_PRESET_TO_HA)
         ]
-        self._supported_features = SUPPORT_PRESET_MODE if self._preset_modes else 0
+        self._attr_supported_features = SUPPORT_PRESET_MODE if self.preset_modes else 0
 
     async def async_tcs_svc_request(self, service: dict, data: dict) -> None:
         """Process a service request (system mode) for a controller.
@@ -356,40 +328,6 @@ class EvoController(EvoClimateEntity):
             self._evo_tcs.set_status(mode, until=until)
         )
 
-    @property
-    def hvac_mode(self) -> str:
-        """Return the current operating mode of a Controller."""
-        tcs_mode = self._evo_tcs.systemModeStatus["mode"]
-        return HVAC_MODE_OFF if tcs_mode == EVO_HEATOFF else HVAC_MODE_HEAT
-
-    @property
-    def current_temperature(self) -> float | None:
-        """Return the average current temperature of the heating Zones.
-
-        Controllers do not have a current temp, but one is expected by HA.
-        """
-        temps = [
-            z.temperatureStatus["temperature"]
-            for z in self._evo_tcs.zones.values()
-            if z.temperatureStatus["isAvailable"]
-        ]
-        return round(sum(temps) / len(temps), 1) if temps else None
-
-    @property
-    def preset_mode(self) -> str | None:
-        """Return the current preset mode, e.g., home, away, temp."""
-        return TCS_PRESET_TO_HA.get(self._evo_tcs.systemModeStatus["mode"])
-
-    @property
-    def min_temp(self) -> float:
-        """Return None as Controllers don't have a target temperature."""
-        return None
-
-    @property
-    def max_temp(self) -> float:
-        """Return None as Controllers don't have a target temperature."""
-        return None
-
     async def async_set_temperature(self, **kwargs) -> None:
         """Raise exception as Controllers don't have a target temperature."""
         raise NotImplementedError("Evohome Controllers don't have target temperatures.")
@@ -412,3 +350,18 @@ class EvoController(EvoClimateEntity):
                 attrs["activeSystemFaults"] = getattr(self._evo_tcs, attr)
             else:
                 attrs[attr] = getattr(self._evo_tcs, attr)
+        self._attr_preset_mode = TCS_PRESET_TO_HA.get(
+            self._evo_tcs.systemModeStatus["mode"]
+        )
+        tcs_mode = self._evo_tcs.systemModeStatus["mode"]
+        self._attr_hvac_mode = (
+            HVAC_MODE_OFF if tcs_mode == EVO_HEATOFF else HVAC_MODE_HEAT
+        )
+        temps = [
+            z.temperatureStatus["temperature"]
+            for z in self._evo_tcs.zones.values()
+            if z.temperatureStatus["isAvailable"]
+        ]
+        self._attr_current_temperature = (
+            round(sum(temps) / len(temps), 1) if temps else None
+        )

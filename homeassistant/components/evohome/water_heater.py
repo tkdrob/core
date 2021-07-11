@@ -48,40 +48,20 @@ async def async_setup_platform(
 class EvoDHW(EvoChild, WaterHeaterEntity):
     """Base for a Honeywell TCC DHW controller (aka boiler)."""
 
+    _attr_icon = "mdi:thermometer-lines"
+    _attr_name = "DHW controller"
+    _attr_operation_list = list(HA_STATE_TO_EVO)
+
     def __init__(self, evo_broker, evo_device) -> None:
         """Initialize an evohome DHW controller."""
         super().__init__(evo_broker, evo_device)
 
-        self._unique_id = evo_device.dhwId
-        self._name = "DHW controller"
-        self._icon = "mdi:thermometer-lines"
+        self._attr_unique_id = evo_device.dhwId
 
-        self._precision = PRECISION_TENTHS if evo_broker.client_v1 else PRECISION_WHOLE
-        self._supported_features = SUPPORT_AWAY_MODE | SUPPORT_OPERATION_MODE
-
-    @property
-    def state(self):
-        """Return the current state."""
-        return EVO_STATE_TO_HA[self._evo_device.stateStatus["state"]]
-
-    @property
-    def current_operation(self) -> str:
-        """Return the current operating mode (Auto, On, or Off)."""
-        if self._evo_device.stateStatus["mode"] == EVO_FOLLOW:
-            return STATE_AUTO
-        return EVO_STATE_TO_HA[self._evo_device.stateStatus["state"]]
-
-    @property
-    def operation_list(self) -> list[str]:
-        """Return the list of available operations."""
-        return list(HA_STATE_TO_EVO)
-
-    @property
-    def is_away_mode_on(self):
-        """Return True if away mode is on."""
-        is_off = EVO_STATE_TO_HA[self._evo_device.stateStatus["state"]] == STATE_OFF
-        is_permanent = self._evo_device.stateStatus["mode"] == EVO_PERMOVER
-        return is_off and is_permanent
+        self._attr_precision = (
+            PRECISION_TENTHS if evo_broker.client_v1 else PRECISION_WHOLE
+        )
+        self._attr_supported_features = SUPPORT_AWAY_MODE | SUPPORT_OPERATION_MODE
 
     async def async_set_operation_mode(self, operation_mode: str) -> None:
         """Set new operation mode for a DHW controller.
@@ -126,3 +106,12 @@ class EvoDHW(EvoChild, WaterHeaterEntity):
 
         for attr in STATE_ATTRS_DHW:
             self._device_state_attrs[attr] = getattr(self._evo_device, attr)
+        self._attr_state = EVO_STATE_TO_HA[self._evo_device.stateStatus["state"]]
+        self._attr_current_operation = STATE_AUTO
+        if self._evo_device.stateStatus["mode"] != EVO_FOLLOW:
+            self._attr_current_operation = EVO_STATE_TO_HA[
+                self._evo_device.stateStatus["state"]
+            ]
+        is_off = EVO_STATE_TO_HA[self._evo_device.stateStatus["state"]] == STATE_OFF
+        is_permanent = self._evo_device.stateStatus["mode"] == EVO_PERMOVER
+        self._attr_is_away_mode_on = is_off and is_permanent
