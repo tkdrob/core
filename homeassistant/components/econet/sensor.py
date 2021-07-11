@@ -80,6 +80,18 @@ class EcoNetSensor(EcoNetEntity, SensorEntity):
         super().__init__(econet_device)
         self._econet = econet_device
         self._device_name = device_name
+        self._attr_name = f"{econet_device.device_name}_{device_name}"
+        self._attr_unique_id = (
+            f"{econet_device.device_id}_{econet_device.device_name}_{device_name}"
+        )
+        self._attr_unit_of_measurement = SENSOR_NAMES_TO_UNIT_OF_MEASUREMENT[
+            device_name
+        ]
+        if device_name == POWER_USAGE_TODAY:
+            if econet_device.energy_type == ENERGY_KILO_BRITISH_THERMAL_UNIT.upper():
+                self._attr_unit_of_measurement = ENERGY_KILO_BRITISH_THERMAL_UNIT
+            else:
+                self._attr_unit_of_measurement = ENERGY_KILO_WATT_HOUR
 
     @property
     def state(self):
@@ -88,26 +100,3 @@ class EcoNetSensor(EcoNetEntity, SensorEntity):
         if isinstance(value, float):
             value = round(value, 2)
         return value
-
-    @property
-    def unit_of_measurement(self):
-        """Return the unit of measurement of this entity, if any."""
-        unit_of_measurement = SENSOR_NAMES_TO_UNIT_OF_MEASUREMENT[self._device_name]
-        if self._device_name == POWER_USAGE_TODAY:
-            if self._econet.energy_type == ENERGY_KILO_BRITISH_THERMAL_UNIT.upper():
-                unit_of_measurement = ENERGY_KILO_BRITISH_THERMAL_UNIT
-            else:
-                unit_of_measurement = ENERGY_KILO_WATT_HOUR
-        return unit_of_measurement
-
-    @property
-    def name(self):
-        """Return the name of the entity."""
-        return f"{self._econet.device_name}_{self._device_name}"
-
-    @property
-    def unique_id(self):
-        """Return the unique ID of the entity."""
-        return (
-            f"{self._econet.device_id}_{self._econet.device_name}_{self._device_name}"
-        )

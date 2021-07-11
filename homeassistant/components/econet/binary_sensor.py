@@ -59,25 +59,11 @@ class EcoNetBinarySensor(EcoNetEntity, BinarySensorEntity):
         super().__init__(econet_device)
         self._econet = econet_device
         self._device_name = device_name
+        self._attr_name = f"{econet_device.device_name}_{device_name}"
+        self._attr_unique_id = f"{econet_device.device_id}_{self.name}"
+        self._attr_device_class = SENSORS[self._device_name][DEVICE_CLASS]
 
     @property
     def is_on(self):
         """Return true if the binary sensor is on."""
         return getattr(self._econet, SENSORS[self._device_name][ATTR])
-
-    @property
-    def device_class(self):
-        """Return the class of this sensor, from DEVICE_CLASSES."""
-        return SENSORS[self._device_name][DEVICE_CLASS]
-
-    @property
-    def name(self):
-        """Return the name of the entity."""
-        return f"{self._econet.device_name}_{self._device_name}"
-
-    @property
-    def unique_id(self):
-        """Return the unique ID of the entity."""
-        return (
-            f"{self._econet.device_id}_{self._econet.device_name}_{self._device_name}"
-        )

@@ -104,9 +104,18 @@ async def async_unload_entry(hass, entry):
 class EcoNetEntity(Entity):
     """Define a base EcoNet entity."""
 
+    _attr_should_poll = False
+
     def __init__(self, econet):
         """Initialize."""
         self._econet = econet
+        self._attr_name = econet.device_name
+        self._attr_unique_id = f"{econet.device_id}_{econet.device_name}"
+        self._attr_device_info = {
+            "identifiers": {(DOMAIN, econet.device_id)},
+            "manufacturer": "Rheem",
+            "name": econet.device_name,
+        }
 
     async def async_added_to_hass(self):
         """Subscribe to device events."""
@@ -128,33 +137,6 @@ class EcoNetEntity(Entity):
         return self._econet.connected
 
     @property
-    def device_info(self):
-        """Return device registry information for this entity."""
-        return {
-            "identifiers": {(DOMAIN, self._econet.device_id)},
-            "manufacturer": "Rheem",
-            "name": self._econet.device_name,
-        }
-
-    @property
-    def name(self):
-        """Return the name of the entity."""
-        return self._econet.device_name
-
-    @property
-    def unique_id(self):
-        """Return the unique ID of the entity."""
-        return f"{self._econet.device_id}_{self._econet.device_name}"
-
-    @property
     def temperature_unit(self):
         """Return the unit of measurement."""
         return TEMP_FAHRENHEIT
-
-    @property
-    def should_poll(self) -> bool:
-        """Return True if entity has to be polled for state.
-
-        False if entity pushes its state to HA.
-        """
-        return False
