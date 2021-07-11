@@ -208,14 +208,17 @@ class EDL21:
 class EDL21Entity(SensorEntity):
     """Entity reading values from EDL21 telegram."""
 
+    _attr_icon = ICON_POWER
+    _attr_should_poll = False
+
     def __init__(self, electricity_id, obis, name, telegram):
         """Initialize an EDL21Entity."""
         self._electricity_id = electricity_id
         self._obis = obis
-        self._name = name
-        self._unique_id = f"{electricity_id}_{obis}"
+        self._attr_name = name
+        self._attr_unique_id = f"{electricity_id}_{obis}"
+        self._attr_unit_of_measurement = telegram.get("unit")
         self._telegram = telegram
-        self._min_time = MIN_TIME_BETWEEN_UPDATES
         self._last_update = utcnow()
         self._state_attrs = {
             "status": "status",
@@ -239,7 +242,7 @@ class EDL21Entity(SensorEntity):
                 return
 
             now = utcnow()
-            if now - self._last_update < self._min_time:
+            if now - self._last_update < MIN_TIME_BETWEEN_UPDATES:
                 return
 
             self._telegram = telegram
@@ -256,24 +259,9 @@ class EDL21Entity(SensorEntity):
             self._async_remove_dispatcher()
 
     @property
-    def should_poll(self) -> bool:
-        """Do not poll."""
-        return False
-
-    @property
-    def unique_id(self) -> str:
-        """Return a unique ID."""
-        return self._unique_id
-
-    @property
     def old_unique_id(self) -> str:
         """Return a less unique ID as used in the first version of edl21."""
         return self._obis
-
-    @property
-    def name(self) -> str | None:
-        """Return a name."""
-        return self._name
 
     @property
     def state(self) -> str:
@@ -288,13 +276,3 @@ class EDL21Entity(SensorEntity):
             for k, v in self._telegram.items()
             if k in self._state_attrs
         }
-
-    @property
-    def unit_of_measurement(self):
-        """Return the unit of measurement."""
-        return self._telegram.get("unit")
-
-    @property
-    def icon(self):
-        """Return an icon."""
-        return ICON_POWER
