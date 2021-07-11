@@ -62,28 +62,17 @@ class ECCamera(Camera):
         super().__init__()
 
         self.radar_object = radar_object
-        self.camera_name = camera_name
         self.is_loop = is_loop
-        self.content_type = "image/gif"
         self.image = None
         self.timestamp = None
+        self._attr_name = "Environment Canada Radar"
+        if camera_name is not None:
+            self._attr_name = camera_name
 
     def camera_image(self):
         """Return bytes of camera image."""
         self.update()
         return self.image
-
-    @property
-    def name(self):
-        """Return the name of the camera."""
-        if self.camera_name is not None:
-            return self.camera_name
-        return "Environment Canada Radar"
-
-    @property
-    def extra_state_attributes(self):
-        """Return the state attributes of the device."""
-        return {ATTR_ATTRIBUTION: CONF_ATTRIBUTION, ATTR_UPDATED: self.timestamp}
 
     @Throttle(MIN_TIME_BETWEEN_UPDATES)
     def update(self):
@@ -93,3 +82,7 @@ class ECCamera(Camera):
         else:
             self.image = self.radar_object.get_latest_frame()
         self.timestamp = self.radar_object.timestamp
+        self._attr_extra_state_attributes = {
+            ATTR_ATTRIBUTION: CONF_ATTRIBUTION,
+            ATTR_UPDATED: self.timestamp,
+        }

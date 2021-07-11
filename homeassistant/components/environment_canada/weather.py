@@ -87,95 +87,45 @@ def setup_platform(hass, config, add_devices, discovery_info=None):
 class ECWeather(WeatherEntity):
     """Representation of a weather condition."""
 
+    _attr_attribution = CONF_ATTRIBUTION
+    _attr_temperature_unit = TEMP_CELSIUS
+
     def __init__(self, ec_data, config):
         """Initialize Environment Canada weather."""
         self.ec_data = ec_data
-        self.platform_name = config.get(CONF_NAME)
         self.forecast_type = config[CONF_FORECAST]
-
-    @property
-    def attribution(self):
-        """Return the attribution."""
-        return CONF_ATTRIBUTION
-
-    @property
-    def name(self):
-        """Return the name of the weather entity."""
-        if self.platform_name:
-            return self.platform_name
-        return self.ec_data.metadata.get("location")
-
-    @property
-    def temperature(self):
-        """Return the temperature."""
-        if self.ec_data.conditions.get("temperature", {}).get("value"):
-            return float(self.ec_data.conditions["temperature"]["value"])
-        if self.ec_data.hourly_forecasts[0].get("temperature"):
-            return float(self.ec_data.hourly_forecasts[0]["temperature"])
-        return None
-
-    @property
-    def temperature_unit(self):
-        """Return the unit of measurement."""
-        return TEMP_CELSIUS
-
-    @property
-    def humidity(self):
-        """Return the humidity."""
-        if self.ec_data.conditions.get("humidity", {}).get("value"):
-            return float(self.ec_data.conditions["humidity"]["value"])
-        return None
-
-    @property
-    def wind_speed(self):
-        """Return the wind speed."""
-        if self.ec_data.conditions.get("wind_speed", {}).get("value"):
-            return float(self.ec_data.conditions["wind_speed"]["value"])
-        return None
-
-    @property
-    def wind_bearing(self):
-        """Return the wind bearing."""
-        if self.ec_data.conditions.get("wind_bearing", {}).get("value"):
-            return float(self.ec_data.conditions["wind_bearing"]["value"])
-        return None
-
-    @property
-    def pressure(self):
-        """Return the pressure."""
-        if self.ec_data.conditions.get("pressure", {}).get("value"):
-            return 10 * float(self.ec_data.conditions["pressure"]["value"])
-        return None
-
-    @property
-    def visibility(self):
-        """Return the visibility."""
-        if self.ec_data.conditions.get("visibility", {}).get("value"):
-            return float(self.ec_data.conditions["visibility"]["value"])
-        return None
-
-    @property
-    def condition(self):
-        """Return the weather condition."""
-        icon_code = None
-
-        if self.ec_data.conditions.get("icon_code", {}).get("value"):
-            icon_code = self.ec_data.conditions["icon_code"]["value"]
-        elif self.ec_data.hourly_forecasts[0].get("icon_code"):
-            icon_code = self.ec_data.hourly_forecasts[0]["icon_code"]
-
-        if icon_code:
-            return icon_code_to_condition(int(icon_code))
-        return ""
-
-    @property
-    def forecast(self):
-        """Return the forecast array."""
-        return get_forecast(self.ec_data, self.forecast_type)
+        self._attr_name = ec_data.metadata.get("location")
+        if config.get(CONF_NAME):
+            self._attr_name = config.get(CONF_NAME)
 
     def update(self):
         """Get the latest data from Environment Canada."""
-        self.ec_data.update()
+        data = self.ec_data.update()
+        self._attr_temperature = self._attr_humidity = self._attr_wind_speed = None
+        self._attr_wind_bearing = self._attr_wind_bearing = None
+        self._attr_visibility = icon_code = None
+        if data.conditions.get("temperature", {}).get("value"):
+            self._attr_temperature = float(data.conditions["temperature"]["value"])
+        elif data.hourly_forecasts[0].get("temperature"):
+            self._attr_temperature = float(data.hourly_forecasts[0]["temperature"])
+        if data.conditions.get("humidity", {}).get("value"):
+            self._attr_humidity = float(data.conditions["humidity"]["value"])
+        if data.conditions.get("wind_speed", {}).get("value"):
+            self._attr_wind_speed = float(data.conditions["wind_speed"]["value"])
+        if data.conditions.get("wind_bearing", {}).get("value"):
+            self._attr_wind_bearing = float(data.conditions["wind_bearing"]["value"])
+        if data.conditions.get("pressure", {}).get("value"):
+            self._attr_pressure = 10 * float(data.conditions["pressure"]["value"])
+        if data.conditions.get("visibility", {}).get("value"):
+            self._attr_visibility = float(data.conditions["visibility"]["value"])
+        if data.conditions.get("icon_code", {}).get("value"):
+            icon_code = data.conditions["icon_code"]["value"]
+        elif data.hourly_forecasts[0].get("icon_code"):
+            icon_code = data.hourly_forecasts[0]["icon_code"]
+        self._attr_condition = ""
+        if icon_code:
+            self._attr_condition = icon_code_to_condition(int(icon_code))
+        self._attr_forecast = get_forecast(data, self.forecast_type)
 
 
 def get_forecast(ec_data, forecast_type):

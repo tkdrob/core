@@ -72,37 +72,6 @@ class ECSensor(SensorEntity):
         self.sensor_type = sensor_type
         self.ec_data = ec_data
 
-        self._unique_id = None
-        self._name = None
-        self._state = None
-        self._attr = None
-        self._unit = None
-
-    @property
-    def unique_id(self) -> str:
-        """Return the unique ID of the sensor."""
-        return self._unique_id
-
-    @property
-    def name(self):
-        """Return the name of the sensor."""
-        return self._name
-
-    @property
-    def state(self):
-        """Return the state of the sensor."""
-        return self._state
-
-    @property
-    def extra_state_attributes(self):
-        """Return the state attributes of the device."""
-        return self._attr
-
-    @property
-    def unit_of_measurement(self):
-        """Return the units of measurement."""
-        return self._unit
-
     def update(self):
         """Update current conditions."""
         self.ec_data.update()
@@ -112,39 +81,36 @@ class ECSensor(SensorEntity):
         metadata = self.ec_data.metadata
         sensor_data = conditions.get(self.sensor_type)
 
-        self._unique_id = f"{metadata['location']}-{self.sensor_type}"
-        self._attr = {}
-        self._name = sensor_data.get("label")
+        self._attr_unique_id = f"{metadata['location']}-{self.sensor_type}"
+        self._attr_extra_state_attributes = {}
+        self._attr_name = sensor_data.get("label")
         value = sensor_data.get("value")
 
+        self._attr_state = value
         if isinstance(value, list):
-            self._state = " | ".join([str(s.get("title")) for s in value])[:255]
-            self._attr.update(
+            self._attr_state = " | ".join([str(s.get("title")) for s in value])[:255]
+            self._attr_extra_state_attributes.update(
                 {ATTR_TIME: " | ".join([str(s.get("date")) for s in value])}
             )
         elif self.sensor_type == "tendency":
-            self._state = str(value).capitalize()
+            self._attr_state = str(value).capitalize()
         elif value is not None and len(value) > 255:
-            self._state = value[:255]
-            _LOGGER.info("Value for %s truncated to 255 characters", self._unique_id)
-        else:
-            self._state = value
+            self._attr_state = value[:255]
+            _LOGGER.info("Value for %s truncated to 255 characters", self.unique_id)
 
+        self._attr_unit_of_measurement = sensor_data.get("unit")
         if sensor_data.get("unit") == "C" or self.sensor_type in [
             "wind_chill",
             "humidex",
         ]:
-            self._unit = TEMP_CELSIUS
-        else:
-            self._unit = sensor_data.get("unit")
+            self._attr_unit_of_measurement = TEMP_CELSIUS
 
         timestamp = metadata.get("timestamp")
+        updated_utc = None
         if timestamp:
             updated_utc = datetime.strptime(timestamp, "%Y%m%d%H%M%S").isoformat()
-        else:
-            updated_utc = None
 
-        self._attr.update(
+        self._attr_extra_state_attributes.update(
             {
                 ATTR_ATTRIBUTION: CONF_ATTRIBUTION,
                 ATTR_UPDATED: updated_utc,
