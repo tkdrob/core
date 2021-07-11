@@ -114,10 +114,14 @@ def setup(hass, config):
 class DysonEntity(Entity):
     """Representation of a Dyson entity."""
 
+    _attr_should_poll = False
+
     def __init__(self, device, state_type):
         """Initialize the entity."""
         self._device = device
         self._state_type = state_type
+        self._attr_name = device.name
+        self._attr_unique_id = device.serial
 
     async def async_added_to_hass(self):
         """Call when entity is added to hass."""
@@ -136,18 +140,3 @@ class DysonEntity(Entity):
     def on_message(self, message):
         """Handle new messages received."""
         self.schedule_update_ha_state()
-
-    @property
-    def should_poll(self):
-        """No polling needed."""
-        return False
-
-    @property
-    def name(self):
-        """Return the name of the Dyson sensor."""
-        return self._device.name
-
-    @property
-    def unique_id(self):
-        """Return the sensor's unique id."""
-        return self._device.serial

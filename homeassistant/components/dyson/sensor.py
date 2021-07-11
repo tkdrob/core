@@ -108,8 +108,13 @@ class DysonSensor(DysonEntity, SensorEntity):
         """Create a new generic Dyson sensor."""
         super().__init__(device, None)
         self._old_value = None
-        self._sensor_type = sensor_type
-        self._attributes = SENSOR_ATTRIBUTES[sensor_type]
+        self._attr_name = f"{super().name} {SENSOR_NAMES[sensor_type]}"
+        self._attr_unique_id = f"{device.serial}-{sensor_type}"
+        self._attr_unit_of_measurement = SENSOR_ATTRIBUTES[sensor_type].get(
+            ATTR_UNIT_OF_MEASUREMENT
+        )
+        self._attr_icon = SENSOR_ATTRIBUTES[sensor_type].get(ATTR_ICON)
+        self._attr_device_class = SENSOR_ATTRIBUTES[sensor_type].get(ATTR_DEVICE_CLASS)
 
     def on_message(self, message):
         """Handle new messages which are received from the fan."""
@@ -117,31 +122,6 @@ class DysonSensor(DysonEntity, SensorEntity):
         if self._old_value is None or self._old_value != self.state:
             self._old_value = self.state
             self.schedule_update_ha_state()
-
-    @property
-    def name(self):
-        """Return the name of the Dyson sensor name."""
-        return f"{super().name} {SENSOR_NAMES[self._sensor_type]}"
-
-    @property
-    def unique_id(self):
-        """Return the sensor's unique id."""
-        return f"{self._device.serial}-{self._sensor_type}"
-
-    @property
-    def unit_of_measurement(self):
-        """Return the unit the value is expressed in."""
-        return self._attributes.get(ATTR_UNIT_OF_MEASUREMENT)
-
-    @property
-    def icon(self):
-        """Return the icon for this sensor."""
-        return self._attributes.get(ATTR_ICON)
-
-    @property
-    def device_class(self):
-        """Return the device class of this sensor."""
-        return self._attributes.get(ATTR_DEVICE_CLASS)
 
 
 class DysonFilterLifeSensor(DysonSensor):
@@ -217,7 +197,7 @@ class DysonTemperatureSensor(DysonSensor):
     def __init__(self, device, unit):
         """Create a new Dyson Temperature sensor."""
         super().__init__(device, "temperature")
-        self._unit = unit
+        self._attr_unit_of_measurement = unit
 
     @property
     def state(self):
@@ -225,14 +205,9 @@ class DysonTemperatureSensor(DysonSensor):
         temperature_kelvin = self._device.environmental_state.temperature
         if temperature_kelvin == 0:
             return STATE_OFF
-        if self._unit == TEMP_CELSIUS:
+        if self.unit_of_measurement == TEMP_CELSIUS:
             return float(f"{(temperature_kelvin - 273.15):.1f}")
         return float(f"{(temperature_kelvin * 9 / 5 - 459.67):.1f}")
-
-    @property
-    def unit_of_measurement(self):
-        """Return the unit the value is expressed in."""
-        return self._unit
 
 
 class DysonAirQualitySensor(DysonSensor):

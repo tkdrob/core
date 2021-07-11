@@ -91,15 +91,10 @@ def setup_platform(hass, config, add_entities, discovery_info=None):
 class DysonClimateEntity(DysonEntity, ClimateEntity):
     """Representation of a Dyson climate fan."""
 
-    @property
-    def supported_features(self):
-        """Return the list of supported features."""
-        return SUPPORT_FLAGS
-
-    @property
-    def temperature_unit(self):
-        """Return the unit of measurement."""
-        return TEMP_CELSIUS
+    _attr_max_temp = 37
+    _attr_min_temp = 1
+    _attr_supported_features = SUPPORT_FLAGS
+    _attr_temperature_unit = TEMP_CELSIUS
 
     @property
     def current_temperature(self):
@@ -130,16 +125,6 @@ class DysonClimateEntity(DysonEntity, ClimateEntity):
             return self._device.environmental_state.humidity
         return None
 
-    @property
-    def min_temp(self):
-        """Return the minimum temperature."""
-        return 1
-
-    @property
-    def max_temp(self):
-        """Return the maximum temperature."""
-        return 37
-
     def set_temperature(self, **kwargs):
         """Set new target temperature."""
         target_temp = kwargs.get(ATTR_TEMPERATURE)
@@ -160,6 +145,9 @@ class DysonClimateEntity(DysonEntity, ClimateEntity):
 class DysonPureHotCoolLinkEntity(DysonClimateEntity):
     """Representation of a Dyson climate fan."""
 
+    _attr_fan_modes = SUPPORT_FAN
+    _attr_hvac_modes = SUPPORT_HVAC
+
     def __init__(self, device):
         """Initialize the fan."""
         super().__init__(device, DysonPureHotCoolState)
@@ -173,14 +161,6 @@ class DysonPureHotCoolLinkEntity(DysonClimateEntity):
         if self._device.state.heat_mode == HeatMode.HEAT_ON.value:
             return HVAC_MODE_HEAT
         return HVAC_MODE_COOL
-
-    @property
-    def hvac_modes(self):
-        """Return the list of available hvac operation modes.
-
-        Need to be a subset of HVAC_MODES.
-        """
-        return SUPPORT_HVAC
 
     @property
     def hvac_action(self):
@@ -200,11 +180,6 @@ class DysonPureHotCoolLinkEntity(DysonClimateEntity):
         if self._device.state.focus_mode == FocusMode.FOCUS_ON.value:
             return FAN_FOCUS
         return FAN_DIFFUSE
-
-    @property
-    def fan_modes(self):
-        """Return the list of available fan modes."""
-        return SUPPORT_FAN
 
     def set_heat_target(self, heat_target):
         """Set heating target temperature."""
@@ -232,6 +207,9 @@ class DysonPureHotCoolLinkEntity(DysonClimateEntity):
 class DysonPureHotCoolEntity(DysonClimateEntity):
     """Representation of a Dyson climate hot+cool fan."""
 
+    _attr_fan_modes = SUPPORT_FAN_PCOOL
+    _attr_hvac_modes = SUPPORT_HVAC_PCOOL
+
     def __init__(self, device):
         """Initialize the fan."""
         super().__init__(device, DysonPureHotCoolV2State)
@@ -247,14 +225,6 @@ class DysonPureHotCoolEntity(DysonClimateEntity):
         if self._device.state.heat_mode == HeatMode.HEAT_ON.value:
             return HVAC_MODE_HEAT
         return HVAC_MODE_COOL
-
-    @property
-    def hvac_modes(self):
-        """Return the list of available hvac operation modes.
-
-        Need to be a subset of HVAC_MODES.
-        """
-        return SUPPORT_HVAC_PCOOL
 
     @property
     def hvac_action(self):
@@ -280,11 +250,6 @@ class DysonPureHotCoolEntity(DysonClimateEntity):
             return FAN_OFF
 
         return SPEED_MAP[self._device.state.speed]
-
-    @property
-    def fan_modes(self):
-        """Return the list of available fan modes."""
-        return SUPPORT_FAN_PCOOL
 
     def set_heat_target(self, heat_target):
         """Set heating target temperature."""

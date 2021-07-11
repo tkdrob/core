@@ -57,6 +57,8 @@ def setup_platform(hass, config, add_entities, discovery_info=None):
 class Dyson360EyeDevice(DysonEntity, VacuumEntity):
     """Dyson 360 Eye robot vacuum device."""
 
+    _attr_available = True
+
     def __init__(self, device):
         """Dyson 360 Eye robot vacuum device."""
         super().__init__(device, None)
@@ -107,11 +109,6 @@ class Dyson360EyeDevice(DysonEntity, VacuumEntity):
             Dyson360EyeMode.FULL_CLEAN_ABORTED,
             Dyson360EyeMode.FULL_CLEAN_RUNNING,
         ]
-
-    @property
-    def available(self) -> bool:
-        """Return True if entity is available."""
-        return True
 
     @property
     def supported_features(self):
