@@ -107,37 +107,16 @@ class EnOceanSensor(EnOceanEntity, RestoreEntity, SensorEntity):
     def __init__(self, dev_id, dev_name, sensor_type):
         """Initialize the EnOcean sensor device."""
         super().__init__(dev_id, dev_name)
-        self._sensor_type = sensor_type
-        self._device_class = SENSOR_TYPES[self._sensor_type]["class"]
-        self._dev_name = f"{SENSOR_TYPES[self._sensor_type]['name']} {dev_name}"
-        self._unit_of_measurement = SENSOR_TYPES[self._sensor_type]["unit"]
-        self._icon = SENSOR_TYPES[self._sensor_type]["icon"]
+        self._attr_device_class = SENSOR_TYPES[sensor_type]["class"]
+        self._attr_name = f"{SENSOR_TYPES[sensor_type]['name']} {dev_name}"
+        self._attr_unit_of_measurement = SENSOR_TYPES[sensor_type]["unit"]
+        self._attr_icon = SENSOR_TYPES[sensor_type]["icon"]
         self._state = None
-
-    @property
-    def name(self):
-        """Return the name of the device."""
-        return self._dev_name
-
-    @property
-    def icon(self):
-        """Icon to use in the frontend."""
-        return self._icon
-
-    @property
-    def device_class(self):
-        """Return the device class of the sensor."""
-        return self._device_class
 
     @property
     def state(self):
         """Return the state of the device."""
         return self._state
-
-    @property
-    def unit_of_measurement(self):
-        """Return the unit of measurement."""
-        return self._unit_of_measurement
 
     async def async_added_to_hass(self):
         """Call when entity about to be added to hass."""

@@ -35,20 +35,14 @@ class EnOceanSwitch(EnOceanEntity, ToggleEntity):
     def __init__(self, dev_id, dev_name, channel):
         """Initialize the EnOcean switch device."""
         super().__init__(dev_id, dev_name)
-        self._light = None
+        self._attr_name = dev_name
         self._on_state = False
-        self._on_state2 = False
         self.channel = channel
 
     @property
     def is_on(self):
         """Return whether the switch is on or off."""
         return self._on_state
-
-    @property
-    def name(self):
-        """Return the device name."""
-        return self.dev_name
 
     def turn_on(self, **kwargs):
         """Turn on the switch."""

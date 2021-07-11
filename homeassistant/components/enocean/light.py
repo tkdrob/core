@@ -40,17 +40,15 @@ def setup_platform(hass, config, add_entities, discovery_info=None):
 class EnOceanLight(EnOceanEntity, LightEntity):
     """Representation of an EnOcean light source."""
 
+    _attr_supported_features = SUPPORT_ENOCEAN
+
     def __init__(self, sender_id, dev_id, dev_name):
         """Initialize the EnOcean light source."""
         super().__init__(dev_id, dev_name)
+        self._attr_name = dev_name
         self._on_state = False
         self._brightness = 50
         self._sender_id = sender_id
-
-    @property
-    def name(self):
-        """Return the name of the device if any."""
-        return self.dev_name
 
     @property
     def brightness(self):
@@ -65,11 +63,6 @@ class EnOceanLight(EnOceanEntity, LightEntity):
     def is_on(self):
         """If light is on."""
         return self._on_state
-
-    @property
-    def supported_features(self):
-        """Flag supported features."""
-        return SUPPORT_ENOCEAN
 
     def turn_on(self, **kwargs):
         """Turn the light source on or sets a specific dimmer value."""
