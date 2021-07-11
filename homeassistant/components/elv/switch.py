@@ -44,26 +44,9 @@ class SmartPlugSwitch(SwitchEntity):
     def __init__(self, pca, device_id):
         """Initialize the switch."""
         self._device_id = device_id
-        self._name = "PCA 301"
-        self._state = None
-        self._available = True
-        self._emeter_params = {}
+        self._attr_name = "PCA 301"
+        self._attr_extra_state_attributes = {}
         self._pca = pca
-
-    @property
-    def name(self):
-        """Return the name of the Smart Plug, if any."""
-        return self._name
-
-    @property
-    def available(self) -> bool:
-        """Return if switch is available."""
-        return self._available
-
-    @property
-    def is_on(self):
-        """Return true if switch is on."""
-        return self._state
 
     def turn_on(self, **kwargs):
         """Turn the switch on."""
@@ -73,25 +56,20 @@ class SmartPlugSwitch(SwitchEntity):
         """Turn the switch off."""
         self._pca.turn_off(self._device_id)
 
-    @property
-    def extra_state_attributes(self):
-        """Return the state attributes of the device."""
-        return self._emeter_params
-
     def update(self):
         """Update the PCA switch's state."""
         try:
-            self._emeter_params[
+            self._attr_extra_state_attributes[
                 ATTR_CURRENT_POWER_W
             ] = f"{self._pca.get_current_power(self._device_id):.1f}"
-            self._emeter_params[
+            self._attr_extra_state_attributes[
                 ATTR_TOTAL_ENERGY_KWH
             ] = f"{self._pca.get_total_consumption(self._device_id):.2f}"
 
-            self._available = True
-            self._state = self._pca.get_state(self._device_id)
+            self._attr_available = True
+            self._attr_is_on = self._pca.get_state(self._device_id)
 
         except (OSError) as ex:
-            if self._available:
+            if self.available:
                 _LOGGER.warning("Could not read state for %s: %s", self.name, ex)
-                self._available = False
+                self._attr_available = False
