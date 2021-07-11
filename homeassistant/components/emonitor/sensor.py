@@ -5,7 +5,6 @@ from aioemonitor.monitor import EmonitorChannel
 from homeassistant.components.sensor import DEVICE_CLASS_POWER, SensorEntity
 from homeassistant.const import POWER_WATT
 from homeassistant.helpers import device_registry as dr
-from homeassistant.helpers.entity import DeviceInfo
 from homeassistant.helpers.typing import StateType
 from homeassistant.helpers.update_coordinator import (
     CoordinatorEntity,
@@ -42,13 +41,17 @@ class EmonitorPowerSensor(CoordinatorEntity, SensorEntity):
 
     def __init__(self, coordinator: DataUpdateCoordinator, channel_number: int) -> None:
         """Initialize the channel sensor."""
-        self.channel_number = channel_number
         super().__init__(coordinator)
-
-    @property
-    def unique_id(self) -> str:
-        """Channel unique id."""
-        return f"{self.mac_address}_{self.channel_number}"
+        mac = coordinator.data.network.mac_address
+        self.channel_number = channel_number
+        self._attr_name = coordinator.data.channels[channel_number].label
+        self._attr_unique_id = f"{mac}_{channel_number}"
+        self._attr_device_info = {
+            "name": name_short_mac(mac[-6:]),
+            "connections": {(dr.CONNECTION_NETWORK_MAC, mac)},
+            "manufacturer": "Powerhouse Dynamics, Inc.",
+            "sw_version": coordinator.data.hardware.firmware_version,
+        }
 
     @property
     def channel_data(self) -> EmonitorChannel:
@@ -59,11 +62,6 @@ class EmonitorPowerSensor(CoordinatorEntity, SensorEntity):
     def paired_channel_data(self) -> EmonitorChannel:
         """Channel data."""
         return self.coordinator.data.channels[self.channel_data.paired_with_channel]
-
-    @property
-    def name(self) -> str:
-        """Name of the sensor."""
-        return self.channel_data.label
 
     def _paired_attr(self, attr_name: str) -> float:
         """Cumulative attributes for channel and paired channel."""
@@ -84,19 +82,4 @@ class EmonitorPowerSensor(CoordinatorEntity, SensorEntity):
             "channel": self.channel_number,
             "avg_power": self._paired_attr("avg_power"),
             "max_power": self._paired_attr("max_power"),
-        }
-
-    @property
-    def mac_address(self) -> str:
-        """Return the mac address of the device."""
-        return self.coordinator.data.network.mac_address
-
-    @property
-    def device_info(self) -> DeviceInfo:
-        """Return info about the emonitor device."""
-        return {
-            "name": name_short_mac(self.mac_address[-6:]),
-            "connections": {(dr.CONNECTION_NETWORK_MAC, self.mac_address)},
-            "manufacturer": "Powerhouse Dynamics, Inc.",
-            "sw_version": self.coordinator.data.hardware.firmware_version,
         }
