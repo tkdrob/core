@@ -37,38 +37,9 @@ class SmartPlugSwitch(SwitchEntity):
     def __init__(self, smartplug, name):
         """Initialize the switch."""
         self.smartplug = smartplug
-        self._name = name
-        self._now_power = None
-        self._now_energy_day = None
-        self._state = False
+        self._attr_name = name
         self._supports_power_monitoring = False
         self._info = None
-        self._mac = None
-
-    @property
-    def unique_id(self):
-        """Return the device's MAC address."""
-        return self._mac
-
-    @property
-    def name(self):
-        """Return the name of the Smart Plug, if any."""
-        return self._name
-
-    @property
-    def current_power_w(self):
-        """Return the current power usage in W."""
-        return self._now_power
-
-    @property
-    def today_energy_kwh(self):
-        """Return the today total energy usage in kWh."""
-        return self._now_energy_day
-
-    @property
-    def is_on(self):
-        """Return true if switch is on."""
-        return self._state
 
     def turn_on(self, **kwargs):
         """Turn the switch on."""
@@ -82,18 +53,18 @@ class SmartPlugSwitch(SwitchEntity):
         """Update edimax switch."""
         if not self._info:
             self._info = self.smartplug.info
-            self._mac = self._info["mac"]
+            self._attr_unique_id = self._info["mac"]
             self._supports_power_monitoring = self._info["model"] != "SP1101W"
 
         if self._supports_power_monitoring:
             try:
-                self._now_power = float(self.smartplug.now_power)
+                self._attr_current_power_w = float(self.smartplug.now_power)
             except (TypeError, ValueError):
-                self._now_power = None
+                self._attr_current_power_w = None
 
             try:
-                self._now_energy_day = float(self.smartplug.now_energy_day)
+                self._attr_today_energy_kwh = float(self.smartplug.now_energy_day)
             except (TypeError, ValueError):
-                self._now_energy_day = None
+                self._attr_today_energy_kwh = None
 
-        self._state = self.smartplug.state == "ON"
+        self._attr_is_on = self.smartplug.state == "ON"
