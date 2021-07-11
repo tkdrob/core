@@ -103,6 +103,8 @@ async def async_setup_entry(hass, config_entry, async_add_entities):
 class Envoy(CoordinatorEntity, SensorEntity):
     """Envoy entity."""
 
+    _attr_icon = ICON
+
     def __init__(
         self,
         sensor_type,
@@ -115,28 +117,23 @@ class Envoy(CoordinatorEntity, SensorEntity):
         coordinator,
     ):
         """Initialize Envoy entity."""
-        self._type = sensor_type
-        self._name = name
-        self._serial_number = serial_number
-        self._device_name = device_name
-        self._device_serial_number = device_serial_number
-        self._unit_of_measurement = unit
-        self._attr_state_class = state_class
-
         super().__init__(coordinator)
-
-    @property
-    def name(self):
-        """Return the name of the sensor."""
-        return self._name
-
-    @property
-    def unique_id(self):
-        """Return the unique id of the sensor."""
-        if self._serial_number:
-            return self._serial_number
-        if self._device_serial_number:
-            return f"{self._device_serial_number}_{self._type}"
+        self._type = sensor_type
+        self._attr_name = name
+        self._serial_number = serial_number
+        self._attr_unit_of_measurement = unit
+        self._attr_state_class = state_class
+        if serial_number:
+            self._attr_unique_id = serial_number
+        elif device_serial_number:
+            self._attr_unique_id = f"{device_serial_number}_{sensor_type}"
+        if device_serial_number:
+            self._attr_device_info = {
+                "identifiers": {(DOMAIN, str(device_serial_number))},
+                "name": device_name,
+                "model": "Envoy",
+                "manufacturer": "Enphase",
+            }
 
     @property
     def state(self):
@@ -157,16 +154,6 @@ class Envoy(CoordinatorEntity, SensorEntity):
         return value
 
     @property
-    def unit_of_measurement(self):
-        """Return the unit of measurement of this entity, if any."""
-        return self._unit_of_measurement
-
-    @property
-    def icon(self):
-        """Icon to use in the frontend, if any."""
-        return ICON
-
-    @property
     def extra_state_attributes(self):
         """Return the state attributes."""
         if (
@@ -179,15 +166,3 @@ class Envoy(CoordinatorEntity, SensorEntity):
             return {"last_reported": value}
 
         return None
-
-    @property
-    def device_info(self):
-        """Return the device_info of the device."""
-        if not self._device_serial_number:
-            return None
-        return {
-            "identifiers": {(DOMAIN, str(self._device_serial_number))},
-            "name": self._device_name,
-            "model": "Envoy",
-            "manufacturer": "Enphase",
-        }
