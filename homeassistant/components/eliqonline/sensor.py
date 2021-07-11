@@ -58,41 +58,22 @@ async def async_setup_platform(hass, config, async_add_entities, discovery_info=
 class EliqSensor(SensorEntity):
     """Implementation of an ELIQ Online sensor."""
 
+    _attr_icon = ICON
     _attr_state_class = STATE_CLASS_MEASUREMENT
+    _attr_unit_of_measurement = UNIT_OF_MEASUREMENT
 
     def __init__(self, api, channel_id, name):
         """Initialize the sensor."""
-        self._name = name
-        self._state = None
+        self._attr_name = name
         self._api = api
         self._channel_id = channel_id
-
-    @property
-    def name(self):
-        """Return the name of the sensor."""
-        return self._name
-
-    @property
-    def icon(self):
-        """Return icon."""
-        return ICON
-
-    @property
-    def unit_of_measurement(self):
-        """Return the unit of measurement of this entity, if any."""
-        return UNIT_OF_MEASUREMENT
-
-    @property
-    def state(self):
-        """Return the state of the device."""
-        return self._state
 
     async def async_update(self):
         """Get the latest data."""
         try:
             response = await self._api.get_data_now(channelid=self._channel_id)
-            self._state = int(response["power"])
-            _LOGGER.debug("Updated power from server %d W", self._state)
+            self._attr_state = int(response["power"])
+            _LOGGER.debug("Updated power from server %d W", self.state)
         except KeyError:
             _LOGGER.warning("Invalid response from ELIQ Online API")
         except (OSError, asyncio.TimeoutError) as error:
