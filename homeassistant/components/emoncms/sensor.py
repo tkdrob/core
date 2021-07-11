@@ -9,7 +9,6 @@ from homeassistant.components.sensor import PLATFORM_SCHEMA, SensorEntity
 from homeassistant.const import (
     CONF_API_KEY,
     CONF_ID,
-    CONF_SCAN_INTERVAL,
     CONF_UNIT_OF_MEASUREMENT,
     CONF_URL,
     CONF_VALUE_TEMPLATE,
@@ -76,12 +75,11 @@ def setup_platform(hass, config, add_entities, discovery_info=None):
     exclude_feeds = config.get(CONF_EXCLUDE_FEEDID)
     include_only_feeds = config.get(CONF_ONLY_INCLUDE_FEEDID)
     sensor_names = config.get(CONF_SENSOR_NAMES)
-    interval = config.get(CONF_SCAN_INTERVAL)
 
     if value_template is not None:
         value_template.hass = hass
 
-    data = EmonCmsData(hass, url, apikey, interval)
+    data = EmonCmsData(url, apikey)
 
     data.update()
 
@@ -110,7 +108,6 @@ def setup_platform(hass, config, add_entities, discovery_info=None):
 
         sensors.append(
             EmonCmsSensor(
-                hass,
                 data,
                 name,
                 value_template,
@@ -119,15 +116,13 @@ def setup_platform(hass, config, add_entities, discovery_info=None):
                 elem,
             )
         )
-    add_entities(sensors)
+    add_entities(sensors, True)
 
 
 class EmonCmsSensor(SensorEntity):
     """Implementation of an Emoncms sensor."""
 
-    def __init__(
-        self, hass, data, name, value_template, unit_of_measurement, sensorid, elem
-    ):
+    def __init__(self, data, name, value_template, unit_of_measurement, sensorid, elem):
         """Initialize the sensor."""
         if name is None:
             # Suppress ID in sensor name if it's 1, since most people won't
@@ -136,53 +131,16 @@ class EmonCmsSensor(SensorEntity):
             id_for_name = "" if str(sensorid) == "1" else sensorid
             # Use the feed name assigned in EmonCMS or fall back to the feed ID
             feed_name = elem.get("name") or f"Feed {elem['id']}"
-            self._name = f"EmonCMS{id_for_name} {feed_name}"
+            self._attr_name = f"EmonCMS{id_for_name} {feed_name}"
         else:
-            self._name = name
+            self._attr_name = name
         self._identifier = get_id(
             sensorid, elem["tag"], elem["name"], elem["id"], elem["userid"]
         )
-        self._hass = hass
         self._data = data
         self._value_template = value_template
-        self._unit_of_measurement = unit_of_measurement
+        self._attr_unit_of_measurement = unit_of_measurement
         self._sensorid = sensorid
-        self._elem = elem
-
-        if self._value_template is not None:
-            self._state = self._value_template.render_with_possible_json_value(
-                elem["value"], STATE_UNKNOWN
-            )
-        else:
-            self._state = round(float(elem["value"]), DECIMALS)
-
-    @property
-    def name(self):
-        """Return the name of the sensor."""
-        return self._name
-
-    @property
-    def unit_of_measurement(self):
-        """Return the unit of measurement of this entity, if any."""
-        return self._unit_of_measurement
-
-    @property
-    def state(self):
-        """Return the state of the device."""
-        return self._state
-
-    @property
-    def extra_state_attributes(self):
-        """Return the attributes of the sensor."""
-        return {
-            ATTR_FEEDID: self._elem["id"],
-            ATTR_TAG: self._elem["tag"],
-            ATTR_FEEDNAME: self._elem["name"],
-            ATTR_SIZE: self._elem["size"],
-            ATTR_USERID: self._elem["userid"],
-            ATTR_LASTUPDATETIME: self._elem["time"],
-            ATTR_LASTUPDATETIMESTR: template.timestamp_local(float(self._elem["time"])),
-        }
 
     def update(self):
         """Get the latest data and updates the state."""
@@ -210,25 +168,31 @@ class EmonCmsSensor(SensorEntity):
         if elem is None:
             return
 
-        self._elem = elem
-
         if self._value_template is not None:
-            self._state = self._value_template.render_with_possible_json_value(
+            self._attr_state = self._value_template.render_with_possible_json_value(
                 elem["value"], STATE_UNKNOWN
             )
         else:
-            self._state = round(float(elem["value"]), DECIMALS)
+            self._attr_state = round(float(elem["value"]), DECIMALS)
+
+        self._attr_extra_state_attributes = {
+            ATTR_FEEDID: elem["id"],
+            ATTR_TAG: elem["tag"],
+            ATTR_FEEDNAME: elem["name"],
+            ATTR_SIZE: elem["size"],
+            ATTR_USERID: elem["userid"],
+            ATTR_LASTUPDATETIME: elem["time"],
+            ATTR_LASTUPDATETIMESTR: template.timestamp_local(float(elem["time"])),
+        }
 
 
 class EmonCmsData:
     """The class for handling the data retrieval."""
 
-    def __init__(self, hass, url, apikey, interval):
+    def __init__(self, url, apikey):
         """Initialize the data object."""
         self._apikey = apikey
         self._url = f"{url}/feed/list.json"
-        self._interval = interval
-        self._hass = hass
         self.data = None
 
     @Throttle(MIN_TIME_BETWEEN_UPDATES)
