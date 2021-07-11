@@ -24,7 +24,6 @@ from homeassistant.const import (
     ATTR_SW_VERSION,
 )
 from homeassistant.core import HomeAssistant
-from homeassistant.helpers.entity import DeviceInfo
 from homeassistant.helpers.entity_platform import (
     AddEntitiesCallback,
     async_get_current_platform,
@@ -62,69 +61,28 @@ class ElgatoLight(LightEntity):
 
     def __init__(self, elgato: Elgato, info: Info, settings: Settings) -> None:
         """Initialize Elgato Light."""
-        self._info = info
-        self._settings = settings
         self._state: State | None = None
         self.elgato = elgato
 
-        min_mired = 143
-        max_mired = 344
-        supported_color_modes = {COLOR_MODE_COLOR_TEMP}
+        self._attr_min_mireds = 143
+        self._attr_max_mireds = 344
+        self._attr_supported_color_modes = {COLOR_MODE_COLOR_TEMP}
 
         # Elgato Light supporting color, have a different temperature range
         if settings.power_on_hue is not None:
-            supported_color_modes = {COLOR_MODE_COLOR_TEMP, COLOR_MODE_HS}
-            min_mired = 153
-            max_mired = 285
+            self._attr_supported_color_modes = {COLOR_MODE_COLOR_TEMP, COLOR_MODE_HS}
+            self._attr_min_mireds = 153
+            self._attr_max_mireds = 285
 
-        self._attr_max_mireds = max_mired
-        self._attr_min_mireds = min_mired
         self._attr_name = info.display_name or info.product_name
-        self._attr_supported_color_modes = supported_color_modes
         self._attr_unique_id = info.serial_number
-
-    @property
-    def available(self) -> bool:
-        """Return True if entity is available."""
-        return self._state is not None
-
-    @property
-    def brightness(self) -> int | None:
-        """Return the brightness of this light between 1..255."""
-        assert self._state is not None
-        return round((self._state.brightness * 255) / 100)
-
-    @property
-    def color_temp(self) -> int | None:
-        """Return the CT color value in mireds."""
-        assert self._state is not None
-        return self._state.temperature
-
-    @property
-    def color_mode(self) -> str | None:
-        """Return the color mode of the light."""
-        if self._state and self._state.hue is not None:
-            return COLOR_MODE_HS
-
-        return COLOR_MODE_COLOR_TEMP
-
-    @property
-    def hs_color(self) -> tuple[float, float] | None:
-        """Return the hue and saturation color value [float, float]."""
-        if (
-            self._state is None
-            or self._state.hue is None
-            or self._state.saturation is None
-        ):
-            return None
-
-        return (self._state.hue, self._state.saturation)
-
-    @property
-    def is_on(self) -> bool:
-        """Return the state of the light."""
-        assert self._state is not None
-        return self._state.on
+        self._attr_device_info = {
+            ATTR_IDENTIFIERS: {(DOMAIN, info.serial_number)},
+            ATTR_NAME: info.product_name,
+            ATTR_MANUFACTURER: "Elgato",
+            ATTR_MODEL: info.product_name,
+            ATTR_SW_VERSION: f"{info.firmware_version} ({info.firmware_build_number})",
+        }
 
     async def async_turn_off(self, **kwargs: Any) -> None:
         """Turn off the light."""
@@ -183,17 +141,22 @@ class ElgatoLight(LightEntity):
             meth = _LOGGER.error if self._state else _LOGGER.debug
             meth("An error occurred while updating the Elgato Light: %s", err)
             self._state = None
-
-    @property
-    def device_info(self) -> DeviceInfo:
-        """Return device information about this Elgato Light."""
-        return {
-            ATTR_IDENTIFIERS: {(DOMAIN, self._info.serial_number)},
-            ATTR_NAME: self._info.product_name,
-            ATTR_MANUFACTURER: "Elgato",
-            ATTR_MODEL: self._info.product_name,
-            ATTR_SW_VERSION: f"{self._info.firmware_version} ({self._info.firmware_build_number})",
-        }
+        self._attr_available = self._state is not None
+        if self._state is not None:
+            self._attr_is_on = self._state.on
+            self._attr_brightness = round((self._state.brightness * 255) / 100)
+            self._attr_color_temp = self._state.temperature
+            self._attr_color_mode = COLOR_MODE_COLOR_TEMP
+            if self._state.hue is not None:
+                self._attr_color_mode = COLOR_MODE_HS
+        if (
+            self._state is None
+            or self._state.hue is None
+            or self._state.saturation is None
+        ):
+            self._attr_hs_color = None
+        else:
+            self._attr_hs_color = (self._state.hue, self._state.saturation)
 
     async def async_identify(self) -> None:
         """Identify the light, will make it blink."""
