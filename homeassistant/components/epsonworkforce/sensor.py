@@ -52,35 +52,12 @@ class EpsonPrinterCartridge(SensorEntity):
         self._api = api
 
         self._id = cartridgeidx
-        self._name = MONITORED_CONDITIONS[self._id][0]
-        self._unit = MONITORED_CONDITIONS[self._id][1]
-        self._icon = MONITORED_CONDITIONS[self._id][2]
-
-    @property
-    def name(self):
-        """Return the name of the sensor."""
-        return self._name
-
-    @property
-    def icon(self):
-        """Icon to use in the frontend, if any."""
-        return self._icon
-
-    @property
-    def unit_of_measurement(self):
-        """Return the unit the value is expressed in."""
-        return self._unit
-
-    @property
-    def state(self):
-        """Return the state of the device."""
-        return self._api.getSensorValue(self._id)
-
-    @property
-    def available(self):
-        """Could the device be accessed during the last update call."""
-        return self._api.available
+        self._attr_name = MONITORED_CONDITIONS[self._id][0]
+        self._attr_unit_of_measurement = MONITORED_CONDITIONS[self._id][1]
+        self._attr_icon = MONITORED_CONDITIONS[self._id][2]
 
     def update(self):
         """Get the latest data from the Epson printer."""
         self._api.update()
+        self._attr_available = self._api.available
+        self._attr_state = self._api.getSensorValue(self._id)
