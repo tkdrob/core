@@ -63,69 +63,27 @@ async def async_setup_platform(hass, config, async_add_entities, discovery_info=
             lights.append(EverLightsLight(api, pyeverlights.ZONE_1, status, effects))
             lights.append(EverLightsLight(api, pyeverlights.ZONE_2, status, effects))
 
-    async_add_entities(lights)
+    async_add_entities(lights, True)
 
 
 class EverLightsLight(LightEntity):
     """Representation of a Flux light."""
+
+    _attr_supported_features = SUPPORT_EVERLIGHTS
 
     def __init__(self, api, channel, status, effects):
         """Initialize the light."""
         self._api = api
         self._channel = channel
         self._status = status
-        self._effects = effects
+        self._attr_effect_list = effects
         self._mac = status["mac"]
         self._error_reported = False
         self._hs_color = [255, 255]
         self._brightness = 255
         self._effect = None
-        self._available = True
-
-    @property
-    def unique_id(self) -> str:
-        """Return a unique ID."""
-        return f"{self._mac}-{self._channel}"
-
-    @property
-    def available(self) -> bool:
-        """Return True if entity is available."""
-        return self._available
-
-    @property
-    def name(self):
-        """Return the name of the device."""
-        return f"EverLights {self._mac} Zone {self._channel}"
-
-    @property
-    def is_on(self):
-        """Return true if device is on."""
-        return self._status[f"ch{self._channel}Active"] == 1
-
-    @property
-    def brightness(self):
-        """Return the brightness of this light between 0..255."""
-        return self._brightness
-
-    @property
-    def hs_color(self):
-        """Return the color property."""
-        return self._hs_color
-
-    @property
-    def effect(self):
-        """Return the effect property."""
-        return self._effect
-
-    @property
-    def supported_features(self):
-        """Flag supported features."""
-        return SUPPORT_EVERLIGHTS
-
-    @property
-    def effect_list(self):
-        """Return the list of supported effects."""
-        return self._effects
+        self._attr_unique_id = f"{status['mac']}-{channel}"
+        self._attr_name = f"EverLights {status['mac']} Zone {channel}"
 
     async def async_turn_on(self, **kwargs):
         """Turn the light on."""
@@ -160,10 +118,14 @@ class EverLightsLight(LightEntity):
         try:
             self._status = await self._api.get_status()
         except pyeverlights.ConnectionError:
-            if self._available:
+            if self.available:
                 _LOGGER.warning("EverLights control box connection lost")
-            self._available = False
+            self._attr_available = False
         else:
-            if not self._available:
+            if not self.available:
                 _LOGGER.warning("EverLights control box connection restored")
-            self._available = True
+            self._attr_available = True
+        self._attr_is_on = self._status[f"ch{self._channel}Active"] == 1
+        self._attr_brightness = self._brightness
+        self._attr_hs_color = self._hs_color
+        self._attr_effect = self._effect
