@@ -44,27 +44,11 @@ class EgardiaBinarySensor(BinarySensorEntity):
     def __init__(self, sensor_id, name, egardia_system, device_class):
         """Initialize the sensor device."""
         self._id = sensor_id
-        self._name = name
-        self._state = None
-        self._device_class = device_class
+        self._attr_name = name
+        self._attr_device_class = device_class
         self._egardia_system = egardia_system
 
     def update(self):
         """Update the status."""
         egardia_input = self._egardia_system.getsensorstate(self._id)
-        self._state = STATE_ON if egardia_input else STATE_OFF
-
-    @property
-    def name(self):
-        """Return the name of the device."""
-        return self._name
-
-    @property
-    def is_on(self):
-        """Whether the device is switched on."""
-        return self._state == STATE_ON
-
-    @property
-    def device_class(self):
-        """Return the device class."""
-        return self._device_class
+        self._attr_state = STATE_ON if egardia_input else STATE_OFF

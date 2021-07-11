@@ -19,7 +19,6 @@ from homeassistant.const import (
 from . import (
     CONF_REPORT_SERVER_CODES,
     CONF_REPORT_SERVER_ENABLED,
-    CONF_REPORT_SERVER_PORT,
     EGARDIA_DEVICE,
     EGARDIA_SERVER,
     REPORT_SERVER_CODES_IGNORE,
@@ -47,7 +46,6 @@ def setup_platform(hass, config, add_entities, discovery_info=None):
         hass.data[EGARDIA_DEVICE],
         discovery_info[CONF_REPORT_SERVER_ENABLED],
         discovery_info.get(CONF_REPORT_SERVER_CODES),
-        discovery_info[CONF_REPORT_SERVER_PORT],
     )
 
     add_entities([device], True)
@@ -56,44 +54,23 @@ def setup_platform(hass, config, add_entities, discovery_info=None):
 class EgardiaAlarm(alarm.AlarmControlPanelEntity):
     """Representation of a Egardia alarm."""
 
-    def __init__(
-        self, name, egardiasystem, rs_enabled=False, rs_codes=None, rs_port=52010
-    ):
+    _attr_supported_features = SUPPORT_ALARM_ARM_HOME | SUPPORT_ALARM_ARM_AWAY
+
+    def __init__(self, name, egardiasystem, rs_enabled=False, rs_codes=None):
         """Initialize the Egardia alarm."""
-        self._name = name
+        self._attr_name = name
         self._egardiasystem = egardiasystem
-        self._status = None
         self._rs_enabled = rs_enabled
         self._rs_codes = rs_codes
-        self._rs_port = rs_port
+        self._attr_should_poll = True
+        if rs_enabled:
+            self._attr_should_poll = False
 
     async def async_added_to_hass(self):
         """Add Egardiaserver callback if enabled."""
         if self._rs_enabled:
             _LOGGER.debug("Registering callback to Egardiaserver")
             self.hass.data[EGARDIA_SERVER].register_callback(self.handle_status_event)
-
-    @property
-    def name(self):
-        """Return the name of the device."""
-        return self._name
-
-    @property
-    def state(self):
-        """Return the state of the device."""
-        return self._status
-
-    @property
-    def supported_features(self) -> int:
-        """Return the list of supported features."""
-        return SUPPORT_ALARM_ARM_HOME | SUPPORT_ALARM_ARM_AWAY
-
-    @property
-    def should_poll(self):
-        """Poll if no report server is enabled."""
-        if not self._rs_enabled:
-            return True
-        return False
 
     def handle_status_event(self, event):
         """Handle the Egardia system status event."""
@@ -124,7 +101,7 @@ class EgardiaAlarm(alarm.AlarmControlPanelEntity):
             _LOGGER.debug("Not ignoring status %s", status)
             newstatus = STATES.get(status.upper())
             _LOGGER.debug("newstatus %s", newstatus)
-            self._status = newstatus
+            self._attr_state = newstatus
         else:
             _LOGGER.error("Ignoring status")
 
