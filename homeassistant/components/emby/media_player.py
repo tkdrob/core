@@ -136,17 +136,17 @@ async def async_setup_platform(hass, config, async_add_entities, discovery_info=
 class EmbyDevice(MediaPlayerEntity):
     """Representation of an Emby device."""
 
+    _attr_should_poll = False
+
     def __init__(self, emby, device_id):
         """Initialize the Emby device."""
         _LOGGER.debug("New Emby Device initialized with ID: %s", device_id)
         self.emby = emby
-        self.device_id = device_id
+        self.device_id = self._attr_unique_id = device_id
         self.device = self.emby.devices[self.device_id]
-
-        self._available = True
-
-        self.media_status_last_position = None
-        self.media_status_received = None
+        self._attr_name = f"Emby {self.device.name}" or DEVICE_DEFAULT_NAME
+        if self.device.supports_remote_control:
+            self._attr_supported_features = SUPPORT_EMBY
 
     async def async_added_to_hass(self):
         """Register callback."""
@@ -155,156 +155,57 @@ class EmbyDevice(MediaPlayerEntity):
     @callback
     def async_update_callback(self, msg):
         """Handle device updates."""
+        state = self.device.state
+        if state == "Paused":
+            self._attr_state = STATE_PAUSED
+        elif state == "Playing":
+            self._attr_state = STATE_PLAYING
+        elif state == "Idle":
+            self._attr_state = STATE_IDLE
+        elif state == "Off":
+            self._attr_state = STATE_OFF
         # Check if we should update progress
         if self.device.media_position:
-            if self.device.media_position != self.media_status_last_position:
-                self.media_status_last_position = self.device.media_position
-                self.media_status_received = dt_util.utcnow()
+            if self.device.media_position != self.media_position:
+                self._attr_media_position = self.device.media_position
+                media_status_received = dt_util.utcnow()
         elif not self.device.is_nowplaying:
             # No position, but we have an old value and are still playing
-            self.media_status_last_position = None
-            self.media_status_received = None
-
+            self._attr_media_position = None
+            media_status_received = None
+        self._attr_app_name = self.device.username
+        media_type = self.device.media_type
+        self._attr_media_content_type = None
+        if media_type == "Episode":
+            self._attr_media_content_type = MEDIA_TYPE_TVSHOW
+        elif media_type == "Movie":
+            self._attr_media_content_type = MEDIA_TYPE_MOVIE
+        elif media_type == "Trailer":
+            self._attr_media_content_type = MEDIA_TYPE_TRAILER
+        elif media_type == "Music":
+            self._attr_media_content_type = MEDIA_TYPE_MUSIC
+        elif media_type == "Video":
+            self._attr_media_content_type = MEDIA_TYPE_GENERIC_VIDEO
+        elif media_type == "Audio":
+            self._attr_media_content_type = MEDIA_TYPE_MUSIC
+        elif media_type == "TvChannel":
+            self._attr_media_content_type = MEDIA_TYPE_CHANNEL
+        self._attr_media_content_id = self.device.media_id
+        self._attr_media_duration = self.device.media_runtime
+        self._attr_media_position_updated_at = media_status_received
+        self._attr_media_image_url = self.device.media_image_url
+        self._attr_media_title = self.device.media_title
+        self._attr_media_season = self.device.media_season
+        self._attr_media_series_title = self.device.media_series_title
+        self._attr_media_episode = self.device.media_episode
+        self._attr_media_album_name = self.device.media_album_name
+        self._attr_media_artist = self.device.media_artist
+        self._attr_media_album_artist = self.device.media_album_artist
         self.async_write_ha_state()
-
-    @property
-    def available(self):
-        """Return True if entity is available."""
-        return self._available
 
     def set_available(self, value):
         """Set available property."""
-        self._available = value
-
-    @property
-    def unique_id(self):
-        """Return the id of this emby client."""
-        return self.device_id
-
-    @property
-    def supports_remote_control(self):
-        """Return control ability."""
-        return self.device.supports_remote_control
-
-    @property
-    def name(self):
-        """Return the name of the device."""
-        return f"Emby {self.device.name}" or DEVICE_DEFAULT_NAME
-
-    @property
-    def should_poll(self):
-        """Return True if entity has to be polled for state."""
-        return False
-
-    @property
-    def state(self):
-        """Return the state of the device."""
-        state = self.device.state
-        if state == "Paused":
-            return STATE_PAUSED
-        if state == "Playing":
-            return STATE_PLAYING
-        if state == "Idle":
-            return STATE_IDLE
-        if state == "Off":
-            return STATE_OFF
-
-    @property
-    def app_name(self):
-        """Return current user as app_name."""
-        # Ideally the media_player object would have a user property.
-        return self.device.username
-
-    @property
-    def media_content_id(self):
-        """Content ID of current playing media."""
-        return self.device.media_id
-
-    @property
-    def media_content_type(self):
-        """Content type of current playing media."""
-        media_type = self.device.media_type
-        if media_type == "Episode":
-            return MEDIA_TYPE_TVSHOW
-        if media_type == "Movie":
-            return MEDIA_TYPE_MOVIE
-        if media_type == "Trailer":
-            return MEDIA_TYPE_TRAILER
-        if media_type == "Music":
-            return MEDIA_TYPE_MUSIC
-        if media_type == "Video":
-            return MEDIA_TYPE_GENERIC_VIDEO
-        if media_type == "Audio":
-            return MEDIA_TYPE_MUSIC
-        if media_type == "TvChannel":
-            return MEDIA_TYPE_CHANNEL
-        return None
-
-    @property
-    def media_duration(self):
-        """Return the duration of current playing media in seconds."""
-        return self.device.media_runtime
-
-    @property
-    def media_position(self):
-        """Return the position of current playing media in seconds."""
-        return self.media_status_last_position
-
-    @property
-    def media_position_updated_at(self):
-        """
-        When was the position of the current playing media valid.
-
-        Returns value from homeassistant.util.dt.utcnow().
-        """
-        return self.media_status_received
-
-    @property
-    def media_image_url(self):
-        """Return the image URL of current playing media."""
-        return self.device.media_image_url
-
-    @property
-    def media_title(self):
-        """Return the title of current playing media."""
-        return self.device.media_title
-
-    @property
-    def media_season(self):
-        """Season of current playing media (TV Show only)."""
-        return self.device.media_season
-
-    @property
-    def media_series_title(self):
-        """Return the title of the series of current playing media (TV)."""
-        return self.device.media_series_title
-
-    @property
-    def media_episode(self):
-        """Return the episode of current playing media (TV only)."""
-        return self.device.media_episode
-
-    @property
-    def media_album_name(self):
-        """Return the album name of current playing media (Music only)."""
-        return self.device.media_album_name
-
-    @property
-    def media_artist(self):
-        """Return the artist of current playing media (Music track only)."""
-        return self.device.media_artist
-
-    @property
-    def media_album_artist(self):
-        """Return the album artist of current playing media (Music only)."""
-        return self.device.media_album_artist
-
-    @property
-    def supported_features(self):
-        """Flag media player features that are supported."""
-        if self.supports_remote_control:
-            return SUPPORT_EMBY
-        return 0
+        self._attr_available = value
 
     async def async_media_play(self):
         """Play media."""
