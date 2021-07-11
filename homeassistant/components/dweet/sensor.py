@@ -52,45 +52,28 @@ def setup_platform(hass, config, add_entities, discovery_info=None):
 
     dweet = DweetData(device)
 
-    add_entities([DweetSensor(hass, dweet, name, value_template, unit)], True)
+    add_entities([DweetSensor(dweet, name, value_template, unit)], True)
 
 
 class DweetSensor(SensorEntity):
     """Representation of a Dweet sensor."""
 
-    def __init__(self, hass, dweet, name, value_template, unit_of_measurement):
+    def __init__(self, dweet, name, value_template, unit_of_measurement):
         """Initialize the sensor."""
-        self.hass = hass
         self.dweet = dweet
-        self._name = name
+        self._attr_name = name
         self._value_template = value_template
-        self._state = None
-        self._unit_of_measurement = unit_of_measurement
-
-    @property
-    def name(self):
-        """Return the name of the sensor."""
-        return self._name
-
-    @property
-    def unit_of_measurement(self):
-        """Return the unit the value is expressed in."""
-        return self._unit_of_measurement
-
-    @property
-    def state(self):
-        """Return the state."""
-        return self._state
+        self._attr_unit_of_measurement = unit_of_measurement
 
     def update(self):
         """Get the latest data from REST API."""
         self.dweet.update()
 
         if self.dweet.data is None:
-            self._state = None
+            self._attr_state = None
         else:
             values = json.dumps(self.dweet.data[0]["content"])
-            self._state = self._value_template.render_with_possible_json_value(
+            self._attr_state = self._value_template.render_with_possible_json_value(
                 values, None
             )
 
