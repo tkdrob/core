@@ -116,37 +116,15 @@ def setup_platform(hass, config, add_devices, discovery_info=None):
 class Enigma2Device(MediaPlayerEntity):
     """Representation of an Enigma2 box."""
 
+    _attr_media_content_type = MEDIA_TYPE_TVSHOW
+    _attr_supported_features = SUPPORTED_ENIGMA2
+
     def __init__(self, name, device):
         """Initialize the Enigma2 device."""
-        self._name = name
+        self._attr_name = name
         self.e2_box = device
-
-    @property
-    def name(self):
-        """Return the name of the device."""
-        return self._name
-
-    @property
-    def unique_id(self):
-        """Return the unique ID for this entity."""
-        return self.e2_box.mac_address
-
-    @property
-    def state(self):
-        """Return the state of the device."""
-        if self.e2_box.is_recording_playback:
-            return STATE_PLAYING
-        return STATE_OFF if self.e2_box.in_standby else STATE_ON
-
-    @property
-    def available(self):
-        """Return True if the device is available."""
-        return not self.e2_box.is_offline
-
-    @property
-    def supported_features(self):
-        """Flag of media commands that are supported."""
-        return SUPPORTED_ENIGMA2
+        self._attr_unique_id = device.mac_address
+        self._attr_source_list = device.source_list
 
     def turn_off(self):
         """Turn off media player."""
@@ -155,41 +133,6 @@ class Enigma2Device(MediaPlayerEntity):
     def turn_on(self):
         """Turn the media player on."""
         self.e2_box.turn_on()
-
-    @property
-    def media_title(self):
-        """Title of current playing media."""
-        return self.e2_box.current_service_channel_name
-
-    @property
-    def media_series_title(self):
-        """Return the title of current episode of TV show."""
-        return self.e2_box.current_programme_name
-
-    @property
-    def media_channel(self):
-        """Channel of current playing media."""
-        return self.e2_box.current_service_channel_name
-
-    @property
-    def media_content_id(self):
-        """Service Ref of current playing media."""
-        return self.e2_box.current_service_ref
-
-    @property
-    def media_content_type(self):
-        """Type of video currently playing."""
-        return MEDIA_TYPE_TVSHOW
-
-    @property
-    def is_volume_muted(self):
-        """Boolean if volume is currently muted."""
-        return self.e2_box.muted
-
-    @property
-    def media_image_url(self):
-        """Picon url for the channel."""
-        return self.e2_box.picon_url
 
     def set_volume_level(self, volume):
         """Set volume level, range 0..1."""
@@ -202,11 +145,6 @@ class Enigma2Device(MediaPlayerEntity):
     def volume_down(self):
         """Volume down media player."""
         self.e2_box.set_volume(int(self.e2_box.volume * 100) - 5)
-
-    @property
-    def volume_level(self):
-        """Volume level of the media player (0..1)."""
-        return self.e2_box.volume
 
     def media_stop(self):
         """Send stop command."""
@@ -232,40 +170,38 @@ class Enigma2Device(MediaPlayerEntity):
         """Mute or unmute."""
         self.e2_box.mute_volume()
 
-    @property
-    def source(self):
-        """Return the current input source."""
-        return self.e2_box.current_service_channel_name
-
-    @property
-    def source_list(self):
-        """List of available input sources."""
-        return self.e2_box.source_list
-
     def select_source(self, source):
         """Select input source."""
         self.e2_box.select_source(self.e2_box.sources[source])
 
     def update(self):
-        """Update state of the media_player."""
-        self.e2_box.update()
-
-    @property
-    def extra_state_attributes(self):
-        """Return device specific state attributes.
+        """Update state of the media_player.
 
         isRecording:        Is the box currently recording.
         currservice_fulldescription: Full program description.
         currservice_begin:  is in the format '21:00'.
         currservice_end:    is in the format '21:00'.
         """
-        if self.e2_box.in_standby:
-            return {}
-        return {
-            ATTR_MEDIA_CURRENTLY_RECORDING: self.e2_box.status_info["isRecording"],
-            ATTR_MEDIA_DESCRIPTION: self.e2_box.status_info[
-                "currservice_fulldescription"
-            ],
-            ATTR_MEDIA_START_TIME: self.e2_box.status_info["currservice_begin"],
-            ATTR_MEDIA_END_TIME: self.e2_box.status_info["currservice_end"],
-        }
+        self.e2_box.update()
+        self._attr_state = STATE_OFF if self.e2_box.in_standby else STATE_ON
+        if self.e2_box.is_recording_playback:
+            self._attr_state = STATE_PLAYING
+        self._attr_available = not self.e2_box.is_offline
+        self._attr_extra_state_attributes = {}
+        if not self.e2_box.in_standby:
+            self._attr_extra_state_attributes = {
+                ATTR_MEDIA_CURRENTLY_RECORDING: self.e2_box.status_info["isRecording"],
+                ATTR_MEDIA_DESCRIPTION: self.e2_box.status_info[
+                    "currservice_fulldescription"
+                ],
+                ATTR_MEDIA_START_TIME: self.e2_box.status_info["currservice_begin"],
+                ATTR_MEDIA_END_TIME: self.e2_box.status_info["currservice_end"],
+            }
+        self._attr_source = self.e2_box.current_service_channel_name
+        self._attr_volume_level = self.e2_box.volume
+        self._attr_media_title = self.e2_box.current_service_channel_name
+        self._attr_media_series_title = self.e2_box.current_programme_name
+        self._attr_media_channel = self.e2_box.current_service_channel_name
+        self._attr_media_content_id = self.e2_box.current_service_ref
+        self._attr_is_volume_muted = self.e2_box.muted
+        self._attr_media_image_url = self.e2_box.picon_url
