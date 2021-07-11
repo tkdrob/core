@@ -51,17 +51,18 @@ def setup_platform(hass, config, add_entities, discovery_info=None):
 class EcovacsVacuum(VacuumEntity):
     """Ecovacs Vacuums such as Deebot."""
 
+    _attr_should_poll = False
+    _attr_supported_features = SUPPORT_ECOVACS
+
     def __init__(self, device):
         """Initialize the Ecovacs Vacuum."""
         self.device = device
         self.device.connect_and_wait_until_ready()
-        if self.device.vacuum.get("nick") is not None:
-            self._name = str(self.device.vacuum["nick"])
-        else:
-            # In case there is no nickname defined, use the device id
-            self._name = str(format(self.device.vacuum["did"]))
+        self._attr_unique_id = device.vacuum.get("did")
+        self._attr_name = str(format(device.vacuum.get["did"]))
+        if device.vacuum.get("nick") is not None:
+            self._attr_name = str(device.vacuum["nick"])
 
-        self._fan_speed = None
         self._error = None
         _LOGGER.debug("Vacuum initialized: %s", self.name)
 
@@ -89,16 +90,6 @@ class EcovacsVacuum(VacuumEntity):
         self.schedule_update_ha_state()
 
     @property
-    def should_poll(self) -> bool:
-        """Return True if entity has to be polled for state."""
-        return False
-
-    @property
-    def unique_id(self) -> str:
-        """Return an unique ID."""
-        return self.device.vacuum.get("did")
-
-    @property
     def is_on(self):
         """Return true if vacuum is currently cleaning."""
         return self.device.is_cleaning
@@ -107,16 +98,6 @@ class EcovacsVacuum(VacuumEntity):
     def is_charging(self):
         """Return true if vacuum is currently charging."""
         return self.device.is_charging
-
-    @property
-    def name(self):
-        """Return the name of the device."""
-        return self._name
-
-    @property
-    def supported_features(self):
-        """Flag vacuum cleaner robot features that are supported."""
-        return SUPPORT_ECOVACS
 
     @property
     def status(self):
