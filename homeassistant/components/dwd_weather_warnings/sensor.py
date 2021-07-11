@@ -92,34 +92,25 @@ class DwdWeatherWarningsSensor(SensorEntity):
     def __init__(self, api, name, sensor_type):
         """Initialize a DWD-Weather-Warnings sensor."""
         self._api = api
-        self._name = name
+        self._attr_name = f"{name} {MONITORED_CONDITIONS[sensor_type][0]}"
+        self._attr_icon = MONITORED_CONDITIONS[sensor_type][2]
+        self._attr_unit_of_measurement = MONITORED_CONDITIONS[sensor_type][1]
         self._sensor_type = sensor_type
 
-    @property
-    def name(self):
-        """Return the name of the sensor."""
-        return f"{self._name} {MONITORED_CONDITIONS[self._sensor_type][0]}"
-
-    @property
-    def icon(self):
-        """Icon to use in the frontend, if any."""
-        return MONITORED_CONDITIONS[self._sensor_type][2]
-
-    @property
-    def unit_of_measurement(self):
-        """Return the unit the value is expressed in."""
-        return MONITORED_CONDITIONS[self._sensor_type][1]
-
-    @property
-    def state(self):
-        """Return the state of the device."""
+    def update(self):
+        """Get the latest data from the DWD-Weather-Warnings API."""
+        _LOGGER.debug(
+            "Update requested for %s (%s) by %s",
+            self._api.api.warncell_name,
+            self._api.api.warncell_id,
+            self._sensor_type,
+        )
+        self._api.update()
+        self._attr_available = self._api.api.data_valid
         if self._sensor_type == CURRENT_WARNING_SENSOR:
-            return self._api.api.current_warning_level
-        return self._api.api.expected_warning_level
-
-    @property
-    def extra_state_attributes(self):
-        """Return the state attributes of the DWD-Weather-Warnings."""
+            self._attr_state = self._api.api.current_warning_level
+        else:
+            self._attr_state = self._api.api.expected_warning_level
         data = {
             ATTR_ATTRIBUTION: ATTRIBUTION,
             ATTR_REGION_NAME: self._api.api.warncell_name,
@@ -152,22 +143,7 @@ class DwdWeatherWarningsSensor(SensorEntity):
             warning_copy[API_ATTR_WARNING_END] = data[f"warning_{i}_end"]
             data[f"warning_{i}"] = warning_copy
 
-        return data
-
-    @property
-    def available(self):
-        """Could the device be accessed during the last update call."""
-        return self._api.api.data_valid
-
-    def update(self):
-        """Get the latest data from the DWD-Weather-Warnings API."""
-        _LOGGER.debug(
-            "Update requested for %s (%s) by %s",
-            self._api.api.warncell_name,
-            self._api.api.warncell_id,
-            self._sensor_type,
-        )
-        self._api.update()
+        self._attr_extra_state_attributes = data
 
 
 class WrappedDwDWWAPI:
