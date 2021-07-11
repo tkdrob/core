@@ -7,7 +7,7 @@ from homeassistant.components.dynalite.bridge import DynaliteBridge
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant, callback
 from homeassistant.helpers.dispatcher import async_dispatcher_connect
-from homeassistant.helpers.entity import DeviceInfo, Entity
+from homeassistant.helpers.entity import Entity
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 
 from .const import DOMAIN, LOGGER
@@ -44,30 +44,18 @@ class DynaliteBase(Entity):
         self._device = device
         self._bridge = bridge
         self._unsub_dispatchers = []
-
-    @property
-    def name(self) -> str:
-        """Return the name of the entity."""
-        return self._device.name
-
-    @property
-    def unique_id(self) -> str:
-        """Return the unique ID of the entity."""
-        return self._device.unique_id
+        self._attr_name = device.name
+        self._attr_unique_id = device.unique_id
+        self._attr_device_info = {
+            "identifiers": {(DOMAIN, device.unique_id)},
+            "name": device.name,
+            "manufacturer": "Dynalite",
+        }
 
     @property
     def available(self) -> bool:
         """Return if entity is available."""
         return self._device.available
-
-    @property
-    def device_info(self) -> DeviceInfo:
-        """Device info for this entity."""
-        return {
-            "identifiers": {(DOMAIN, self._device.unique_id)},
-            "name": self.name,
-            "manufacturer": "Dynalite",
-        }
 
     async def async_added_to_hass(self) -> None:
         """Added to hass so need to register to dispatch."""

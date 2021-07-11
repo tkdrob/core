@@ -22,6 +22,8 @@ async def async_setup_entry(
 class DynaliteLight(DynaliteBase, LightEntity):
     """Representation of a Dynalite Channel as a Home Assistant Light."""
 
+    _attr_supported_features = SUPPORT_BRIGHTNESS
+
     @property
     def brightness(self) -> int:
         """Return the brightness of this light between 0..255."""
@@ -39,8 +41,3 @@ class DynaliteLight(DynaliteBase, LightEntity):
     async def async_turn_off(self, **kwargs) -> None:
         """Turn the light off."""
         await self._device.async_turn_off(**kwargs)
-
-    @property
-    def supported_features(self) -> int:
-        """Flag supported features."""
-        return SUPPORT_BRIGHTNESS
