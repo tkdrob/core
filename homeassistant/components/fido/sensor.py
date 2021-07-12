@@ -94,50 +94,25 @@ class FidoSensor(SensorEntity):
 
     def __init__(self, fido_data, sensor_type, name, number):
         """Initialize the sensor."""
-        self.client_name = name
         self._number = number
         self.type = sensor_type
-        self._name = SENSOR_TYPES[sensor_type][0]
-        self._unit_of_measurement = SENSOR_TYPES[sensor_type][1]
-        self._icon = SENSOR_TYPES[sensor_type][2]
+        self._attr_name = f"{name} {number} {SENSOR_TYPES[sensor_type][0]}"
+        self._attr_unit_of_measurement = SENSOR_TYPES[sensor_type][1]
+        self._attr_icon = SENSOR_TYPES[sensor_type][2]
         self.fido_data = fido_data
-        self._state = None
-
-    @property
-    def name(self):
-        """Return the name of the sensor."""
-        return f"{self.client_name} {self._number} {self._name}"
-
-    @property
-    def state(self):
-        """Return the state of the sensor."""
-        return self._state
-
-    @property
-    def unit_of_measurement(self):
-        """Return the unit of measurement of this entity, if any."""
-        return self._unit_of_measurement
-
-    @property
-    def icon(self):
-        """Icon to use in the frontend, if any."""
-        return self._icon
-
-    @property
-    def extra_state_attributes(self):
-        """Return the state attributes of the sensor."""
-        return {"number": self._number}
 
     async def async_update(self):
         """Get the latest data from Fido and update the state."""
         await self.fido_data.async_update()
         if self.type == "balance":
             if self.fido_data.data.get(self.type) is not None:
-                self._state = round(self.fido_data.data[self.type], 2)
+                self._attr_state = round(self.fido_data.data[self.type], 2)
         else:
             if self.fido_data.data.get(self._number, {}).get(self.type) is not None:
-                self._state = self.fido_data.data[self._number][self.type]
-                self._state = round(self._state, 2)
+                self._attr_state = round(
+                    self.fido_data.data[self._number][self.type], 2
+                )
+        self._attr_extra_state_attributes = {"number": self._number}
 
 
 class FidoData:
