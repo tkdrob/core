@@ -48,33 +48,14 @@ async def async_setup_platform(hass, config, async_add_entities, discovery_info=
 class FileSensor(SensorEntity):
     """Implementation of a file sensor."""
 
+    _attr_icon = ICON
+
     def __init__(self, name, file_path, unit_of_measurement, value_template):
         """Initialize the file sensor."""
-        self._name = name
+        self._attr_name = name
         self._file_path = file_path
-        self._unit_of_measurement = unit_of_measurement
+        self._attr_unit_of_measurement = unit_of_measurement
         self._val_tpl = value_template
-        self._state = None
-
-    @property
-    def name(self):
-        """Return the name of the sensor."""
-        return self._name
-
-    @property
-    def unit_of_measurement(self):
-        """Return the unit the value is expressed in."""
-        return self._unit_of_measurement
-
-    @property
-    def icon(self):
-        """Return the icon to use in the frontend, if any."""
-        return ICON
-
-    @property
-    def state(self):
-        """Return the state of the sensor."""
-        return self._state
 
     def update(self):
         """Get the latest entry from a file and updates the state."""
@@ -91,8 +72,8 @@ class FileSensor(SensorEntity):
             return
 
         if self._val_tpl is not None:
-            self._state = self._val_tpl.async_render_with_possible_json_value(
+            self._attr_state = self._val_tpl.async_render_with_possible_json_value(
                 data, None
             )
         else:
-            self._state = data
+            self._attr_state = data
