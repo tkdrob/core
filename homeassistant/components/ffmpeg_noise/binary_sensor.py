@@ -42,14 +42,16 @@ PLATFORM_SCHEMA = PLATFORM_SCHEMA.extend(
 async def async_setup_platform(hass, config, async_add_entities, discovery_info=None):
     """Set up the FFmpeg noise binary sensor."""
     manager = hass.data[DATA_FFMPEG]
-    entity = FFmpegNoise(hass, manager, config)
+    entity = FFmpegNoise(manager, config)
     async_add_entities([entity])
 
 
 class FFmpegNoise(FFmpegBinarySensor):
     """A binary sensor which use FFmpeg for noise detection."""
 
-    def __init__(self, hass, manager, config):
+    _attr_device_class = DEVICE_CLASS_SOUND
+
+    def __init__(self, manager, config):
         """Initialize FFmpeg noise binary sensor."""
 
         super().__init__(config)
@@ -74,8 +76,3 @@ class FFmpegNoise(FFmpegBinarySensor):
             output_dest=self._config.get(CONF_OUTPUT),
             extra_cmd=self._config.get(CONF_EXTRA_ARGUMENTS),
         )
-
-    @property
-    def device_class(self):
-        """Return the class of this sensor, from DEVICE_CLASSES."""
-        return DEVICE_CLASS_SOUND
