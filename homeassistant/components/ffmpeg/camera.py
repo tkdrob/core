@@ -31,19 +31,16 @@ async def async_setup_platform(hass, config, async_add_entities, discovery_info=
 class FFmpegCamera(Camera):
     """An implementation of an FFmpeg camera."""
 
+    _attr_supported_features = SUPPORT_STREAM
+
     def __init__(self, hass, config):
         """Initialize a FFmpeg camera."""
         super().__init__()
 
         self._manager = hass.data[DATA_FFMPEG]
-        self._name = config.get(CONF_NAME)
+        self._attr_name = config.get(CONF_NAME)
         self._input = config.get(CONF_INPUT)
         self._extra_arguments = config.get(CONF_EXTRA_ARGUMENTS)
-
-    @property
-    def supported_features(self):
-        """Return supported features."""
-        return SUPPORT_STREAM
 
     async def stream_source(self):
         """Return the stream source."""
@@ -74,8 +71,3 @@ class FFmpegCamera(Camera):
             )
         finally:
             await stream.close()
-
-    @property
-    def name(self):
-        """Return the name of this camera."""
-        return self._name
