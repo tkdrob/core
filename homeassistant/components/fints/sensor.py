@@ -160,49 +160,27 @@ class FinTsAccount(SensorEntity):
     also be negative.
     """
 
+    _attr_icon = ICON
+
     def __init__(self, client: FinTsClient, account, name: str) -> None:
         """Initialize a FinTs balance account."""
         self._client = client
         self._account = account
-        self._name = name
-        self._balance: float = None
-        self._currency: str = None
+        self._attr_name = name
 
     def update(self) -> None:
         """Get the current balance and currency for the account."""
         bank = self._client.client
         balance = bank.get_balance(self._account)
-        self._balance = balance.amount.amount
-        self._currency = balance.amount.currency
+        self._attr_state = balance.amount.amount
+        self._attr_unit_of_measurement = balance.amount.currency
         _LOGGER.debug("updated balance of account %s", self.name)
-
-    @property
-    def name(self) -> str:
-        """Friendly name of the sensor."""
-        return self._name
-
-    @property
-    def state(self) -> float:
-        """Return the balance of the account as state."""
-        return self._balance
-
-    @property
-    def unit_of_measurement(self) -> str:
-        """Use the currency as unit of measurement."""
-        return self._currency
-
-    @property
-    def extra_state_attributes(self) -> dict:
-        """Additional attributes of the sensor."""
-        attributes = {ATTR_ACCOUNT: self._account.iban, ATTR_ACCOUNT_TYPE: "balance"}
+        self._attr_extra_state_attributes = {
+            ATTR_ACCOUNT: self._account.iban,
+            ATTR_ACCOUNT_TYPE: "balance",
+        }
         if self._client.name:
-            attributes[ATTR_BANK] = self._client.name
-        return attributes
-
-    @property
-    def icon(self) -> str:
-        """Set the icon for the sensor."""
-        return ICON
+            self._attr_extra_state_attributes[ATTR_BANK] = self._client.name
 
 
 class FinTsHoldingsAccount(SensorEntity):
@@ -212,63 +190,31 @@ class FinTsHoldingsAccount(SensorEntity):
     instruments, e.g. stocks.
     """
 
+    _attr_icon = ICON
+    _attr_unit_of_measurement = "EUR"
+
     def __init__(self, client: FinTsClient, account, name: str) -> None:
         """Initialize a FinTs holdings account."""
         self._client = client
-        self._name = name
+        self._attr_name = name
         self._account = account
         self._holdings = []
-        self._total: float = None
 
     def update(self) -> None:
         """Get the current holdings for the account."""
         bank = self._client.client
         self._holdings = bank.get_holdings(self._account)
-        self._total = sum(h.total_value for h in self._holdings)
-
-    @property
-    def state(self) -> float:
-        """Return total market value as state."""
-        return self._total
-
-    @property
-    def icon(self) -> str:
-        """Set the icon for the sensor."""
-        return ICON
-
-    @property
-    def extra_state_attributes(self) -> dict:
-        """Additional attributes of the sensor.
-
-        Lists each holding of the account with the current value.
-        """
-        attributes = {
+        self._attr_state = sum(h.total_value for h in self._holdings)
+        self._attr_extra_state_attributes = {
             ATTR_ACCOUNT: self._account.accountnumber,
             ATTR_ACCOUNT_TYPE: "holdings",
         }
         if self._client.name:
-            attributes[ATTR_BANK] = self._client.name
+            self._attr_extra_state_attributes[ATTR_BANK] = self._client.name
         for holding in self._holdings:
             total_name = f"{holding.name} total"
-            attributes[total_name] = holding.total_value
+            self._attr_extra_state_attributes[total_name] = holding.total_value
             pieces_name = f"{holding.name} pieces"
-            attributes[pieces_name] = holding.pieces
+            self._attr_extra_state_attributes[pieces_name] = holding.pieces
             price_name = f"{holding.name} price"
-            attributes[price_name] = holding.market_value
-
-        return attributes
-
-    @property
-    def name(self) -> str:
-        """Friendly name of the sensor."""
-        return self._name
-
-    @property
-    def unit_of_measurement(self) -> str:
-        """Get the unit of measurement.
-
-        Hardcoded to EUR, as the library does not provide the currency for the
-        holdings. And as FinTS is only used in Germany, most accounts will be
-        in EUR anyways.
-        """
-        return "EUR"
+            self._attr_extra_state_attributes[price_name] = holding.market_value
