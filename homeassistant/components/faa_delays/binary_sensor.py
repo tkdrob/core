@@ -31,21 +31,11 @@ class FAABinarySensor(CoordinatorEntity, BinarySensorEntity):
 
         self.coordinator = coordinator
         self._entry_id = entry_id
-        self._icon = icon
-        self._name = name
+        self._attr_icon = icon
+        self._attr_name = f"{coordinator.data.iata} {name}"
+        self._attr_unique_id = f"{coordinator.data.iata}_{sensor_type}"
         self._sensor_type = sensor_type
-        self._id = self.coordinator.data.iata
         self._attrs = {}
-
-    @property
-    def name(self):
-        """Return the name of the sensor."""
-        return f"{self._id} {self._name}"
-
-    @property
-    def icon(self):
-        """Return the icon."""
-        return self._icon
 
     @property
     def is_on(self):
@@ -61,11 +51,6 @@ class FAABinarySensor(CoordinatorEntity, BinarySensorEntity):
         if self._sensor_type == "CLOSURE":
             return self.coordinator.data.closure.status
         return None
-
-    @property
-    def unique_id(self):
-        """Return a unique, Home Assistant friendly identifier for this entity."""
-        return f"{self._id}_{self._sensor_type}"
 
     @property
     def extra_state_attributes(self):
