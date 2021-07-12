@@ -50,7 +50,7 @@ PLATFORM_SCHEMA = PLATFORM_SCHEMA.extend(
 async def async_setup_platform(hass, config, async_add_entities, discovery_info=None):
     """Set up the FFmpeg binary motion sensor."""
     manager = hass.data[DATA_FFMPEG]
-    entity = FFmpegMotion(hass, manager, config)
+    entity = FFmpegMotion(manager, config)
     async_add_entities([entity])
 
 
@@ -61,31 +61,22 @@ class FFmpegBinarySensor(FFmpegBase, BinarySensorEntity):
         """Init for the binary sensor noise detection."""
         super().__init__(config.get(CONF_INITIAL_STATE))
 
-        self._state = False
         self._config = config
-        self._name = config.get(CONF_NAME)
+        self._attr_name = config.get(CONF_NAME)
 
     @callback
     def _async_callback(self, state):
         """HA-FFmpeg callback for noise detection."""
-        self._state = state
+        self._attr_is_on = state
         self.async_write_ha_state()
-
-    @property
-    def is_on(self):
-        """Return true if the binary sensor is on."""
-        return self._state
-
-    @property
-    def name(self):
-        """Return the name of the entity."""
-        return self._name
 
 
 class FFmpegMotion(FFmpegBinarySensor):
     """A binary sensor which use FFmpeg for noise detection."""
 
-    def __init__(self, hass, manager, config):
+    _attr_device_class = DEVICE_CLASS_MOTION
+
+    def __init__(self, manager, config):
         """Initialize FFmpeg motion binary sensor."""
         super().__init__(config)
         self.ffmpeg = ffmpeg_sensor.SensorMotion(manager.binary, self._async_callback)
@@ -111,8 +102,3 @@ class FFmpegMotion(FFmpegBinarySensor):
             input_source=self._config.get(CONF_INPUT),
             extra_cmd=self._config.get(CONF_EXTRA_ARGUMENTS),
         )
-
-    @property
-    def device_class(self):
-        """Return the class of this sensor, from DEVICE_CLASSES."""
-        return DEVICE_CLASS_MOTION
