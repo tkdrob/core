@@ -49,30 +49,14 @@ class BanSensor(SensorEntity):
 
     def __init__(self, name, jail, log_parser):
         """Initialize the sensor."""
-        self._name = f"{name} {jail}"
+        self._attr_name = f"{name} {jail}"
         self.jail = jail
-        self.ban_dict = {STATE_CURRENT_BANS: [], STATE_ALL_BANS: []}
-        self.last_ban = None
+        self._attr_extra_state_attributes = {STATE_CURRENT_BANS: [], STATE_ALL_BANS: []}
         self.log_parser = log_parser
-        self.log_parser.ip_regex[self.jail] = re.compile(
-            fr"\[{re.escape(self.jail)}\]\s*(Ban|Unban) (.*)"
+        self.log_parser.ip_regex[jail] = re.compile(
+            fr"\[{re.escape(jail)}\]\s*(Ban|Unban) (.*)"
         )
-        _LOGGER.debug("Setting up jail %s", self.jail)
-
-    @property
-    def name(self):
-        """Return the name of the sensor."""
-        return self._name
-
-    @property
-    def extra_state_attributes(self):
-        """Return the state attributes of the fail2ban sensor."""
-        return self.ban_dict
-
-    @property
-    def state(self):
-        """Return the most recently banned IP Address."""
-        return self.last_ban
+        _LOGGER.debug("Setting up jail %s", jail)
 
     def update(self):
         """Update the list of banned ips."""
@@ -83,23 +67,31 @@ class BanSensor(SensorEntity):
                 _LOGGER.debug(entry)
                 current_ip = entry[1]
                 if entry[0] == "Ban":
-                    if current_ip not in self.ban_dict[STATE_CURRENT_BANS]:
-                        self.ban_dict[STATE_CURRENT_BANS].append(current_ip)
-                    if current_ip not in self.ban_dict[STATE_ALL_BANS]:
-                        self.ban_dict[STATE_ALL_BANS].append(current_ip)
-                    if len(self.ban_dict[STATE_ALL_BANS]) > 10:
-                        self.ban_dict[STATE_ALL_BANS].pop(0)
+                    if (
+                        current_ip
+                        not in self.extra_state_attributes[STATE_CURRENT_BANS]
+                    ):
+                        self._attr_extra_state_attributes[STATE_CURRENT_BANS].append(
+                            current_ip
+                        )
+                    if current_ip not in self.extra_state_attributes[STATE_ALL_BANS]:
+                        self._attr_extra_state_attributes[STATE_ALL_BANS].append(
+                            current_ip
+                        )
+                    if len(self.extra_state_attributes[STATE_ALL_BANS]) > 10:
+                        self._attr_extra_state_attributes[STATE_ALL_BANS].pop(0)
 
                 elif (
                     entry[0] == "Unban"
-                    and current_ip in self.ban_dict[STATE_CURRENT_BANS]
+                    and current_ip in self.extra_state_attributes[STATE_CURRENT_BANS]
                 ):
-                    self.ban_dict[STATE_CURRENT_BANS].remove(current_ip)
+                    self._attr_extra_state_attributes[STATE_CURRENT_BANS].remove(
+                        current_ip
+                    )
 
-        if self.ban_dict[STATE_CURRENT_BANS]:
-            self.last_ban = self.ban_dict[STATE_CURRENT_BANS][-1]
-        else:
-            self.last_ban = "None"
+        self._attr_state = "None"
+        if self.extra_state_attributes[STATE_CURRENT_BANS]:
+            self._attr_state = self.extra_state_attributes[STATE_CURRENT_BANS][-1]
 
 
 class BanLogParser:
