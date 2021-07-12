@@ -27,18 +27,15 @@ async def async_setup_entry(
 class ResponseBinarySensor(CoordinatorEntity, BinarySensorEntity):
     """Representation of an FireServiceRota sensor."""
 
+    _attr_name = "Duty"
+
     def __init__(self, coordinator: DataUpdateCoordinator, client, entry):
         """Initialize."""
         super().__init__(coordinator)
         self._client = client
-        self._unique_id = f"{entry.unique_id}_Duty"
+        self._attr_unique_id = f"{entry.unique_id}_Duty"
 
         self._state = None
-
-    @property
-    def name(self) -> str:
-        """Return the name of the sensor."""
-        return "Duty"
 
     @property
     def icon(self) -> str:
@@ -47,11 +44,6 @@ class ResponseBinarySensor(CoordinatorEntity, BinarySensorEntity):
             return "mdi:calendar-check"
 
         return "mdi:calendar-remove"
-
-    @property
-    def unique_id(self) -> str:
-        """Return the unique ID for this binary sensor."""
-        return self._unique_id
 
     @property
     def is_on(self) -> bool:

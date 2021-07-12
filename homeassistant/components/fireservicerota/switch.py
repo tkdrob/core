@@ -25,77 +25,15 @@ async def async_setup_entry(
 class ResponseSwitch(SwitchEntity):
     """Representation of an FireServiceRota switch."""
 
+    _attr_name = "Incident Response"
+    _attr_should_poll = False
+
     def __init__(self, coordinator, client, entry):
         """Initialize."""
         self._coordinator = coordinator
         self._client = client
-        self._unique_id = f"{entry.unique_id}_Response"
+        self._attr_unique_id = f"{entry.unique_id}_Response"
         self._entry_id = entry.entry_id
-
-        self._state = None
-        self._state_attributes = {}
-        self._state_icon = None
-
-    @property
-    def name(self) -> str:
-        """Return the name of the switch."""
-        return "Incident Response"
-
-    @property
-    def icon(self) -> str:
-        """Return the icon to use in the frontend."""
-        if self._state_icon == "acknowledged":
-            return "mdi:run-fast"
-        if self._state_icon == "rejected":
-            return "mdi:account-off-outline"
-
-        return "mdi:forum"
-
-    @property
-    def is_on(self) -> bool:
-        """Get the assumed state of the switch."""
-        return self._state
-
-    @property
-    def unique_id(self) -> str:
-        """Return the unique ID for this switch."""
-        return self._unique_id
-
-    @property
-    def should_poll(self) -> bool:
-        """No polling needed."""
-        return False
-
-    @property
-    def available(self):
-        """Return if switch is available."""
-        return self._client.on_duty
-
-    @property
-    def extra_state_attributes(self) -> object:
-        """Return available attributes for switch."""
-        attr = {}
-        if not self._state_attributes:
-            return attr
-
-        data = self._state_attributes
-        attr = {
-            key: data[key]
-            for key in (
-                "user_name",
-                "assigned_skill_ids",
-                "responded_at",
-                "start_time",
-                "status",
-                "reported_status",
-                "arrived_at_station",
-                "available_at_incident_creation",
-                "active_duty_function_ids",
-            )
-            if key in data
-        }
-
-        return attr
 
     async def async_turn_on(self, **kwargs) -> None:
         """Send Acknowledge response status."""
@@ -141,8 +79,30 @@ class ResponseSwitch(SwitchEntity):
         if not data or "status" not in data:
             return
 
-        self._state = data["status"] == "acknowledged"
-        self._state_attributes = data
-        self._state_icon = data["status"]
+        self._attr_is_on = data["status"] == "acknowledged"
+        self._attr_available = self._client.on_duty
+        self._attr_icon = "mdi:forum"
+        if data["status"] == "acknowledged":
+            self._attr_icon = "mdi:run-fast"
+        if data["status"] == "rejected":
+            self._attr_icon = "mdi:account-off-outline"
+        if not data:
+            self._attr_extra_state_attributes = {}
+        else:
+            self._attr_extra_state_attributes = {
+                key: data[key]
+                for key in (
+                    "user_name",
+                    "assigned_skill_ids",
+                    "responded_at",
+                    "start_time",
+                    "status",
+                    "reported_status",
+                    "arrived_at_station",
+                    "available_at_incident_creation",
+                    "active_duty_function_ids",
+                )
+                if key in data
+            }
 
-        _LOGGER.debug("Set state of entity 'Response Switch' to '%s'", self._state)
+        _LOGGER.debug("Set state of entity 'Response Switch' to '%s'", self.state)

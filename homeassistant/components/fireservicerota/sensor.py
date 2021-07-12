@@ -24,53 +24,57 @@ async def async_setup_entry(
 class IncidentsSensor(RestoreEntity, SensorEntity):
     """Representation of FireServiceRota incidents sensor."""
 
+    _attr_name = "Incidents"
+    _attr_should_poll = False
+
     def __init__(self, client):
         """Initialize."""
         self._client = client
-        self._entry_id = self._client.entry_id
-        self._unique_id = f"{self._client.unique_id}_Incidents"
-        self._state = None
-        self._state_attributes = {}
+        self._entry_id = client.entry_id
+        self._attr_unique_id = f"{client.unique_id}_Incidents"
 
-    @property
-    def name(self) -> str:
-        """Return the name of the sensor."""
-        return "Incidents"
+    async def async_added_to_hass(self) -> None:
+        """Run when about to be added to hass."""
+        await super().async_added_to_hass()
 
-    @property
-    def icon(self) -> str:
-        """Return the icon to use in the frontend."""
+        state = await self.async_get_last_state()
+        if state:
+            self._attr_state = state.state
+            self._attr_extra_state_attributes = state.attributes
+            if "id" in self.extra_state_attributes:
+                self._client.incident_id = self.extra_state_attributes["id"]
+            _LOGGER.debug("Restored entity 'Incidents' to: %s", self.state)
+
+        self.async_on_remove(
+            async_dispatcher_connect(
+                self.hass,
+                f"{FIRESERVICEROTA_DOMAIN}_{self._entry_id}_update",
+                self.client_update,
+            )
+        )
+
+    @callback
+    def client_update(self) -> None:
+        """Handle updated data from the data client."""
+        data = self._client.websocket.incident_data
+        if not data or "body" not in data:
+            return
+
+        self._attr_state = data["body"]
+        self._attr_extra_state_attributes = data
+        if "id" in self.extra_state_attributes:
+            self._client.incident_id = self.extra_state_attributes["id"]
+        self._attr_icon = "mdi:fire-truck"
         if (
-            "prio" in self._state_attributes
-            and self._state_attributes["prio"][0] == "a"
+            "prio" in self.extra_state_attributes
+            and self.extra_state_attributes["prio"][0] == "a"
         ):
-            return "mdi:ambulance"
-
-        return "mdi:fire-truck"
-
-    @property
-    def state(self) -> str:
-        """Return the state of the sensor."""
-        return self._state
-
-    @property
-    def unique_id(self) -> str:
-        """Return the unique ID of the sensor."""
-        return self._unique_id
-
-    @property
-    def should_poll(self) -> bool:
-        """No polling needed."""
-        return False
-
-    @property
-    def extra_state_attributes(self) -> object:
-        """Return available attributes for sensor."""
+            self._attr_icon = "mdi:ambulance"
         attr = {}
-        data = self._state_attributes
+        data = self.extra_state_attributes
 
         if not data:
-            return attr
+            self._attr_extra_state_attributes = attr
 
         for value in (
             "id",
@@ -97,37 +101,5 @@ class IncidentsSensor(RestoreEntity, SensorEntity):
                 if address_value in data["address"]:
                     attr[address_value] = data["address"][address_value]
 
-        return attr
-
-    async def async_added_to_hass(self) -> None:
-        """Run when about to be added to hass."""
-        await super().async_added_to_hass()
-
-        state = await self.async_get_last_state()
-        if state:
-            self._state = state.state
-            self._state_attributes = state.attributes
-            if "id" in self._state_attributes:
-                self._client.incident_id = self._state_attributes["id"]
-            _LOGGER.debug("Restored entity 'Incidents' to: %s", self._state)
-
-        self.async_on_remove(
-            async_dispatcher_connect(
-                self.hass,
-                f"{FIRESERVICEROTA_DOMAIN}_{self._entry_id}_update",
-                self.client_update,
-            )
-        )
-
-    @callback
-    def client_update(self) -> None:
-        """Handle updated data from the data client."""
-        data = self._client.websocket.incident_data
-        if not data or "body" not in data:
-            return
-
-        self._state = data["body"]
-        self._state_attributes = data
-        if "id" in self._state_attributes:
-            self._client.incident_id = self._state_attributes["id"]
+        self._attr_extra_state_attributes = attr
         self.async_write_ha_state()
