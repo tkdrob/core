@@ -19,25 +19,19 @@ class FibaroLock(FibaroDevice, LockEntity):
 
     def __init__(self, fibaro_device):
         """Initialize the Fibaro device."""
-        self._state = False
         super().__init__(fibaro_device)
         self.entity_id = f"{DOMAIN}.{self.ha_id}"
 
     def lock(self, **kwargs):
         """Lock the device."""
         self.action("secure")
-        self._state = True
+        self._attr_is_locked = True
 
     def unlock(self, **kwargs):
         """Unlock the device."""
         self.action("unsecure")
-        self._state = False
-
-    @property
-    def is_locked(self):
-        """Return true if device is locked."""
-        return self._state
+        self._attr_is_locked = False
 
     def update(self):
         """Update device state."""
-        self._state = self.current_binary_state
+        self._attr_is_locked = self.current_binary_state

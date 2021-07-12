@@ -41,7 +41,6 @@ class FibaroBinarySensor(FibaroDevice, BinarySensorEntity):
 
     def __init__(self, fibaro_device):
         """Initialize the binary_sensor."""
-        self._state = None
         super().__init__(fibaro_device)
         self.entity_id = f"{DOMAIN}.{self.ha_id}"
         stype = None
@@ -51,30 +50,12 @@ class FibaroBinarySensor(FibaroDevice, BinarySensorEntity):
         elif fibaro_device.baseType in SENSOR_TYPES:
             stype = fibaro_device.baseType
         if stype:
-            self._device_class = SENSOR_TYPES[stype][2]
-            self._icon = SENSOR_TYPES[stype][1]
-        else:
-            self._device_class = None
-            self._icon = None
+            self._attr_device_class = SENSOR_TYPES[stype][2]
+            self._attr_icon = SENSOR_TYPES[stype][1]
         # device_config overrides:
-        self._device_class = devconf.get(CONF_DEVICE_CLASS, self._device_class)
-        self._icon = devconf.get(CONF_ICON, self._icon)
-
-    @property
-    def icon(self):
-        """Icon to use in the frontend, if any."""
-        return self._icon
-
-    @property
-    def device_class(self):
-        """Return the device class of the sensor."""
-        return self._device_class
-
-    @property
-    def is_on(self):
-        """Return true if sensor is on."""
-        return self._state
+        self._attr_device_class = devconf.get(CONF_DEVICE_CLASS, self.device_class)
+        self._attr_icon = devconf.get(CONF_ICON, self.icon)
 
     def update(self):
         """Get the latest data and update the state."""
-        self._state = self.current_binary_state
+        self._attr_is_on = self.current_binary_state

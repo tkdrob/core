@@ -392,12 +392,15 @@ def setup(hass, base_config):
 class FibaroDevice(Entity):
     """Representation of a Fibaro device entity."""
 
+    _attr_should_poll = False
+
     def __init__(self, fibaro_device):
         """Initialize the device."""
         self.fibaro_device = fibaro_device
         self.controller = fibaro_device.fibaro_controller
-        self._name = fibaro_device.friendly_name
+        self._attr_name = fibaro_device.friendly_name
         self.ha_id = fibaro_device.ha_id
+        self._attr_unique_id = fibaro_device.unique_id_str
 
     async def async_added_to_hass(self):
         """Call when entity is added to hass."""
@@ -405,6 +408,25 @@ class FibaroDevice(Entity):
 
     def _update_callback(self):
         """Update the state."""
+        attr = {"fibaro_id": self.fibaro_device.id}
+        try:
+            if "battery" in self.fibaro_device.interfaces:
+                attr[ATTR_BATTERY_LEVEL] = int(
+                    self.fibaro_device.properties.batteryLevel
+                )
+            if "fibaroAlarmArm" in self.fibaro_device.interfaces:
+                attr[ATTR_ARMED] = bool(self.fibaro_device.properties.armed)
+            if "power" in self.fibaro_device.interfaces:
+                attr[ATTR_CURRENT_POWER_W] = convert(
+                    self.fibaro_device.properties.power, float, 0.0
+                )
+            if "energy" in self.fibaro_device.interfaces:
+                attr[ATTR_CURRENT_ENERGY_KWH] = convert(
+                    self.fibaro_device.properties.energy, float, 0.0
+                )
+        except (ValueError, KeyError):
+            pass
+        self._attr_extra_state_attributes = attr
         self.schedule_update_ha_state(True)
 
     @property
@@ -490,43 +512,3 @@ class FibaroDevice(Entity):
         ):
             return True
         return False
-
-    @property
-    def unique_id(self) -> str:
-        """Return a unique ID."""
-        return self.fibaro_device.unique_id_str
-
-    @property
-    def name(self) -> str | None:
-        """Return the name of the device."""
-        return self._name
-
-    @property
-    def should_poll(self):
-        """Get polling requirement from fibaro device."""
-        return False
-
-    @property
-    def extra_state_attributes(self):
-        """Return the state attributes of the device."""
-        attr = {"fibaro_id": self.fibaro_device.id}
-
-        try:
-            if "battery" in self.fibaro_device.interfaces:
-                attr[ATTR_BATTERY_LEVEL] = int(
-                    self.fibaro_device.properties.batteryLevel
-                )
-            if "fibaroAlarmArm" in self.fibaro_device.interfaces:
-                attr[ATTR_ARMED] = bool(self.fibaro_device.properties.armed)
-            if "power" in self.fibaro_device.interfaces:
-                attr[ATTR_CURRENT_POWER_W] = convert(
-                    self.fibaro_device.properties.power, float, 0.0
-                )
-            if "energy" in self.fibaro_device.interfaces:
-                attr[ATTR_CURRENT_ENERGY_KWH] = convert(
-                    self.fibaro_device.properties.energy, float, 0.0
-                )
-        except (ValueError, KeyError):
-            pass
-
-        return attr

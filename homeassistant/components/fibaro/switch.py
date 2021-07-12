@@ -20,39 +20,29 @@ class FibaroSwitch(FibaroDevice, SwitchEntity):
 
     def __init__(self, fibaro_device):
         """Initialize the Fibaro device."""
-        self._state = False
         super().__init__(fibaro_device)
         self.entity_id = f"{DOMAIN}.{self.ha_id}"
 
     def turn_on(self, **kwargs):
         """Turn device on."""
         self.call_turn_on()
-        self._state = True
+        self._attr_is_on = True
 
     def turn_off(self, **kwargs):
         """Turn device off."""
         self.call_turn_off()
-        self._state = False
-
-    @property
-    def current_power_w(self):
-        """Return the current power usage in W."""
-        if "power" in self.fibaro_device.interfaces:
-            return convert(self.fibaro_device.properties.power, float, 0.0)
-        return None
-
-    @property
-    def today_energy_kwh(self):
-        """Return the today total energy usage in kWh."""
-        if "energy" in self.fibaro_device.interfaces:
-            return convert(self.fibaro_device.properties.energy, float, 0.0)
-        return None
-
-    @property
-    def is_on(self):
-        """Return true if device is on."""
-        return self._state
+        self._attr_is_on = False
 
     def update(self):
         """Update device state."""
-        self._state = self.current_binary_state
+        self._attr_is_on = self.current_binary_state
+        self._attr_today_energy_kwh = None
+        if "energy" in self.fibaro_device.interfaces:
+            self._attr_today_energy_kwh = convert(
+                self.fibaro_device.properties.energy, float, 0.0
+            )
+        self._attr_current_power_w = None
+        if "power" in self.fibaro_device.interfaces:
+            self._attr_current_power_w = convert(
+                self.fibaro_device.properties.power, float, 0.0
+            )

@@ -61,50 +61,24 @@ class FibaroSensor(FibaroDevice, SensorEntity):
 
     def __init__(self, fibaro_device):
         """Initialize the sensor."""
-        self.current_value = None
-        self.last_changed_time = None
         super().__init__(fibaro_device)
         self.entity_id = f"{DOMAIN}.{self.ha_id}"
         if fibaro_device.type in SENSOR_TYPES:
-            self._unit = SENSOR_TYPES[fibaro_device.type][1]
-            self._icon = SENSOR_TYPES[fibaro_device.type][2]
-            self._device_class = SENSOR_TYPES[fibaro_device.type][3]
-        else:
-            self._unit = None
-            self._icon = None
-            self._device_class = None
+            self._attr_unit_of_measurement = SENSOR_TYPES[fibaro_device.type][1]
+            self._attr_icon = SENSOR_TYPES[fibaro_device.type][2]
+            self._attr_device_class = SENSOR_TYPES[fibaro_device.type][3]
         with suppress(KeyError, ValueError):
-            if not self._unit:
+            if not self.unit_of_measurement:
                 if self.fibaro_device.properties.unit == "lux":
-                    self._unit = LIGHT_LUX
+                    self._attr_unit_of_measurement = LIGHT_LUX
                 elif self.fibaro_device.properties.unit == "C":
-                    self._unit = TEMP_CELSIUS
+                    self._attr_unit_of_measurement = TEMP_CELSIUS
                 elif self.fibaro_device.properties.unit == "F":
-                    self._unit = TEMP_FAHRENHEIT
+                    self._attr_unit_of_measurement = TEMP_FAHRENHEIT
                 else:
-                    self._unit = self.fibaro_device.properties.unit
-
-    @property
-    def state(self):
-        """Return the state of the sensor."""
-        return self.current_value
-
-    @property
-    def unit_of_measurement(self):
-        """Return the unit of measurement of this entity, if any."""
-        return self._unit
-
-    @property
-    def icon(self):
-        """Icon to use in the frontend, if any."""
-        return self._icon
-
-    @property
-    def device_class(self):
-        """Return the device class of the sensor."""
-        return self._device_class
+                    self._attr_unit_of_measurement = self.fibaro_device.properties.unit
 
     def update(self):
         """Update the state."""
         with suppress(KeyError, ValueError):
-            self.current_value = float(self.fibaro_device.properties.value)
+            self._attr_state = float(self.fibaro_device.properties.value)
