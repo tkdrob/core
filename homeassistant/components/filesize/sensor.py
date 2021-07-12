@@ -42,48 +42,21 @@ def setup_platform(hass, config, add_entities, discovery_info=None):
 class Filesize(SensorEntity):
     """Encapsulates file size information."""
 
+    _attr_icon = ICON
+    _attr_unit_of_measurement = DATA_MEGABYTES
+
     def __init__(self, path):
         """Initialize the data object."""
         self._path = path  # Need to check its a valid path
-        self._size = None
-        self._last_updated = None
-        self._name = path.split("/")[-1]
-        self._unit_of_measurement = DATA_MEGABYTES
+        self._attr_name = path.split("/")[-1]
 
     def update(self):
         """Update the sensor."""
         statinfo = os.stat(self._path)
-        self._size = statinfo.st_size
         last_updated = datetime.datetime.fromtimestamp(statinfo.st_mtime)
-        self._last_updated = last_updated.isoformat()
-
-    @property
-    def name(self):
-        """Return the name of the sensor."""
-        return self._name
-
-    @property
-    def state(self):
-        """Return the size of the file in MB."""
-        decimals = 2
-        state_mb = round(self._size / 1e6, decimals)
-        return state_mb
-
-    @property
-    def icon(self):
-        """Icon to use in the frontend, if any."""
-        return ICON
-
-    @property
-    def extra_state_attributes(self):
-        """Return other details about the sensor state."""
-        return {
+        self._attr_state = round(statinfo.st_size / 1e6, 2)
+        self._attr_extra_state_attributes = {
             "path": self._path,
-            "last_updated": self._last_updated,
-            "bytes": self._size,
+            "last_updated": last_updated.isoformat(),
+            "bytes": statinfo.st_size,
         }
-
-    @property
-    def unit_of_measurement(self):
-        """Return the unit of measurement of this entity, if any."""
-        return self._unit_of_measurement
