@@ -35,14 +35,9 @@ class FamilyHubCamera(Camera):
     def __init__(self, name, family_hub_cam):
         """Initialize camera component."""
         super().__init__()
-        self._name = name
+        self._attr_name = name
         self.family_hub_cam = family_hub_cam
 
     async def async_camera_image(self):
         """Return a still image response."""
         return await self.family_hub_cam.async_get_cam_image()
-
-    @property
-    def name(self):
-        """Return the name of this camera."""
-        return self._name
