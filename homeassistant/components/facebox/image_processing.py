@@ -222,10 +222,10 @@ class FaceClassifyEntity(ImageProcessingFaceEntity):
         self._hostname = hostname
         self._camera = camera_entity
         if name:
-            self._name = name
+            self._attr_name = name
         else:
             camera_name = split_entity_id(camera_entity)[1]
-            self._name = f"{CLASSIFIER} {camera_name}"
+            self._attr_name = f"{CLASSIFIER} {camera_name}"
         self._matched = {}
 
     def process_image(self, image):
@@ -256,11 +256,6 @@ class FaceClassifyEntity(ImageProcessingFaceEntity):
     def camera_entity(self):
         """Return camera entity id from process pictures."""
         return self._camera
-
-    @property
-    def name(self):
-        """Return the name of the sensor."""
-        return self._name
 
     @property
     def extra_state_attributes(self):
