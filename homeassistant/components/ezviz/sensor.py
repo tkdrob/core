@@ -7,7 +7,7 @@ from pyezviz.constants import SensorType
 
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant
-from homeassistant.helpers.entity import DeviceInfo, Entity
+from homeassistant.helpers.entity import Entity
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 from homeassistant.helpers.update_coordinator import CoordinatorEntity
 
@@ -54,39 +54,19 @@ class EzvizSensor(CoordinatorEntity, Entity):
         """Initialize the sensor."""
         super().__init__(coordinator)
         self._idx = idx
-        self._camera_name = self.coordinator.data[self._idx]["name"]
-        self._name = name
-        self._sensor_name = f"{self._camera_name}.{self._name}"
-        self.sensor_type_name = sensor_type_name
-        self._serial = self.coordinator.data[self._idx]["serial"]
-
-    @property
-    def name(self) -> str:
-        """Return the name of the Ezviz sensor."""
-        return self._name
+        self._attr_name = name
+        sensor_name = f"{coordinator.data[idx]['name']}.{name}"
+        self._attr_device_class = sensor_type_name
+        self._attr_unique_id = f"{coordinator.data[idx]['serial']}_{sensor_name}"
+        self._attr_device_info = {
+            "identifiers": {(DOMAIN, coordinator.data[idx]["serial"])},
+            "name": coordinator.data[idx]["name"],
+            "model": coordinator.data[idx]["device_sub_category"],
+            "manufacturer": MANUFACTURER,
+            "sw_version": coordinator.data[idx]["version"],
+        }
 
     @property
     def state(self) -> int | str:
         """Return the state of the sensor."""
-        return self.coordinator.data[self._idx][self._name]
-
-    @property
-    def unique_id(self) -> str:
-        """Return the unique ID of this sensor."""
-        return f"{self._serial}_{self._sensor_name}"
-
-    @property
-    def device_info(self) -> DeviceInfo:
-        """Return the device_info of the device."""
-        return {
-            "identifiers": {(DOMAIN, self._serial)},
-            "name": self.coordinator.data[self._idx]["name"],
-            "model": self.coordinator.data[self._idx]["device_sub_category"],
-            "manufacturer": MANUFACTURER,
-            "sw_version": self.coordinator.data[self._idx]["version"],
-        }
-
-    @property
-    def device_class(self) -> str:
-        """Device class for the sensor."""
-        return self.sensor_type_name
+        return self.coordinator.data[self._idx][self.name]

@@ -19,7 +19,6 @@ from homeassistant.config_entries import (
 from homeassistant.const import CONF_IP_ADDRESS, CONF_PASSWORD, CONF_USERNAME
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers import config_validation as cv, entity_platform
-from homeassistant.helpers.entity import DeviceInfo
 from homeassistant.helpers.typing import ConfigType, DiscoveryInfoType
 from homeassistant.helpers.update_coordinator import CoordinatorEntity
 
@@ -258,26 +257,22 @@ class EzvizCamera(CoordinatorEntity, Camera):
         self._local_rtsp_port = local_rtsp_port
         self._ffmpeg_arguments = ffmpeg_arguments
 
-        self._serial = self.coordinator.data[self._idx]["serial"]
-        self._name = self.coordinator.data[self._idx]["name"]
-        self._local_ip = self.coordinator.data[self._idx]["local_ip"]
+        self._attr_unique_id = coordinator.data[idx]["serial"]
+        self._attr_name = coordinator.data[idx]["name"]
+        if camera_rtsp_stream:
+            self._attr_supported_features = SUPPORT_STREAM
+        self._attr_device_info = {
+            "identifiers": {(DOMAIN, coordinator.data[idx]["serial"])},
+            "name": coordinator.data[idx]["name"],
+            "model": coordinator.data[idx]["device_sub_category"],
+            "manufacturer": MANUFACTURER,
+            "sw_version": coordinator.data[idx]["version"],
+        }
 
     @property
     def available(self) -> bool:
         """Return True if entity is available."""
         return self.coordinator.data[self._idx]["status"] != 2
-
-    @property
-    def supported_features(self) -> int:
-        """Return supported features."""
-        if self._rtsp_stream:
-            return SUPPORT_STREAM
-        return 0
-
-    @property
-    def name(self) -> str:
-        """Return the name of this device."""
-        return self._name
 
     @property
     def model(self) -> str:
@@ -307,7 +302,7 @@ class EzvizCamera(CoordinatorEntity, Camera):
     def enable_motion_detection(self) -> None:
         """Enable motion detection in camera."""
         try:
-            self.coordinator.ezviz_client.set_camera_defence(self._serial, 1)
+            self.coordinator.ezviz_client.set_camera_defence(self.unique_id, 1)
 
         except InvalidHost as err:
             raise InvalidHost("Error enabling motion detection") from err
@@ -315,15 +310,10 @@ class EzvizCamera(CoordinatorEntity, Camera):
     def disable_motion_detection(self) -> None:
         """Disable motion detection."""
         try:
-            self.coordinator.ezviz_client.set_camera_defence(self._serial, 0)
+            self.coordinator.ezviz_client.set_camera_defence(self.unique_id, 0)
 
         except InvalidHost as err:
             raise InvalidHost("Error disabling motion detection") from err
-
-    @property
-    def unique_id(self) -> str:
-        """Return the name of this camera."""
-        return self._serial
 
     async def async_camera_image(self) -> bytes | None:
         """Return a frame from the camera stream."""
@@ -334,17 +324,6 @@ class EzvizCamera(CoordinatorEntity, Camera):
         )
         return image
 
-    @property
-    def device_info(self) -> DeviceInfo:
-        """Return the device_info of the device."""
-        return {
-            "identifiers": {(DOMAIN, self._serial)},
-            "name": self.coordinator.data[self._idx]["name"],
-            "model": self.coordinator.data[self._idx]["device_sub_category"],
-            "manufacturer": MANUFACTURER,
-            "sw_version": self.coordinator.data[self._idx]["version"],
-        }
-
     async def stream_source(self) -> str | None:
         """Return the stream source."""
         local_ip = self.coordinator.data[self._idx]["local_ip"]
@@ -354,7 +333,7 @@ class EzvizCamera(CoordinatorEntity, Camera):
                 f"{local_ip}:{self._local_rtsp_port}{self._ffmpeg_arguments}"
             )
             _LOGGER.debug(
-                "Camera %s source stream: %s", self._serial, rtsp_stream_source
+                "Camera %s source stream: %s", self.unique_id, rtsp_stream_source
             )
             self._rtsp_stream = rtsp_stream_source
             return rtsp_stream_source
@@ -364,10 +343,10 @@ class EzvizCamera(CoordinatorEntity, Camera):
         """Perform a PTZ action on the camera."""
         try:
             self.coordinator.ezviz_client.ptz_control(
-                str(direction).upper(), self._serial, "START", speed
+                str(direction).upper(), self.unique_id, "START", speed
             )
             self.coordinator.ezviz_client.ptz_control(
-                str(direction).upper(), self._serial, "STOP", speed
+                str(direction).upper(), self.unique_id, "STOP", speed
             )
 
         except HTTPError as err:
@@ -376,21 +355,21 @@ class EzvizCamera(CoordinatorEntity, Camera):
     def perform_sound_alarm(self, enable: int) -> None:
         """Sound the alarm on a camera."""
         try:
-            self.coordinator.ezviz_client.sound_alarm(self._serial, enable)
+            self.coordinator.ezviz_client.sound_alarm(self.unique_id, enable)
         except HTTPError as err:
             raise HTTPError("Cannot sound alarm") from err
 
     def perform_wake_device(self) -> None:
         """Basically wakes the camera by querying the device."""
         try:
-            self.coordinator.ezviz_client.get_detection_sensibility(self._serial)
+            self.coordinator.ezviz_client.get_detection_sensibility(self.unique_id)
         except (HTTPError, PyEzvizError) as err:
             raise PyEzvizError("Cannot wake device") from err
 
     def perform_alarm_sound(self, level: int) -> None:
         """Enable/Disable movement sound alarm."""
         try:
-            self.coordinator.ezviz_client.alarm_sound(self._serial, level, 1)
+            self.coordinator.ezviz_client.alarm_sound(self.unique_id, level, 1)
         except HTTPError as err:
             raise HTTPError(
                 "Cannot set alarm sound level for on movement detected"
@@ -402,7 +381,7 @@ class EzvizCamera(CoordinatorEntity, Camera):
         """Set camera detection sensibility level service."""
         try:
             self.coordinator.ezviz_client.detection_sensibility(
-                self._serial, level, type_value
+                self.unique_id, level, type_value
             )
         except (HTTPError, PyEzvizError) as err:
             raise PyEzvizError("Cannot set detection sensitivity level") from err

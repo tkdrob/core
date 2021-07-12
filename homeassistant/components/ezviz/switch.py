@@ -36,55 +36,39 @@ async def async_setup_entry(hass, entry, async_add_entities):
 class EzvizSwitch(CoordinatorEntity, SwitchEntity):
     """Representation of a Ezviz sensor."""
 
+    _attr_device_class = DEVICE_CLASS_SWITCH
+
     def __init__(self, coordinator, idx, switch):
         """Initialize the switch."""
         super().__init__(coordinator)
         self._idx = idx
-        self._camera_name = self.coordinator.data[self._idx]["name"]
-        self._name = switch
-        self._sensor_name = f"{self._camera_name}.{DeviceSwitchType(self._name).name}"
-        self._serial = self.coordinator.data[self._idx]["serial"]
-        self._device_class = DEVICE_CLASS_SWITCH
-
-    @property
-    def name(self):
-        """Return the name of the Ezviz switch."""
-        return f"{self._camera_name}.{DeviceSwitchType(self._name).name}"
+        self.switch = switch
+        self._serial = coordinator.data[idx]["serial"]
+        self._attr_name = (
+            f"{coordinator.data[idx]['name']}.{DeviceSwitchType(switch).name}"
+        )
+        self._attr_unique_id = f"{coordinator.data[idx]['seria']}_{self.name}"
+        self._attr_device_info = {
+            "identifiers": {(DOMAIN, coordinator.data[idx]["serial"])},
+            "name": coordinator.data[idx]["name"],
+            "model": coordinator.data[idx]["device_sub_category"],
+            "manufacturer": MANUFACTURER,
+            "sw_version": coordinator.data[idx]["version"],
+        }
 
     @property
     def is_on(self):
         """Return the state of the switch."""
-        return self.coordinator.data[self._idx]["switches"][self._name]
-
-    @property
-    def unique_id(self):
-        """Return the unique ID of this switch."""
-        return f"{self._serial}_{self._sensor_name}"
+        return self.coordinator.data[self._idx]["switches"][self.switch]
 
     def turn_on(self, **kwargs):
         """Change a device switch on the camera."""
-        _LOGGER.debug("Set EZVIZ Switch '%s' to on", self._name)
+        _LOGGER.debug("Set EZVIZ Switch '%s' to on", self.switch)
 
-        self.coordinator.ezviz_client.switch_status(self._serial, self._name, 1)
+        self.coordinator.ezviz_client.switch_status(self._serial, self.switch, 1)
 
     def turn_off(self, **kwargs):
         """Change a device switch on the camera."""
-        _LOGGER.debug("Set EZVIZ Switch '%s' to off", self._name)
+        _LOGGER.debug("Set EZVIZ Switch '%s' to off", self.switch)
 
-        self.coordinator.ezviz_client.switch_status(self._serial, self._name, 0)
-
-    @property
-    def device_info(self):
-        """Return the device_info of the device."""
-        return {
-            "identifiers": {(DOMAIN, self._serial)},
-            "name": self.coordinator.data[self._idx]["name"],
-            "model": self.coordinator.data[self._idx]["device_sub_category"],
-            "manufacturer": MANUFACTURER,
-            "sw_version": self.coordinator.data[self._idx]["version"],
-        }
-
-    @property
-    def device_class(self):
-        """Device class for the sensor."""
-        return self._device_class
+        self.coordinator.ezviz_client.switch_status(self._serial, self.switch, 0)
