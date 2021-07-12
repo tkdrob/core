@@ -182,15 +182,14 @@ async def async_setup_platform(hass, config, async_add_entities, discovery_info=
 class SensorFilter(SensorEntity):
     """Representation of a Filter Sensor."""
 
+    _attr_should_poll = False
+
     def __init__(self, name, entity_id, filters):
         """Initialize the sensor."""
-        self._name = name
+        self._attr_name = name
         self._entity = entity_id
-        self._unit_of_measurement = None
-        self._state = None
         self._filters = filters
-        self._icon = None
-        self._device_class = None
+        self._attr_extra_state_attributes = {ATTR_ENTITY_ID: entity_id}
 
     @callback
     def _update_filter_sensor_state_event(self, event):
@@ -203,14 +202,14 @@ class SensorFilter(SensorEntity):
         """Process device state changes."""
         if new_state is None:
             _LOGGER.warning(
-                "While updating filter %s, the new_state is None", self._name
+                "While updating filter %s, the new_state is None", self.name
             )
-            self._state = None
+            self._attr_state = None
             self.async_write_ha_state()
             return
 
         if new_state.state in [STATE_UNKNOWN, STATE_UNAVAILABLE]:
-            self._state = new_state.state
+            self._attr_state = new_state.state
             self.async_write_ha_state()
             return
 
@@ -237,19 +236,19 @@ class SensorFilter(SensorEntity):
             )
             return
 
-        self._state = temp_state.state
+        self._attr_state = temp_state.state
 
-        if self._icon is None:
-            self._icon = new_state.attributes.get(ATTR_ICON, ICON)
+        if self.icon is None:
+            self._attr_icon = new_state.attributes.get(ATTR_ICON, ICON)
 
         if (
-            self._device_class is None
+            self.device_class is None
             and new_state.attributes.get(ATTR_DEVICE_CLASS) in SENSOR_DEVICE_CLASSES
         ):
-            self._device_class = new_state.attributes.get(ATTR_DEVICE_CLASS)
+            self._attr_device_class = new_state.attributes.get(ATTR_DEVICE_CLASS)
 
-        if self._unit_of_measurement is None:
-            self._unit_of_measurement = new_state.attributes.get(
+        if self.unit_of_measurement is None:
+            self._attr_unit_of_measurement = new_state.attributes.get(
                 ATTR_UNIT_OF_MEASUREMENT
             )
 
@@ -326,41 +325,6 @@ class SensorFilter(SensorEntity):
             )
         )
 
-    @property
-    def name(self):
-        """Return the name of the sensor."""
-        return self._name
-
-    @property
-    def state(self):
-        """Return the state of the sensor."""
-        return self._state
-
-    @property
-    def icon(self):
-        """Return the icon to use in the frontend, if any."""
-        return self._icon
-
-    @property
-    def unit_of_measurement(self):
-        """Return the unit_of_measurement of the device."""
-        return self._unit_of_measurement
-
-    @property
-    def should_poll(self):
-        """No polling needed."""
-        return False
-
-    @property
-    def extra_state_attributes(self):
-        """Return the state attributes of the sensor."""
-        return {ATTR_ENTITY_ID: self._entity}
-
-    @property
-    def device_class(self):
-        """Return device class."""
-        return self._device_class
-
 
 class FilterState:
     """State abstraction for filter usage."""
@@ -411,7 +375,7 @@ class Filter:
             self.states = deque(maxlen=0)
             self.window_unit = WINDOW_SIZE_UNIT_TIME
         self.precision = precision
-        self._name = name
+        self._attr_name = name
         self._entity = entity
         self._skip_processing = False
         self._window_size = window_size
@@ -422,11 +386,6 @@ class Filter:
     def window_size(self):
         """Return window size."""
         return self._window_size
-
-    @property
-    def name(self):
-        """Return filter name."""
-        return self._name
 
     @property
     def skip_processing(self):
