@@ -179,15 +179,26 @@ def setup_platform(hass, config, add_entities, discovery_info=None):
 class FluxLight(LightEntity):
     """Representation of a Flux light."""
 
+    _attr_effect_list = FLUX_EFFECT_LIST
+    _attr_supported_features = SUPPORT_FLUX_LED
+
     def __init__(self, device):
         """Initialize the light."""
-        self._name = device["name"]
+        self._attr_name = device["name"]
         self._ipaddr = device["ipaddr"]
         self._protocol = device[CONF_PROTOCOL]
         self._mode = device[ATTR_MODE]
         self._custom_effect = device[CONF_CUSTOM_EFFECT]
         self._bulb = None
         self._error_reported = False
+        if device[CONF_CUSTOM_EFFECT]:
+            self._attr_effect_list = FLUX_EFFECT_LIST + [EFFECT_CUSTOM]
+        if device[ATTR_MODE] == MODE_RGBW:
+            self._attr_supported_features = (
+                SUPPORT_FLUX_LED | SUPPORT_WHITE_VALUE | SUPPORT_COLOR_TEMP
+            )
+        elif device[ATTR_MODE] == MODE_WHITE:
+            self._attr_supported_features = SUPPORT_BRIGHTNESS
 
     def _connect(self):
         """Connect to Flux light."""
@@ -209,70 +220,9 @@ class FluxLight(LightEntity):
         self._bulb = None
 
     @property
-    def available(self) -> bool:
-        """Return True if entity is available."""
-        return self._bulb is not None
-
-    @property
-    def name(self):
-        """Return the name of the device if any."""
-        return self._name
-
-    @property
-    def is_on(self):
-        """Return true if device is on."""
-        return self._bulb.isOn()
-
-    @property
-    def brightness(self):
-        """Return the brightness of this light between 0..255."""
-        if self._mode == MODE_WHITE:
-            return self.white_value
-
-        return self._bulb.brightness
-
-    @property
-    def hs_color(self):
-        """Return the color property."""
-        return color_util.color_RGB_to_hs(*self._bulb.getRgb())
-
-    @property
-    def supported_features(self):
-        """Flag supported features."""
-        if self._mode == MODE_RGBW:
-            return SUPPORT_FLUX_LED | SUPPORT_WHITE_VALUE | SUPPORT_COLOR_TEMP
-
-        if self._mode == MODE_WHITE:
-            return SUPPORT_BRIGHTNESS
-
-        return SUPPORT_FLUX_LED
-
-    @property
     def white_value(self):
         """Return the white value of this light between 0..255."""
         return self._bulb.getRgbw()[3]
-
-    @property
-    def effect_list(self):
-        """Return the list of supported effects."""
-        if self._custom_effect:
-            return FLUX_EFFECT_LIST + [EFFECT_CUSTOM]
-
-        return FLUX_EFFECT_LIST
-
-    @property
-    def effect(self):
-        """Return the current effect."""
-        current_mode = self._bulb.raw_state[3]
-
-        if current_mode == EFFECT_CUSTOM_CODE:
-            return EFFECT_CUSTOM
-
-        for effect, code in EFFECT_MAP.items():
-            if current_mode == code:
-                return effect
-
-        return None
 
     def turn_on(self, **kwargs):
         """Turn the specified or all lights on."""
@@ -366,9 +316,23 @@ class FluxLight(LightEntity):
                 self._disconnect()
                 if not self._error_reported:
                     _LOGGER.warning(
-                        "Failed to connect to bulb %s, %s", self._ipaddr, self._name
+                        "Failed to connect to bulb %s, %s", self._ipaddr, self.name
                     )
                     self._error_reported = True
                 return
 
         self._bulb.update_state(retry=2)
+        self._attr_available = self._bulb is not None
+        self._attr_is_on = self._bulb.isOn()
+        self._attr_brightness = self._bulb.brightness
+        if self._mode == MODE_WHITE:
+            self._attr_brightness = self.white_value
+        current_mode = self._bulb.raw_state[3]
+        self._attr_effect = None
+        if current_mode == EFFECT_CUSTOM_CODE:
+            self._attr_effect = EFFECT_CUSTOM
+        else:
+            for effect, code in EFFECT_MAP.items():
+                if current_mode == code:
+                    self._attr_effect = effect
+        self._attr_hs_color = color_util.color_RGB_to_hs(*self._bulb.getRgb())
