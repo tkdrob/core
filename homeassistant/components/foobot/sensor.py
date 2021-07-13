@@ -104,49 +104,21 @@ class FoobotSensor(SensorEntity):
 
     def __init__(self, data, device, sensor_type):
         """Initialize the sensor."""
-        self._uuid = device["uuid"]
         self.foobot_data = data
-        self._name = f"Foobot {device['name']} {SENSOR_TYPES[sensor_type][0]}"
+        self._attr_name = f"Foobot {device['name']} {SENSOR_TYPES[sensor_type][0]}"
+        self._attr_icon = SENSOR_TYPES[sensor_type][2]
+        self._attr_unique_id = f"{device['uuid']}_{sensor_type}"
         self.type = sensor_type
-        self._unit_of_measurement = SENSOR_TYPES[sensor_type][1]
-
-    @property
-    def name(self):
-        """Return the name of the sensor."""
-        return self._name
-
-    @property
-    def device_class(self):
-        """Return the class of this device, from component DEVICE_CLASSES."""
-        return SENSOR_TYPES[self.type][3]
-
-    @property
-    def icon(self):
-        """Icon to use in the frontend."""
-        return SENSOR_TYPES[self.type][2]
-
-    @property
-    def state(self):
-        """Return the state of the device."""
-        try:
-            data = self.foobot_data.data[self.type]
-        except (KeyError, TypeError):
-            data = None
-        return data
-
-    @property
-    def unique_id(self):
-        """Return the unique id of this entity."""
-        return f"{self._uuid}_{self.type}"
-
-    @property
-    def unit_of_measurement(self):
-        """Return the unit of measurement of this entity."""
-        return self._unit_of_measurement
+        self._attr_unit_of_measurement = SENSOR_TYPES[sensor_type][1]
+        self._attr_device_class = SENSOR_TYPES[sensor_type][3]
 
     async def async_update(self):
         """Get the latest data."""
         await self.foobot_data.async_update()
+        try:
+            self._attr_state = self.foobot_data.data[self.type]
+        except (KeyError, TypeError):
+            self._attr_state = None
 
 
 class FoobotData(Entity):
