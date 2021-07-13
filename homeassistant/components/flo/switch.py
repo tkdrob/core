@@ -60,36 +60,27 @@ class FloSwitch(FloEntity, SwitchEntity):
     def __init__(self, device: FloDeviceDataUpdateCoordinator) -> None:
         """Initialize the Flo switch."""
         super().__init__("shutoff_valve", "Shutoff Valve", device)
-        self._state = self._device.last_known_valve_state == "open"
-
-    @property
-    def is_on(self) -> bool:
-        """Return True if the valve is open."""
-        return self._state
-
-    @property
-    def icon(self):
-        """Return the icon to use for the valve."""
-        if self.is_on:
-            return "mdi:valve-open"
-        return "mdi:valve-closed"
+        self._attr_is_on = self._device.last_known_valve_state == "open"
 
     async def async_turn_on(self, **kwargs) -> None:
         """Open the valve."""
         await self._device.api_client.device.open_valve(self._device.id)
-        self._state = True
+        self._attr_is_on = True
+        self._attr_icon = "mdi:valve-open"
         self.async_write_ha_state()
 
     async def async_turn_off(self, **kwargs) -> None:
         """Close the valve."""
         await self._device.api_client.device.close_valve(self._device.id)
-        self._state = False
+        self._attr_is_on = False
+        self._attr_icon = "mdi:valve-closed"
         self.async_write_ha_state()
 
     @callback
     def async_update_state(self) -> None:
         """Retrieve the latest valve state and update the state machine."""
-        self._state = self._device.last_known_valve_state == "open"
+        self._attr_is_on = self._device.last_known_valve_state == "open"
+        self._attr_icon = "mdi:valve-open" if self.is_on else "mdi:valve-closed"
         self.async_write_ha_state()
 
     async def async_added_to_hass(self):
