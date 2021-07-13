@@ -126,13 +126,15 @@ def setup_button(hass, config, add_entities, client, address):
 class FlicButton(BinarySensorEntity):
     """Representation of a flic button."""
 
+    _attr_should_poll = False
+
     def __init__(self, hass, client, address, timeout, ignored_click_types):
         """Initialize the flic button."""
 
         self._hass = hass
         self._address = address
+        self._attr_name = f"flic_{self.address.replace(':', '')}"
         self._timeout = timeout
-        self._is_down = False
         self._ignored_click_types = ignored_click_types or []
         self._hass_click_types = {
             ClickType.ButtonClick: CLICK_TYPE_SINGLE,
@@ -166,29 +168,9 @@ class FlicButton(BinarySensorEntity):
         return channel
 
     @property
-    def name(self):
-        """Return the name of the device."""
-        return f"flic_{self.address.replace(':', '')}"
-
-    @property
     def address(self):
         """Return the bluetooth address of the device."""
         return self._address
-
-    @property
-    def is_on(self):
-        """Return true if sensor is on."""
-        return self._is_down
-
-    @property
-    def should_poll(self):
-        """No polling needed."""
-        return False
-
-    @property
-    def extra_state_attributes(self):
-        """Return device specific state attributes."""
-        return {"address": self.address}
 
     def _queued_event_check(self, click_type, time_diff):
         """Generate a log message and returns true if timeout exceeded."""
@@ -215,7 +197,8 @@ class FlicButton(BinarySensorEntity):
         if was_queued and self._queued_event_check(click_type, time_diff):
             return
 
-        self._is_down = click_type == ClickType.ButtonDown
+        self._attr_is_on = click_type == ClickType.ButtonDown
+        self._attr_extra_state_attributes = {"address": self.address}
         self.schedule_update_ha_state()
 
     def _on_click(self, channel, click_type, was_queued, time_diff):
