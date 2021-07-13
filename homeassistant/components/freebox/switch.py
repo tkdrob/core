@@ -8,7 +8,6 @@ from freebox_api.exceptions import InsufficientPermissionsError
 from homeassistant.components.switch import SwitchEntity
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant
-from homeassistant.helpers.entity import DeviceInfo
 
 from .const import DOMAIN
 from .router import FreeboxRouter
@@ -27,32 +26,12 @@ async def async_setup_entry(
 class FreeboxWifiSwitch(SwitchEntity):
     """Representation of a freebox wifi switch."""
 
+    _attr_name = "Freebox WiFi"
+
     def __init__(self, router: FreeboxRouter) -> None:
         """Initialize the Wifi switch."""
-        self._name = "Freebox WiFi"
-        self._state = None
         self._router = router
-        self._unique_id = f"{self._router.mac} {self._name}"
-
-    @property
-    def unique_id(self) -> str:
-        """Return a unique ID."""
-        return self._unique_id
-
-    @property
-    def name(self) -> str:
-        """Return the name of the switch."""
-        return self._name
-
-    @property
-    def is_on(self) -> bool:
-        """Return true if device is on."""
-        return self._state
-
-    @property
-    def device_info(self) -> DeviceInfo:
-        """Return the device information."""
-        return self._router.device_info
+        self._attr_unique_id = f"{router.mac} {self.name}"
 
     async def _async_set_state(self, enabled: bool):
         """Turn the switch on or off."""
@@ -76,4 +55,5 @@ class FreeboxWifiSwitch(SwitchEntity):
         """Get the state and update it."""
         datas = await self._router.wifi.get_global_config()
         active = datas["enabled"]
-        self._state = bool(active)
+        self._attr_is_on = bool(active)
+        self._attr_device_info = self._router.device_info

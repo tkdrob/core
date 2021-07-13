@@ -9,7 +9,6 @@ from homeassistant.config_entries import ConfigEntry
 from homeassistant.const import DATA_RATE_KILOBYTES_PER_SECOND
 from homeassistant.core import HomeAssistant, callback
 from homeassistant.helpers.dispatcher import async_dispatcher_connect
-from homeassistant.helpers.entity import DeviceInfo
 import homeassistant.util.dt as dt_util
 
 from .const import (
@@ -78,67 +77,29 @@ async def async_setup_entry(
 class FreeboxSensor(SensorEntity):
     """Representation of a Freebox sensor."""
 
+    _attr_should_poll = False
+
     def __init__(
         self, router: FreeboxRouter, sensor_type: str, sensor: dict[str, Any]
     ) -> None:
         """Initialize a Freebox sensor."""
-        self._state = None
         self._router = router
         self._sensor_type = sensor_type
-        self._name = sensor[SENSOR_NAME]
-        self._unit = sensor[SENSOR_UNIT]
-        self._icon = sensor[SENSOR_ICON]
-        self._device_class = sensor[SENSOR_DEVICE_CLASS]
-        self._unique_id = f"{self._router.mac} {self._name}"
+        self._attr_name = sensor[SENSOR_NAME]
+        self._attr_unit_of_measurement = sensor[SENSOR_UNIT]
+        self._attr_icon = sensor[SENSOR_ICON]
+        self._attr_device_class = sensor[SENSOR_DEVICE_CLASS]
+        self._attr_unique_id = f"{router.mac} {sensor[SENSOR_NAME]}"
 
     @callback
     def async_update_state(self) -> None:
         """Update the Freebox sensor."""
         state = self._router.sensors[self._sensor_type]
-        if self._unit == DATA_RATE_KILOBYTES_PER_SECOND:
-            self._state = round(state / 1000, 2)
+        self._attr_device_info = self._router.device_info
+        if self._attr_unit_of_measurement == DATA_RATE_KILOBYTES_PER_SECOND:
+            self._attr_state = round(state / 1000, 2)
         else:
-            self._state = state
-
-    @property
-    def unique_id(self) -> str:
-        """Return a unique ID."""
-        return self._unique_id
-
-    @property
-    def name(self) -> str:
-        """Return the name."""
-        return self._name
-
-    @property
-    def state(self) -> str:
-        """Return the state."""
-        return self._state
-
-    @property
-    def unit_of_measurement(self) -> str:
-        """Return the unit."""
-        return self._unit
-
-    @property
-    def icon(self) -> str:
-        """Return the icon."""
-        return self._icon
-
-    @property
-    def device_class(self) -> str:
-        """Return the device_class."""
-        return self._device_class
-
-    @property
-    def device_info(self) -> DeviceInfo:
-        """Return the device information."""
-        return self._router.device_info
-
-    @property
-    def should_poll(self) -> bool:
-        """No polling needed."""
-        return False
+            self._attr_state = state
 
     @callback
     def async_on_demand_update(self):
@@ -179,12 +140,8 @@ class FreeboxCallSensor(FreeboxSensor):
                 if call["type"] == self._sensor_type:
                     self._call_list_for_type.append(call)
 
-        self._state = len(self._call_list_for_type)
-
-    @property
-    def extra_state_attributes(self) -> dict[str, Any]:
-        """Return device specific state attributes."""
-        return {
+        self._attr_state = len(self._call_list_for_type)
+        self._attr_extra_state_attributes = {
             dt_util.utc_from_timestamp(call["datetime"]).isoformat(): call["name"]
             for call in self._call_list_for_type
         }
@@ -203,19 +160,16 @@ class FreeboxDiskSensor(FreeboxSensor):
     ) -> None:
         """Initialize a Freebox disk sensor."""
         super().__init__(router, sensor_type, sensor)
-        self._disk = disk
         self._partition = partition
-        self._name = f"{partition['label']} {sensor[SENSOR_NAME]}"
-        self._unique_id = f"{self._router.mac} {sensor_type} {self._disk['id']} {self._partition['id']}"
-
-    @property
-    def device_info(self) -> DeviceInfo:
-        """Return the device information."""
-        return {
-            "identifiers": {(DOMAIN, self._disk["id"])},
-            "name": f"Disk {self._disk['id']}",
-            "model": self._disk["model"],
-            "sw_version": self._disk["firmware"],
+        self._attr_name = f"{partition['label']} {sensor[SENSOR_NAME]}"
+        self._attr_unique_id = (
+            f"{self._router.mac} {sensor_type} {disk['id']} {partition['id']}"
+        )
+        self._attr_device_info = {
+            "identifiers": {(DOMAIN, disk["id"])},
+            "name": f"Disk {disk['id']}",
+            "model": disk["model"],
+            "sw_version": disk["firmware"],
             "via_device": (
                 DOMAIN,
                 self._router.mac,
@@ -225,6 +179,6 @@ class FreeboxDiskSensor(FreeboxSensor):
     @callback
     def async_update_state(self) -> None:
         """Update the Freebox disk sensor."""
-        self._state = round(
+        self._attr_state = round(
             self._partition["free_bytes"] * 100 / self._partition["total_bytes"], 2
         )
