@@ -86,25 +86,18 @@ async def async_setup_entry(
 class FritzboxThermostat(FritzBoxEntity, ClimateEntity):
     """The thermostat class for FRITZ!SmartHome thermostates."""
 
-    @property
-    def supported_features(self) -> int:
-        """Return the list of supported features."""
-        return SUPPORT_FLAGS
+    _attr_hvac_modes = OPERATION_LIST
+    _attr_max_temp = MAX_TEMPERATURE
+    _attr_min_temp = MIN_TEMPERATURE
+    _attr_precision = PRECISION_HALVES
+    _attr_preset_modes = [PRESET_ECO, PRESET_COMFORT]
+    _attr_supported_features = SUPPORT_FLAGS
+    _attr_temperature_unit = TEMP_CELSIUS
 
     @property
     def available(self) -> bool:
         """Return if thermostat is available."""
         return self.device.present  # type: ignore [no-any-return]
-
-    @property
-    def temperature_unit(self) -> str:
-        """Return the unit of measurement that is used."""
-        return TEMP_CELSIUS
-
-    @property
-    def precision(self) -> float:
-        """Return precision 0.5."""
-        return PRECISION_HALVES
 
     @property
     def current_temperature(self) -> float:
@@ -143,11 +136,6 @@ class FritzboxThermostat(FritzBoxEntity, ClimateEntity):
 
         return HVAC_MODE_HEAT
 
-    @property
-    def hvac_modes(self) -> list[str]:
-        """Return the list of available operation modes."""
-        return OPERATION_LIST
-
     async def async_set_hvac_mode(self, hvac_mode: str) -> None:
         """Set new operation mode."""
         if hvac_mode == HVAC_MODE_OFF:
@@ -166,11 +154,6 @@ class FritzboxThermostat(FritzBoxEntity, ClimateEntity):
             return PRESET_ECO
         return None
 
-    @property
-    def preset_modes(self) -> list[str]:
-        """Return supported preset modes."""
-        return [PRESET_ECO, PRESET_COMFORT]
-
     async def async_set_preset_mode(self, preset_mode: str) -> None:
         """Set preset mode."""
         if preset_mode == PRESET_COMFORT:
@@ -179,16 +162,6 @@ class FritzboxThermostat(FritzBoxEntity, ClimateEntity):
             )
         elif preset_mode == PRESET_ECO:
             await self.async_set_temperature(temperature=self.device.eco_temperature)
-
-    @property
-    def min_temp(self) -> int:
-        """Return the minimum temperature."""
-        return MIN_TEMPERATURE
-
-    @property
-    def max_temp(self) -> int:
-        """Return the maximum temperature."""
-        return MAX_TEMPERATURE
 
     @property
     def extra_state_attributes(self) -> ClimateExtraAttributes:

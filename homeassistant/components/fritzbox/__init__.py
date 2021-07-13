@@ -19,7 +19,6 @@ from homeassistant.const import (
 )
 from homeassistant.core import Event, HomeAssistant
 from homeassistant.exceptions import ConfigEntryAuthFailed
-from homeassistant.helpers.entity import DeviceInfo
 from homeassistant.helpers.update_coordinator import (
     CoordinatorEntity,
     DataUpdateCoordinator,
@@ -119,43 +118,19 @@ class FritzBoxEntity(CoordinatorEntity):
         super().__init__(coordinator)
 
         self.ain = ain
-        self._name = entity_info[ATTR_NAME]
-        self._unique_id = entity_info[ATTR_ENTITY_ID]
-        self._unit_of_measurement = entity_info[ATTR_UNIT_OF_MEASUREMENT]
-        self._device_class = entity_info[ATTR_DEVICE_CLASS]
-
-    @property
-    def device(self) -> FritzhomeDevice:
-        """Return device object from coordinator."""
-        return self.coordinator.data[self.ain]
-
-    @property
-    def device_info(self) -> DeviceInfo:
-        """Return device specific attributes."""
-        return {
+        self._attr_name = entity_info[ATTR_NAME]
+        self._attr_unique_id = entity_info[ATTR_ENTITY_ID]
+        self._attr_unit_of_measurement = entity_info[ATTR_UNIT_OF_MEASUREMENT]
+        self._attr_device_class = entity_info[ATTR_DEVICE_CLASS]
+        self._attr_device_info = {
             "name": self.device.name,
-            "identifiers": {(DOMAIN, self.ain)},
+            "identifiers": {(DOMAIN, ain)},
             "manufacturer": self.device.manufacturer,
             "model": self.device.productname,
             "sw_version": self.device.fw_version,
         }
 
     @property
-    def unique_id(self) -> str:
-        """Return the unique ID of the device."""
-        return self._unique_id
-
-    @property
-    def name(self) -> str:
-        """Return the name of the device."""
-        return self._name
-
-    @property
-    def unit_of_measurement(self) -> str | None:
-        """Return the unit of measurement."""
-        return self._unit_of_measurement
-
-    @property
-    def device_class(self) -> str | None:
-        """Return the device class."""
-        return self._device_class
+    def device(self) -> FritzhomeDevice:
+        """Return device object from coordinator."""
+        return self.coordinator.data[self.ain]
