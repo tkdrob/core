@@ -53,6 +53,8 @@ async def async_setup_entry(
 class FirmataLight(FirmataPinEntity, LightEntity):
     """Representation of a light on a Firmata board."""
 
+    _attr_supported_features = SUPPORT_BRIGHTNESS
+
     def __init__(
         self,
         api: type[FirmataBoardPin],
@@ -79,11 +81,6 @@ class FirmataLight(FirmataPinEntity, LightEntity):
     def brightness(self) -> int:
         """Return the brightness of the light."""
         return self._api.state
-
-    @property
-    def supported_features(self) -> int:
-        """Flag supported features."""
-        return SUPPORT_BRIGHTNESS
 
     async def async_turn_on(self, **kwargs) -> None:
         """Turn on light."""
