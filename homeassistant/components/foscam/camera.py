@@ -138,13 +138,15 @@ class HassFoscamCamera(Camera):
         super().__init__()
 
         self._foscam_session = camera
-        self._name = config_entry.title
+        self._attr_name = config_entry.title
         self._username = config_entry.data[CONF_USERNAME]
         self._password = config_entry.data[CONF_PASSWORD]
         self._stream = config_entry.data[CONF_STREAM]
-        self._unique_id = config_entry.entry_id
+        self._attr_unique_id = config_entry.entry_id
         self._rtsp_port = config_entry.data[CONF_RTSP_PORT]
         self._motion_status = False
+        if config_entry.data[CONF_RTSP_PORT]:
+            self._attr_supported_features = SUPPORT_STREAM
 
     async def async_added_to_hass(self):
         """Handle entity addition to hass."""
@@ -156,21 +158,16 @@ class HassFoscamCamera(Camera):
         if ret == -3:
             LOGGER.info(
                 "Can't get motion detection status, camera %s configured with non-admin user",
-                self._name,
+                self.name,
             )
 
         elif ret != 0:
             LOGGER.error(
-                "Error getting motion detection status of %s: %s", self._name, ret
+                "Error getting motion detection status of %s: %s", self.name, ret
             )
 
         else:
             self._motion_status = response == 1
-
-    @property
-    def unique_id(self):
-        """Return the entity unique ID."""
-        return self._unique_id
 
     def camera_image(self):
         """Return a still image response from the camera."""
@@ -181,14 +178,6 @@ class HassFoscamCamera(Camera):
             return None
 
         return response
-
-    @property
-    def supported_features(self):
-        """Return supported features."""
-        if self._rtsp_port:
-            return SUPPORT_STREAM
-
-        return None
 
     async def stream_source(self):
         """Return the stream source."""
@@ -211,7 +200,7 @@ class HassFoscamCamera(Camera):
                 if ret == -3:
                     LOGGER.info(
                         "Can't set motion detection status, camera %s configured with non-admin user",
-                        self._name,
+                        self.name,
                     )
                 return
 
@@ -219,7 +208,7 @@ class HassFoscamCamera(Camera):
         except TypeError:
             LOGGER.debug(
                 "Failed enabling motion detection on '%s'. Is it supported by the device?",
-                self._name,
+                self.name,
             )
 
     def disable_motion_detection(self):
@@ -231,7 +220,7 @@ class HassFoscamCamera(Camera):
                 if ret == -3:
                     LOGGER.info(
                         "Can't set motion detection status, camera %s configured with non-admin user",
-                        self._name,
+                        self.name,
                     )
                 return
 
@@ -239,19 +228,19 @@ class HassFoscamCamera(Camera):
         except TypeError:
             LOGGER.debug(
                 "Failed disabling motion detection on '%s'. Is it supported by the device?",
-                self._name,
+                self.name,
             )
 
     async def async_perform_ptz(self, movement, travel_time):
         """Perform a PTZ action on the camera."""
-        LOGGER.debug("PTZ action '%s' on %s", movement, self._name)
+        LOGGER.debug("PTZ action '%s' on %s", movement, self.name)
 
         movement_function = getattr(self._foscam_session, MOVEMENT_ATTRS[movement])
 
         ret, _ = await self.hass.async_add_executor_job(movement_function)
 
         if ret != 0:
-            LOGGER.error("Error moving %s '%s': %s", movement, self._name, ret)
+            LOGGER.error("Error moving %s '%s': %s", movement, self.name, ret)
             return
 
         await asyncio.sleep(travel_time)
@@ -261,12 +250,12 @@ class HassFoscamCamera(Camera):
         )
 
         if ret != 0:
-            LOGGER.error("Error stopping movement on '%s': %s", self._name, ret)
+            LOGGER.error("Error stopping movement on '%s': %s", self.name, ret)
             return
 
     async def async_perform_ptz_preset(self, preset_name):
         """Perform a PTZ preset action on the camera."""
-        LOGGER.debug("PTZ preset '%s' on %s", preset_name, self._name)
+        LOGGER.debug("PTZ preset '%s' on %s", preset_name, self.name)
 
         preset_function = getattr(self._foscam_session, PTZ_GOTO_PRESET_COMMAND)
 
@@ -274,11 +263,6 @@ class HassFoscamCamera(Camera):
 
         if ret != 0:
             LOGGER.error(
-                "Error moving to preset %s on '%s': %s", preset_name, self._name, ret
+                "Error moving to preset %s on '%s': %s", preset_name, self.name, ret
             )
             return
-
-    @property
-    def name(self):
-        """Return the name of this camera."""
-        return self._name
