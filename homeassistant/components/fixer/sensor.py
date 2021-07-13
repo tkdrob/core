@@ -51,47 +51,24 @@ def setup_platform(hass, config, add_entities, discovery_info=None):
 class ExchangeRateSensor(SensorEntity):
     """Representation of a Exchange sensor."""
 
+    _attr_icon = ICON
+
     def __init__(self, data, name, target):
         """Initialize the sensor."""
         self.data = data
-        self._target = target
-        self._name = name
-        self._state = None
-
-    @property
-    def name(self):
-        """Return the name of the sensor."""
-        return self._name
-
-    @property
-    def unit_of_measurement(self):
-        """Return the unit of measurement of this entity, if any."""
-        return self._target
-
-    @property
-    def state(self):
-        """Return the state of the sensor."""
-        return self._state
-
-    @property
-    def extra_state_attributes(self):
-        """Return the state attributes."""
-        if self.data.rate is not None:
-            return {
-                ATTR_ATTRIBUTION: ATTRIBUTION,
-                ATTR_EXCHANGE_RATE: self.data.rate["rates"][self._target],
-                ATTR_TARGET: self._target,
-            }
-
-    @property
-    def icon(self):
-        """Return the icon to use in the frontend, if any."""
-        return ICON
+        self._attr_unit_of_measurement = target
+        self._attr_name = name
 
     def update(self):
         """Get the latest data and updates the states."""
         self.data.update()
-        self._state = round(self.data.rate["rates"][self._target], 3)
+        self._attr_state = round(self.data.rate["rates"][self.unit_of_measurement], 3)
+        if self.data.rate is not None:
+            self._attr_extra_state_attributes = {
+                ATTR_ATTRIBUTION: ATTRIBUTION,
+                ATTR_EXCHANGE_RATE: self.data.rate["rates"][self.unit_of_measurement],
+                ATTR_TARGET: self.unit_of_measurement,
+            }
 
 
 class ExchangeData:
@@ -99,10 +76,8 @@ class ExchangeData:
 
     def __init__(self, target_currency, api_key):
         """Initialize the data object."""
-        self.api_key = api_key
         self.rate = None
-        self.target_currency = target_currency
-        self.exchange = Fixerio(symbols=[self.target_currency], access_key=self.api_key)
+        self.exchange = Fixerio(symbols=[target_currency], access_key=api_key)
 
     def update(self):
         """Get the latest data from Fixer.io."""
