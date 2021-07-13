@@ -1,8 +1,6 @@
 """Binary Sensor platform for Garages Amsterdam."""
 from __future__ import annotations
 
-from typing import Any
-
 from homeassistant.components.binary_sensor import (
     DEVICE_CLASS_PROBLEM,
     BinarySensorEntity,
@@ -43,25 +41,18 @@ async def async_setup_entry(
 class GaragesamsterdamBinarySensor(CoordinatorEntity, BinarySensorEntity):
     """Binary Sensor representing garages amsterdam data."""
 
+    _attr_device_class = DEVICE_CLASS_PROBLEM
+    _attr_extra_state_attributes = {ATTR_ATTRIBUTION: ATTRIBUTION}
+
     def __init__(
         self, coordinator: DataUpdateCoordinator, garage_name: str, info_type: str
     ) -> None:
         """Initialize garages amsterdam binary sensor."""
         super().__init__(coordinator)
-        self._unique_id = f"{garage_name}-{info_type}"
+        self._attr_unique_id = f"{garage_name}-{info_type}"
         self._garage_name = garage_name
         self._info_type = info_type
-        self._name = garage_name
-
-    @property
-    def name(self) -> str:
-        """Return the name of the sensor."""
-        return self._name
-
-    @property
-    def unique_id(self) -> str:
-        """Return the unique id of the device."""
-        return self._unique_id
+        self._attr_name = garage_name
 
     @property
     def is_on(self) -> bool:
@@ -69,13 +60,3 @@ class GaragesamsterdamBinarySensor(CoordinatorEntity, BinarySensorEntity):
         return (
             getattr(self.coordinator.data[self._garage_name], self._info_type) != "ok"
         )
-
-    @property
-    def device_class(self) -> str:
-        """Return the class of the binary sensor."""
-        return DEVICE_CLASS_PROBLEM
-
-    @property
-    def extra_state_attributes(self) -> dict[str, Any]:
-        """Return device attributes."""
-        return {ATTR_ATTRIBUTION: ATTRIBUTION}
