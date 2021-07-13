@@ -351,91 +351,56 @@ class FitbitSensor(SensorEntity):
         self.is_metric = is_metric
         self.clock_format = clock_format
         self.extra = extra
-        self._name = FITBIT_RESOURCES_LIST[self.resource_type][0]
-        if self.extra is not None:
-            self._name = f"{self.extra.get('deviceVersion')} Battery"
-        unit_type = FITBIT_RESOURCES_LIST[self.resource_type][1]
-        if unit_type == "":
-            split_resource = self.resource_type.split("/")
+        self._attr_name = FITBIT_RESOURCES_LIST[resource_type][0]
+        if extra is not None:
+            self._attr_name = f"{extra.get('deviceVersion')} Battery"
+        self._attr_unit_of_measurement = FITBIT_RESOURCES_LIST[resource_type][1]
+        if self._attr_unit_of_measurement == "":
+            split_resource = resource_type.split("/")
             try:
-                measurement_system = FITBIT_MEASUREMENTS[self.client.system]
+                measurement_system = FITBIT_MEASUREMENTS[client.system]
             except KeyError:
                 if self.is_metric:
                     measurement_system = FITBIT_MEASUREMENTS["metric"]
                 else:
                     measurement_system = FITBIT_MEASUREMENTS["en_US"]
-            unit_type = measurement_system[split_resource[-1]]
-        self._unit_of_measurement = unit_type
-        self._state: str | None = None
+            self._attr_unit_of_measurement = measurement_system[split_resource[-1]]
 
-    @property
-    def name(self) -> str:
-        """Return the name of the sensor."""
-        return self._name
-
-    @property
-    def state(self) -> str | None:
-        """Return the state of the sensor."""
-        return self._state
-
-    @property
-    def unit_of_measurement(self) -> str | None:
-        """Return the unit of measurement of this entity, if any."""
-        return self._unit_of_measurement
-
-    @property
-    def icon(self) -> str:
-        """Icon to use in the frontend, if any."""
+    def update(self) -> None:
+        """Get the latest data from the Fitbit API and update the states."""
+        self._attr_icon = f"mdi:{FITBIT_RESOURCES_LIST[self.resource_type][2]}"
         if self.resource_type == "devices/battery" and self.extra is not None:
             extra_battery = self.extra.get("battery")
             if extra_battery is not None:
                 battery_level = BATTERY_LEVELS.get(extra_battery)
                 if battery_level is not None:
-                    return icon_for_battery_level(battery_level=battery_level)
-        fitbit_ressource = FITBIT_RESOURCES_LIST[self.resource_type]
-        return f"mdi:{fitbit_ressource[2]}"
-
-    @property
-    def extra_state_attributes(self) -> dict[str, str | None]:
-        """Return the state attributes."""
-        attrs: dict[str, str | None] = {}
-
-        attrs[ATTR_ATTRIBUTION] = ATTRIBUTION
-
-        if self.extra is not None:
-            attrs["model"] = self.extra.get("deviceVersion")
-            extra_type = self.extra.get("type")
-            attrs["type"] = extra_type.lower() if extra_type is not None else None
-
-        return attrs
-
-    def update(self) -> None:
-        """Get the latest data from the Fitbit API and update the states."""
-        if self.resource_type == "devices/battery" and self.extra is not None:
+                    self._attr_icon = icon_for_battery_level(
+                        battery_level=battery_level
+                    )
             registered_devs: list[dict[str, Any]] = self.client.get_devices()
             device_id = self.extra.get("id")
             self.extra = list(
                 filter(lambda device: device.get("id") == device_id, registered_devs)
             )[0]
-            self._state = self.extra.get("battery")
+            self._attr_state = self.extra.get("battery")
 
         else:
             container = self.resource_type.replace("/", "-")
             response = self.client.time_series(self.resource_type, period="7d")
             raw_state = response[container][-1].get("value")
             if self.resource_type == "activities/distance":
-                self._state = format(float(raw_state), ".2f")
+                self._attr_state = format(float(raw_state), ".2f")
             elif self.resource_type == "activities/tracker/distance":
-                self._state = format(float(raw_state), ".2f")
+                self._attr_state = format(float(raw_state), ".2f")
             elif self.resource_type == "body/bmi":
-                self._state = format(float(raw_state), ".1f")
+                self._attr_state = format(float(raw_state), ".1f")
             elif self.resource_type == "body/fat":
-                self._state = format(float(raw_state), ".1f")
+                self._attr_state = format(float(raw_state), ".1f")
             elif self.resource_type == "body/weight":
-                self._state = format(float(raw_state), ".1f")
+                self._attr_state = format(float(raw_state), ".1f")
             elif self.resource_type == "sleep/startTime":
                 if raw_state == "":
-                    self._state = "-"
+                    self._attr_state = "-"
                 elif self.clock_format == "12H":
                     hours, minutes = raw_state.split(":")
                     hours, minutes = int(hours), int(minutes)
@@ -445,20 +410,30 @@ class FitbitSensor(SensorEntity):
                         hours -= 12
                     elif hours == 0:
                         hours = 12
-                    self._state = f"{hours}:{minutes:02d} {setting}"
+                    self._attr_state = f"{hours}:{minutes:02d} {setting}"
                 else:
-                    self._state = raw_state
+                    self._attr_state = raw_state
             else:
                 if self.is_metric:
-                    self._state = raw_state
+                    self._attr_state = raw_state
                 else:
                     try:
-                        self._state = f"{int(raw_state):,}"
+                        self._attr_state = f"{int(raw_state):,}"
                     except TypeError:
-                        self._state = raw_state
+                        self._attr_state = raw_state
 
         if self.resource_type == "activities/heart":
-            self._state = response[container][-1].get("value").get("restingHeartRate")
+            self._attr_state = (
+                response[container][-1].get("value").get("restingHeartRate")
+            )
+
+        self._attr_extra_state_attributes = {}
+        self._attr_extra_state_attributes[ATTR_ATTRIBUTION] = ATTRIBUTION
+        if self.extra is not None:
+            self._attr_extra_state_attributes["model"] = self.extra.get("deviceVersion")
+            extra_type = self.extra.get("type")
+            if extra_type is not None:
+                self._attr_extra_state_attributes["type"] = extra_type.lower()
 
         token = self.client.client.session.token
         config_contents = {
