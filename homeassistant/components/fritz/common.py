@@ -25,7 +25,7 @@ from homeassistant.core import CALLBACK_TYPE, HomeAssistant, callback
 from homeassistant.exceptions import HomeAssistantError
 from homeassistant.helpers.device_registry import CONNECTION_NETWORK_MAC
 from homeassistant.helpers.dispatcher import dispatcher_send
-from homeassistant.helpers.entity import DeviceInfo
+from homeassistant.helpers.entity import Entity
 from homeassistant.helpers.event import async_track_time_interval
 from homeassistant.util import dt as dt_util
 
@@ -331,28 +331,22 @@ class SwitchInfo(TypedDict):
     callback_switch: Callable
 
 
-class FritzBoxBaseEntity:
+class FritzBoxBaseEntity(Entity):
     """Fritz host entity base class."""
 
     def __init__(self, fritzbox_tools: FritzBoxTools, device_name: str) -> None:
         """Init device info class."""
         self._fritzbox_tools = fritzbox_tools
-        self._device_name = device_name
+        self._attr_device_info = {
+            "connections": {(CONNECTION_NETWORK_MAC, self.mac_address)},
+            "identifiers": {(DOMAIN, fritzbox_tools.unique_id)},
+            "name": device_name,
+            "manufacturer": "AVM",
+            "model": fritzbox_tools.model,
+            "sw_version": fritzbox_tools.sw_version,
+        }
 
     @property
     def mac_address(self) -> str:
         """Return the mac address of the main device."""
         return self._fritzbox_tools.mac
-
-    @property
-    def device_info(self) -> DeviceInfo:
-        """Return the device information."""
-
-        return {
-            "connections": {(CONNECTION_NETWORK_MAC, self.mac_address)},
-            "identifiers": {(DOMAIN, self._fritzbox_tools.unique_id)},
-            "name": self._device_name,
-            "manufacturer": "AVM",
-            "model": self._fritzbox_tools.model,
-            "sw_version": self._fritzbox_tools.sw_version,
-        }

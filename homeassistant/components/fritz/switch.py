@@ -308,45 +308,18 @@ class FritzBoxBaseSwitch(FritzBoxBaseEntity):
 
         self._description = switch_info["description"]
         self._friendly_name = switch_info["friendly_name"]
-        self._icon = switch_info["icon"]
+        self._attr_icon = switch_info["icon"]
         self._type = switch_info["type"]
         self._update = switch_info["callback_update"]
         self._switch = switch_info["callback_switch"]
 
-        self._name = f"{self._friendly_name} {self._description}"
-        self._unique_id = (
+        self._attr_name = f"{self._friendly_name} {self._description}"
+        self._attr_unique_id = (
             f"{self._fritzbox_tools.unique_id}-{slugify(self._description)}"
         )
-
         self._attributes: dict[str, str] = {}
-        self._is_available = True
-
+        self._attr_available = True
         self._attr_is_on = False
-
-    @property
-    def name(self) -> str:
-        """Return name."""
-        return self._name
-
-    @property
-    def icon(self) -> str:
-        """Return name."""
-        return self._icon
-
-    @property
-    def unique_id(self) -> str:
-        """Return unique id."""
-        return self._unique_id
-
-    @property
-    def available(self) -> bool:
-        """Return availability."""
-        return self._is_available
-
-    @property
-    def extra_state_attributes(self) -> dict[str, str]:
-        """Return device attributes."""
-        return self._attributes
 
     async def async_update(self) -> None:
         """Update data."""
@@ -414,11 +387,11 @@ class FritzBoxPortSwitch(FritzBoxBaseSwitch, SwitchEntity):
             "Specific %s response: %s", SWITCH_TYPE_PORTFORWARD, self.port_mapping
         )
         if self.port_mapping is None:
-            self._is_available = False
+            self._attr_available = False
             return
 
         self._attr_is_on = self.port_mapping["NewEnabled"] is True
-        self._is_available = True
+        self._attr_available = True
 
         attributes_dict = {
             "NewInternalClient": "internalIP",
@@ -430,6 +403,7 @@ class FritzBoxPortSwitch(FritzBoxBaseSwitch, SwitchEntity):
 
         for key in attributes_dict:
             self._attributes[attributes_dict[key]] = self.port_mapping[key]
+        self._attr_extra_state_attributes = self._attributes
 
     async def _async_handle_port_switch_on_off(self, turn_on: bool) -> bool:
 
@@ -482,7 +456,7 @@ class FritzBoxDeflectionSwitch(FritzBoxBaseSwitch, SwitchEntity):
             self._fritzbox_tools, "X_AVM-DE_OnTel", "1", "GetDeflections"
         )
         if not resp:
-            self._is_available = False
+            self._attr_available = False
             return
 
         self.dict_of_deflection = xmltodict.parse(resp["NewDeflectionList"])["List"][
@@ -498,7 +472,7 @@ class FritzBoxDeflectionSwitch(FritzBoxBaseSwitch, SwitchEntity):
         )
 
         self._attr_is_on = self.dict_of_deflection["Enable"] == "1"
-        self._is_available = True
+        self._attr_available = True
 
         self._attributes["Type"] = self.dict_of_deflection["Type"]
         self._attributes["Number"] = self.dict_of_deflection["Number"]
@@ -509,6 +483,7 @@ class FritzBoxDeflectionSwitch(FritzBoxBaseSwitch, SwitchEntity):
         self._attributes["Mode"] = self.dict_of_deflection["Mode"][1:]
         self._attributes["Outgoing"] = self.dict_of_deflection["Outgoing"]
         self._attributes["PhonebookID"] = self.dict_of_deflection["PhonebookID"]
+        self._attr_extra_state_attributes = self._attributes
 
     async def _async_switch_on_off_executor(self, turn_on: bool) -> None:
         """Handle deflection switch."""
@@ -524,6 +499,8 @@ class FritzBoxDeflectionSwitch(FritzBoxBaseSwitch, SwitchEntity):
 
 class FritzBoxProfileSwitch(FritzBoxBaseSwitch, SwitchEntity):
     """Defines a FRITZ!Box Tools DeviceProfile switch."""
+
+    _attr_entity_registry_enabled_default = False
 
     def __init__(
         self, fritzbox_tools: FritzBoxTools, device_friendly_name: str, profile: str
@@ -555,15 +532,15 @@ class FritzBoxProfileSwitch(FritzBoxBaseSwitch, SwitchEntity):
             )
             if status == SWITCH_PROFILE_STATUS_OFF:
                 self._attr_is_on = False
-                self._is_available = True
+                self._attr_available = True
             elif status == SWITCH_PROFILE_STATUS_ON:
                 self._attr_is_on = True
-                self._is_available = True
+                self._attr_available = True
             else:
-                self._is_available = False
+                self._attr_available = False
         except Exception:  # pylint: disable=broad-except
             _LOGGER.error("Could not get %s state", self.name, exc_info=True)
-            self._is_available = False
+            self._attr_available = False
 
     async def _async_switch_on_off_executor(self, turn_on: bool) -> None:
         """Handle profile switch."""
@@ -571,11 +548,6 @@ class FritzBoxProfileSwitch(FritzBoxBaseSwitch, SwitchEntity):
         await self.hass.async_add_executor_job(
             self._fritzbox_tools.fritz_profiles[self.profile].set_state, state
         )
-
-    @property
-    def entity_registry_enabled_default(self) -> bool:
-        """Return if the entity should be enabled when first added to the entity registry."""
-        return False
 
 
 class FritzBoxWifiSwitch(FritzBoxBaseSwitch, SwitchEntity):
@@ -618,11 +590,11 @@ class FritzBoxWifiSwitch(FritzBoxBaseSwitch, SwitchEntity):
         )
 
         if wifi_info is None:
-            self._is_available = False
+            self._attr_available = False
             return
 
         self._attr_is_on = wifi_info["NewEnable"] is True
-        self._is_available = True
+        self._attr_available = True
 
         std = wifi_info["NewStandard"]
         self._attributes["standard"] = std if std else None
@@ -630,6 +602,7 @@ class FritzBoxWifiSwitch(FritzBoxBaseSwitch, SwitchEntity):
         self._attributes["mac_address_control"] = wifi_info[
             "NewMACAddressControlEnabled"
         ]
+        self._attr_extra_state_attributes = self._attributes
 
     async def _async_switch_on_off_executor(self, turn_on: bool) -> None:
         """Handle wifi switch."""
