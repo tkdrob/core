@@ -104,17 +104,27 @@ async def async_setup_entry(hass, config_entry, async_add_entities):
 class FritzBoxCallSensor(SensorEntity):
     """Implementation of a Fritz!Box call monitor."""
 
+    _attr_icon = ICON_PHONE
+
     def __init__(self, name, unique_id, fritzbox_phonebook, prefixes, host, port):
         """Initialize the sensor."""
-        self._state = STATE_IDLE
-        self._attributes = {}
-        self._name = name.title()
-        self._unique_id = unique_id
+        self._attr_state = STATE_IDLE
+        self._attr_extra_state_attributes = {}
+        self._attr_name = name.title()
+        self._attr_unique_id = unique_id
         self._fritzbox_phonebook = fritzbox_phonebook
         self._prefixes = prefixes
         self._host = host
         self._port = port
         self._monitor = None
+        self._attr_should_poll = fritzbox_phonebook is not None
+        self._attr_device_info = {
+            "name": fritzbox_phonebook.fph.modelname,
+            "identifiers": {(DOMAIN, unique_id)},
+            "manufacturer": MANUFACTURER,
+            "model": fritzbox_phonebook.fph.modelname,
+            "sw_version": fritzbox_phonebook.fph.fc.system_version,
+        }
 
     async def async_added_to_hass(self):
         """Connect to FRITZ!Box to monitor its call state."""
@@ -141,54 +151,11 @@ class FritzBoxCallSensor(SensorEntity):
 
     def set_state(self, state):
         """Set the state."""
-        self._state = state
+        self._attr_state = state
 
     def set_attributes(self, attributes):
         """Set the state attributes."""
-        self._attributes = attributes
-
-    @property
-    def name(self):
-        """Return name of this sensor."""
-        return self._name
-
-    @property
-    def should_poll(self):
-        """Only poll to update phonebook, if defined."""
-        return self._fritzbox_phonebook is not None
-
-    @property
-    def state(self):
-        """Return the state of the device."""
-        return self._state
-
-    @property
-    def icon(self):
-        """Return the icon of the sensor."""
-        return ICON_PHONE
-
-    @property
-    def extra_state_attributes(self):
-        """Return the state attributes."""
-        if self._prefixes:
-            self._attributes[ATTR_PREFIXES] = self._prefixes
-        return self._attributes
-
-    @property
-    def device_info(self):
-        """Return device specific attributes."""
-        return {
-            "name": self._fritzbox_phonebook.fph.modelname,
-            "identifiers": {(DOMAIN, self._unique_id)},
-            "manufacturer": MANUFACTURER,
-            "model": self._fritzbox_phonebook.fph.modelname,
-            "sw_version": self._fritzbox_phonebook.fph.fc.system_version,
-        }
-
-    @property
-    def unique_id(self):
-        """Return the unique ID of the device."""
-        return self._unique_id
+        self._attr_extra_state_attributes = attributes
 
     def number_to_name(self, number):
         """Return a name for a given phone number."""
@@ -200,6 +167,8 @@ class FritzBoxCallSensor(SensorEntity):
         """Update the phonebook if it is defined."""
         if self._fritzbox_phonebook is not None:
             self._fritzbox_phonebook.update_phonebook()
+        if self._prefixes:
+            self._attr_extra_state_attributes[ATTR_PREFIXES] = self._prefixes
 
 
 class FritzBoxCallMonitor:
