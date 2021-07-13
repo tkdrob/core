@@ -187,7 +187,7 @@ class FluxSwitch(SwitchEntity, RestoreEntity):
         transition,
     ):
         """Initialize the Flux switch."""
-        self._name = name
+        self._attr_name = name
         self.hass = hass
         self._lights = lights
         self._start_time = start_time
@@ -201,11 +201,6 @@ class FluxSwitch(SwitchEntity, RestoreEntity):
         self._interval = interval
         self._transition = transition
         self.unsub_tracker = None
-
-    @property
-    def name(self):
-        """Return the name of the device if any."""
-        return self._name
 
     @property
     def is_on(self):
