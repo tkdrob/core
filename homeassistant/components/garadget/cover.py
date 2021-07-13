@@ -4,7 +4,11 @@ import logging
 import requests
 import voluptuous as vol
 
-from homeassistant.components.cover import PLATFORM_SCHEMA, CoverEntity
+from homeassistant.components.cover import (
+    DEVICE_CLASS_GARAGE,
+    PLATFORM_SCHEMA,
+    CoverEntity,
+)
 from homeassistant.const import (
     CONF_ACCESS_TOKEN,
     CONF_COVERS,
@@ -77,92 +81,51 @@ def setup_platform(hass, config, add_entities, discovery_info=None):
 class GaradgetCover(CoverEntity):
     """Representation of a Garadget cover."""
 
+    _attr_device_class = DEVICE_CLASS_GARAGE
+
     def __init__(self, hass, args):
         """Initialize the cover."""
         self.particle_url = "https://api.particle.io"
         self.hass = hass
-        self._name = args["name"]
+        self._attr_name = args["name"]
         self.device_id = args["device_id"]
         self.access_token = args["access_token"]
-        self.obtained_token = False
         self._username = args["username"]
         self._password = args["password"]
-        self._state = None
         self.time_in_state = None
         self.signal = None
         self.sensor = None
         self._unsub_listener_cover = None
-        self._available = True
+        self._attr_available = True
 
-        if self.access_token is None:
+        if args["access_token"] is None:
             self.access_token = self.get_token()
             self._obtained_token = True
 
         try:
-            if self._name is None:
+            if self.name is None:
                 doorconfig = self._get_variable("doorConfig")
                 if doorconfig["nme"] is not None:
-                    self._name = doorconfig["nme"]
+                    self._attr_name = doorconfig["nme"]
             self.update()
         except requests.exceptions.ConnectionError as ex:
             _LOGGER.error("Unable to connect to server: %(reason)s", {"reason": ex})
-            self._state = STATE_OFFLINE
-            self._available = False
-            self._name = DEFAULT_NAME
+            self._attr_state = STATE_OFFLINE
+            self._attr_available = False
+            self._attr_name = DEFAULT_NAME
         except KeyError:
             _LOGGER.warning(
                 "Garadget device %(device)s seems to be offline",
-                {"device": self.device_id},
+                {"device": args["device_id"]},
             )
-            self._name = DEFAULT_NAME
-            self._state = STATE_OFFLINE
-            self._available = False
+            self._attr_name = DEFAULT_NAME
+            self._attr_state = STATE_OFFLINE
+            self._attr_available = False
 
     def __del__(self):
         """Try to remove token."""
         if self._obtained_token is True and self.access_token is not None:
             self.remove_token()
-
-    @property
-    def name(self):
-        """Return the name of the cover."""
-        return self._name
-
-    @property
-    def available(self):
-        """Return True if entity is available."""
-        return self._available
-
-    @property
-    def extra_state_attributes(self):
-        """Return the device state attributes."""
-        data = {}
-
-        if self.signal is not None:
-            data[ATTR_SIGNAL_STRENGTH] = self.signal
-
-        if self.time_in_state is not None:
-            data[ATTR_TIME_IN_STATE] = self.time_in_state
-
-        if self.sensor is not None:
-            data[ATTR_SENSOR_STRENGTH] = self.sensor
-
-        if self.access_token is not None:
-            data[CONF_ACCESS_TOKEN] = self.access_token
-
-        return data
-
-    @property
-    def is_closed(self):
-        """Return if the cover is closed."""
-        if self._state is None:
-            return None
-        return self._state == STATE_CLOSED
-
-    @property
-    def device_class(self):
-        """Return the class of this device, from component DEVICE_CLASSES."""
-        return "garage"
 
     def get_token(self):
         """Get new token for usage during this session."""
@@ -199,21 +162,21 @@ class GaradgetCover(CoverEntity):
 
     def close_cover(self, **kwargs):
         """Close the cover."""
-        if self._state not in ["close", "closing"]:
+        if self.state not in ["close", "closing"]:
             ret = self._put_command("setState", "close")
             self._start_watcher("close")
             return ret.get("return_value") == 1
 
     def open_cover(self, **kwargs):
         """Open the cover."""
-        if self._state not in ["open", "opening"]:
+        if self.state not in ["open", "opening"]:
             ret = self._put_command("setState", "open")
             self._start_watcher("open")
             return ret.get("return_value") == 1
 
     def stop_cover(self, **kwargs):
         """Stop the door where it is."""
-        if self._state not in ["stopped"]:
+        if self.state not in ["stopped"]:
             ret = self._put_command("setState", "stop")
             self._start_watcher("stop")
             return ret["return_value"] == 1
@@ -223,27 +186,37 @@ class GaradgetCover(CoverEntity):
         try:
             status = self._get_variable("doorStatus")
             _LOGGER.debug("Current Status: %s", status["status"])
-            self._state = STATES_MAP.get(status["status"])
+            self._attr_state = STATES_MAP.get(status["status"])
             self.time_in_state = status["time"]
             self.signal = status["signal"]
             self.sensor = status["sensor"]
-            self._available = True
+            self._attr_available = True
         except requests.exceptions.ConnectionError as ex:
             _LOGGER.error("Unable to connect to server: %(reason)s", {"reason": ex})
-            self._state = STATE_OFFLINE
+            self._attr_state = STATE_OFFLINE
         except KeyError:
             _LOGGER.warning(
                 "Garadget device %(device)s seems to be offline",
                 {"device": self.device_id},
             )
-            self._state = STATE_OFFLINE
+            self._attr_state = STATE_OFFLINE
+        self._attr_is_closed = self.state == STATE_CLOSED if self.state else None
 
         if (
-            self._state not in [STATE_CLOSING, STATE_OPENING]
+            self.state not in [STATE_CLOSING, STATE_OPENING]
             and self._unsub_listener_cover is not None
         ):
             self._unsub_listener_cover()
             self._unsub_listener_cover = None
+        self._attr_extra_state_attributes = {}
+        if self.signal is not None:
+            self._attr_extra_state_attributes[ATTR_SIGNAL_STRENGTH] = self.signal
+        if self.time_in_state is not None:
+            self._attr_extra_state_attributes[ATTR_TIME_IN_STATE] = self.time_in_state
+        if self.sensor is not None:
+            self._attr_extra_state_attributes[ATTR_SENSOR_STRENGTH] = self.sensor
+        if self.access_token is not None:
+            self._attr_extra_state_attributes[CONF_ACCESS_TOKEN] = self.access_token
 
     def _get_variable(self, var):
         """Get latest status."""
