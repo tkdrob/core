@@ -71,30 +71,16 @@ async def async_setup_entry(hass, entry, async_add_entities):
 class GdacsEvent(GeolocationEvent):
     """This represents an external event with GDACS feed data."""
 
+    _attr_should_poll = False
+
     def __init__(self, feed_manager, integration_id, external_id):
         """Initialize entity with data from feed entry."""
         self._feed_manager = feed_manager
+        self._attr_unique_id = f"{integration_id}_{external_id}"
         self._integration_id = integration_id
         self._external_id = external_id
-        self._title = None
-        self._distance = None
-        self._latitude = None
-        self._longitude = None
-        self._attribution = None
-        self._alert_level = None
-        self._country = None
-        self._description = None
-        self._duration_in_week = None
-        self._event_type_short = None
-        self._event_type = None
-        self._from_date = None
-        self._to_date = None
-        self._population = None
-        self._severity = None
-        self._vulnerability = None
-        self._version = None
-        self._remove_signal_delete = None
-        self._remove_signal_update = None
+        self._distance = self._latitude = self._longitude = None
+        self._remove_signal_delete = self._remove_signal_update = None
 
     async def async_added_to_hass(self):
         """Call when entity is added to hass."""
@@ -124,17 +110,15 @@ class GdacsEvent(GeolocationEvent):
         """Call update method."""
         self.async_schedule_update_ha_state(True)
 
-    @property
-    def should_poll(self):
-        """No polling needed for GDACS feed location events."""
-        return False
-
     async def async_update(self):
         """Update this entity from the data held in the feed manager."""
         _LOGGER.debug("Updating %s", self._external_id)
         feed_entry = self._feed_manager.get_entry(self._external_id)
         if feed_entry:
             self._update_from_feed(feed_entry)
+        self._attr_unit_of_measurement = LENGTH_KILOMETERS
+        if self.hass.config.units.name == CONF_UNIT_SYSTEM_IMPERIAL:
+            self._attr_unit_of_measurement = LENGTH_MILES
 
     def _update_from_feed(self, feed_entry):
         """Update the internal state from the provided feed entry."""
@@ -142,7 +126,7 @@ class GdacsEvent(GeolocationEvent):
         if not event_name:
             # Earthquakes usually don't have an event name.
             event_name = f"{feed_entry.country} ({feed_entry.event_id})"
-        self._title = f"{feed_entry.event_type}: {event_name}"
+        self._attr_name = f"{feed_entry.event_type}: {event_name}"
         # Convert distance if not metric system.
         if self.hass.config.units.name == CONF_UNIT_SYSTEM_IMPERIAL:
             self._distance = IMPERIAL_SYSTEM.length(
@@ -152,44 +136,36 @@ class GdacsEvent(GeolocationEvent):
             self._distance = feed_entry.distance_to_home
         self._latitude = feed_entry.coordinates[0]
         self._longitude = feed_entry.coordinates[1]
-        self._attribution = feed_entry.attribution
-        self._alert_level = feed_entry.alert_level
-        self._country = feed_entry.country
-        self._description = feed_entry.title
-        self._duration_in_week = feed_entry.duration_in_week
-        self._event_type_short = feed_entry.event_type_short
-        self._event_type = feed_entry.event_type
-        self._from_date = feed_entry.from_date
-        self._to_date = feed_entry.to_date
-        self._population = feed_entry.population
-        self._severity = feed_entry.severity
-        self._vulnerability = feed_entry.vulnerability
+        event_type_short = feed_entry.event_type_short
+        vulnerability = feed_entry.vulnerability
+        self._attr_icon = DEFAULT_ICON
+        if event_type_short and event_type_short in ICONS:
+            self._attr_icon = ICONS[event_type_short]
         # Round vulnerability value if presented as float.
-        if isinstance(self._vulnerability, float):
-            self._vulnerability = round(self._vulnerability, 1)
-        self._version = feed_entry.version
-
-    @property
-    def unique_id(self) -> str | None:
-        """Return a unique ID containing latitude/longitude and external id."""
-        return f"{self._integration_id}_{self._external_id}"
-
-    @property
-    def icon(self):
-        """Return the icon to use in the frontend, if any."""
-        if self._event_type_short and self._event_type_short in ICONS:
-            return ICONS[self._event_type_short]
-        return DEFAULT_ICON
+        if isinstance(vulnerability, float):
+            vulnerability = round(vulnerability, 1)
+        self._attr_extra_state_attributes = {}
+        for key, value in (
+            (ATTR_EXTERNAL_ID, self._external_id),
+            (ATTR_DESCRIPTION, feed_entry.title),
+            (ATTR_ATTRIBUTION, feed_entry.attribution),
+            (ATTR_EVENT_TYPE, feed_entry.event_type),
+            (ATTR_ALERT_LEVEL, feed_entry.alert_level),
+            (ATTR_COUNTRY, feed_entry.country),
+            (ATTR_DURATION_IN_WEEK, feed_entry.duration_in_week),
+            (ATTR_FROM_DATE, feed_entry.from_date),
+            (ATTR_TO_DATE, feed_entry.to_date),
+            (ATTR_POPULATION, feed_entry.population),
+            (ATTR_SEVERITY, feed_entry.severity),
+            (ATTR_VULNERABILITY, vulnerability),
+        ):
+            if value or isinstance(value, bool):
+                self._attr_extra_state_attributes[key] = value
 
     @property
     def source(self) -> str:
         """Return source value of this external event."""
         return SOURCE
-
-    @property
-    def name(self) -> str | None:
-        """Return the name of the entity."""
-        return self._title
 
     @property
     def distance(self) -> float | None:
@@ -205,32 +181,3 @@ class GdacsEvent(GeolocationEvent):
     def longitude(self) -> float | None:
         """Return longitude value of this external event."""
         return self._longitude
-
-    @property
-    def unit_of_measurement(self):
-        """Return the unit of measurement."""
-        if self.hass.config.units.name == CONF_UNIT_SYSTEM_IMPERIAL:
-            return LENGTH_MILES
-        return LENGTH_KILOMETERS
-
-    @property
-    def extra_state_attributes(self):
-        """Return the device state attributes."""
-        attributes = {}
-        for key, value in (
-            (ATTR_EXTERNAL_ID, self._external_id),
-            (ATTR_DESCRIPTION, self._description),
-            (ATTR_ATTRIBUTION, self._attribution),
-            (ATTR_EVENT_TYPE, self._event_type),
-            (ATTR_ALERT_LEVEL, self._alert_level),
-            (ATTR_COUNTRY, self._country),
-            (ATTR_DURATION_IN_WEEK, self._duration_in_week),
-            (ATTR_FROM_DATE, self._from_date),
-            (ATTR_TO_DATE, self._to_date),
-            (ATTR_POPULATION, self._population),
-            (ATTR_SEVERITY, self._severity),
-            (ATTR_VULNERABILITY, self._vulnerability),
-        ):
-            if value or isinstance(value, bool):
-                attributes[key] = value
-        return attributes
