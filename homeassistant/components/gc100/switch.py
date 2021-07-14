@@ -30,20 +30,9 @@ class GC100Switch(ToggleEntity):
 
     def __init__(self, name, port_addr, gc100):
         """Initialize the GC100 switch."""
-        self._name = name or DEVICE_DEFAULT_NAME
+        self._attr_name = name or DEVICE_DEFAULT_NAME
         self._port_addr = port_addr
         self._gc100 = gc100
-        self._state = None
-
-    @property
-    def name(self):
-        """Return the name of the switch."""
-        return self._name
-
-    @property
-    def is_on(self):
-        """Return the state of the entity."""
-        return self._state
 
     def turn_on(self, **kwargs):
         """Turn the device on."""
@@ -59,5 +48,5 @@ class GC100Switch(ToggleEntity):
 
     def set_state(self, state):
         """Set the current state."""
-        self._state = state == 1
+        self._attr_is_on = state == 1
         self.schedule_update_ha_state()

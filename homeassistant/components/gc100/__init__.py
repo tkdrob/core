@@ -39,7 +39,7 @@ def setup(hass, base_config):
 
     hass.bus.listen_once(EVENT_HOMEASSISTANT_STOP, cleanup_gc100)
 
-    hass.data[DATA_GC100] = GC100Device(hass, gc_device)
+    hass.data[DATA_GC100] = GC100Device(gc_device)
 
     return True
 
@@ -47,9 +47,8 @@ def setup(hass, base_config):
 class GC100Device:
     """The GC100 component."""
 
-    def __init__(self, hass, gc_device):
+    def __init__(self, gc_device):
         """Init a gc100 device."""
-        self.hass = hass
         self.gc_device = gc_device
 
     def read_sensor(self, port_addr, callback):
