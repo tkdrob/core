@@ -78,7 +78,7 @@ class GenericCamera(Camera):
         super().__init__()
         self.hass = hass
         self._authentication = device_info.get(CONF_AUTHENTICATION)
-        self._name = device_info.get(CONF_NAME)
+        self._attr_name = device_info.get(CONF_NAME)
         self._still_image_url = device_info[CONF_STILL_IMAGE_URL]
         self._stream_source = device_info.get(CONF_STREAM_SOURCE)
         self._still_image_url.hass = hass
@@ -86,7 +86,7 @@ class GenericCamera(Camera):
             self._stream_source.hass = hass
         self._limit_refetch = device_info[CONF_LIMIT_REFETCH_TO_URL_CHANGE]
         self._frame_interval = 1 / device_info[CONF_FRAMERATE]
-        self._supported_features = SUPPORT_STREAM if self._stream_source else 0
+        self._attr_supported_features = SUPPORT_STREAM if self._stream_source else 0
         self.content_type = device_info[CONF_CONTENT_TYPE]
         self.verify_ssl = device_info[CONF_VERIFY_SSL]
         if device_info.get(CONF_RTSP_TRANSPORT):
@@ -107,11 +107,6 @@ class GenericCamera(Camera):
 
         self._last_url = None
         self._last_image = None
-
-    @property
-    def supported_features(self):
-        """Return supported features for this camera."""
-        return self._supported_features
 
     @property
     def frame_interval(self):
@@ -143,19 +138,14 @@ class GenericCamera(Camera):
             response.raise_for_status()
             self._last_image = response.content
         except httpx.TimeoutException:
-            _LOGGER.error("Timeout getting camera image from %s", self._name)
+            _LOGGER.error("Timeout getting camera image from %s", self.name)
             return self._last_image
         except (httpx.RequestError, httpx.HTTPStatusError) as err:
-            _LOGGER.error("Error getting new camera image from %s: %s", self._name, err)
+            _LOGGER.error("Error getting new camera image from %s: %s", self.name, err)
             return self._last_image
 
         self._last_url = url
         return self._last_image
-
-    @property
-    def name(self):
-        """Return the name of this device."""
-        return self._name
 
     async def stream_source(self):
         """Return the source of the stream."""
