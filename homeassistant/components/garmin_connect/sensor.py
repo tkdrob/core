@@ -13,7 +13,6 @@ from homeassistant.components.sensor import SensorEntity
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.const import ATTR_ATTRIBUTION, CONF_ID
 from homeassistant.core import HomeAssistant
-from homeassistant.helpers.entity import DeviceInfo
 
 from .alarm_util import calculate_next_active_alarms
 from .const import ATTRIBUTION, DOMAIN, GARMIN_ENTITY_LIST
@@ -86,80 +85,19 @@ class GarminConnectSensor(SensorEntity):
     ):
         """Initialize."""
         self._data = data
-        self._unique_id = unique_id
+        self._attr_unique_id = f"{unique_id}_{sensor_type}"
         self._type = sensor_type
-        self._name = name
-        self._unit = unit
-        self._icon = icon
-        self._device_class = device_class
-        self._enabled_default = enabled_default
-        self._available = True
-        self._state = None
-
-    @property
-    def name(self):
-        """Return the name of the sensor."""
-        return self._name
-
-    @property
-    def icon(self):
-        """Return the icon to use in the frontend."""
-        return self._icon
-
-    @property
-    def state(self):
-        """Return the state of the sensor."""
-        return self._state
-
-    @property
-    def unique_id(self) -> str:
-        """Return the unique ID for this sensor."""
-        return f"{self._unique_id}_{self._type}"
-
-    @property
-    def unit_of_measurement(self):
-        """Return the unit of measurement."""
-        return self._unit
-
-    @property
-    def extra_state_attributes(self):
-        """Return attributes for sensor."""
-        if not self._data.data:
-            return {}
-        attributes = {
-            "source": self._data.data["source"],
-            "last_synced": self._data.data["lastSyncTimestampGMT"],
-            ATTR_ATTRIBUTION: ATTRIBUTION,
-        }
-        if self._type == "nextAlarm":
-            attributes["next_alarms"] = calculate_next_active_alarms(
-                self._data.data[self._type]
-            )
-        return attributes
-
-    @property
-    def device_info(self) -> DeviceInfo:
-        """Return device information."""
-        return {
-            "identifiers": {(DOMAIN, self._unique_id)},
+        self._attr_name = name
+        self._attr_unit_of_measurement = unit
+        self._attr_icon = icon
+        self._attr_device_class = device_class
+        self._attr_entity_registry_enabled_default = enabled_default
+        self._attr_available = True
+        self._attr_device_info = {
+            "identifiers": {(DOMAIN, unique_id)},
             "name": "Garmin Connect",
             "manufacturer": "Garmin Connect",
         }
-
-    @property
-    def entity_registry_enabled_default(self) -> bool:
-        """Return if the entity should be enabled when first added to the entity registry."""
-        return self._enabled_default
-
-    @property
-    def available(self) -> bool:
-        """Return True if entity is available."""
-        return self._available
-
-    @property
-    def device_class(self):
-        """Return the device class of the sensor."""
-        return self._device_class
 
     async def async_update(self):
         """Update the data from Garmin Connect."""
@@ -169,31 +107,44 @@ class GarminConnectSensor(SensorEntity):
         await self._data.async_update()
         data = self._data.data
         if not data:
+            self._attr_extra_state_attributes = {}
             _LOGGER.error("Didn't receive data from Garmin Connect")
             return
+        self._attr_extra_state_attributes = {
+            "source": self._data.data["source"],
+            "last_synced": self._data.data["lastSyncTimestampGMT"],
+            ATTR_ATTRIBUTION: ATTRIBUTION,
+        }
+        if self._type == "nextAlarm":
+            self._attr_extra_state_attributes[
+                "next_alarms"
+            ] = calculate_next_active_alarms(self._data.data[self._type])
         if data.get(self._type) is None:
             _LOGGER.debug("Entity type %s not set in fetched data", self._type)
-            self._available = False
+            self._attr_available = False
             return
-        self._available = True
+        self._attr_available = True
 
         if "Duration" in self._type or "Seconds" in self._type:
-            self._state = data[self._type] // 60
+            self._attr_state = data[self._type] // 60
         elif "Mass" in self._type or self._type == "weight":
-            self._state = round((data[self._type] / 1000), 2)
+            self._attr_state = round((data[self._type] / 1000), 2)
         elif (
             self._type == "bodyFat" or self._type == "bodyWater" or self._type == "bmi"
         ):
-            self._state = round(data[self._type], 2)
+            self._attr_state = round(data[self._type], 2)
         elif self._type == "nextAlarm":
             active_alarms = calculate_next_active_alarms(data[self._type])
             if active_alarms:
-                self._state = active_alarms[0]
+                self._attr_state = active_alarms[0]
             else:
-                self._available = False
+                self._attr_available = False
         else:
-            self._state = data[self._type]
+            self._attr_state = data[self._type]
 
         _LOGGER.debug(
-            "Entity %s set to state %s %s", self._type, self._state, self._unit
+            "Entity %s set to state %s %s",
+            self._type,
+            self.state,
+            self.unit_of_measurement,
         )
