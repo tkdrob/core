@@ -165,14 +165,14 @@ async def async_setup_platform(
 class GoogleTravelTimeSensor(SensorEntity):
     """Representation of a Google travel time sensor."""
 
+    _attr_unit_of_measurement = TIME_MINUTES
+
     def __init__(self, config_entry, name, api_key, origin, destination, client):
         """Initialize the sensor."""
-        self._name = name
+        self._attr_name = name
         self._config_entry = config_entry
-        self._unit_of_measurement = TIME_MINUTES
         self._matrix = None
-        self._api_key = api_key
-        self._unique_id = config_entry.entry_id
+        self._attr_unique_id = config_entry.entry_id
         self._client = client
 
         # Check if location is a trackable entity
@@ -185,6 +185,11 @@ class GoogleTravelTimeSensor(SensorEntity):
             self._destination_entity_id = destination
         else:
             self._destination = destination
+        self._attr_device_info = {
+            "name": DOMAIN,
+            "identifiers": {(DOMAIN, api_key)},
+            "entry_type": "service",
+        }
 
     async def async_added_to_hass(self) -> None:
         """Handle when entity is added."""
@@ -194,65 +199,6 @@ class GoogleTravelTimeSensor(SensorEntity):
             )
         else:
             await self.first_update()
-
-    @property
-    def state(self):
-        """Return the state of the sensor."""
-        if self._matrix is None:
-            return None
-
-        _data = self._matrix["rows"][0]["elements"][0]
-        if "duration_in_traffic" in _data:
-            return round(_data["duration_in_traffic"]["value"] / 60)
-        if "duration" in _data:
-            return round(_data["duration"]["value"] / 60)
-        return None
-
-    @property
-    def device_info(self):
-        """Return device specific attributes."""
-        return {
-            "name": DOMAIN,
-            "identifiers": {(DOMAIN, self._api_key)},
-            "entry_type": "service",
-        }
-
-    @property
-    def unique_id(self) -> str:
-        """Return unique ID of entity."""
-        return self._unique_id
-
-    @property
-    def name(self):
-        """Get the name of the sensor."""
-        return self._name
-
-    @property
-    def extra_state_attributes(self):
-        """Return the state attributes."""
-        if self._matrix is None:
-            return None
-
-        res = self._matrix.copy()
-        options = self._config_entry.options.copy()
-        res.update(options)
-        del res["rows"]
-        _data = self._matrix["rows"][0]["elements"][0]
-        if "duration_in_traffic" in _data:
-            res["duration_in_traffic"] = _data["duration_in_traffic"]["text"]
-        if "duration" in _data:
-            res["duration"] = _data["duration"]["text"]
-        if "distance" in _data:
-            res["distance"] = _data["distance"]["text"]
-        res["origin"] = self._origin
-        res["destination"] = self._destination
-        res[ATTR_ATTRIBUTION] = ATTRIBUTION
-        return res
-
-    @property
-    def unit_of_measurement(self):
-        """Return the unit this state is expressed in."""
-        return self._unit_of_measurement
 
     async def first_update(self, _=None):
         """Run the first update and write the state."""
@@ -294,3 +240,28 @@ class GoogleTravelTimeSensor(SensorEntity):
             self._matrix = distance_matrix(
                 self._client, self._origin, self._destination, **options_copy
             )
+        self._attr_state = None
+        if self._matrix is None:
+            self._attr_extra_state_attributes = None
+        else:
+            _data = self._matrix["rows"][0]["elements"][0]
+            if "duration_in_traffic" in _data:
+                self._attr_state = round(_data["duration_in_traffic"]["value"] / 60)
+            elif "duration" in _data:
+                self._attr_state = round(_data["duration"]["value"] / 60)
+
+            res = self._matrix.copy()
+            options = self._config_entry.options.copy()
+            res.update(options)
+            del res["rows"]
+            _data = self._matrix["rows"][0]["elements"][0]
+            if "duration_in_traffic" in _data:
+                res["duration_in_traffic"] = _data["duration_in_traffic"]["text"]
+            if "duration" in _data:
+                res["duration"] = _data["duration"]["text"]
+            if "distance" in _data:
+                res["distance"] = _data["distance"]["text"]
+            res["origin"] = self._origin
+            res["destination"] = self._destination
+            res[ATTR_ATTRIBUTION] = ATTRIBUTION
+            self._attr_extra_state_attributes = res
