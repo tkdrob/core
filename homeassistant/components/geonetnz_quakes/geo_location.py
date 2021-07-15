@@ -64,19 +64,14 @@ class GeonetnzQuakesEvent(GeolocationEvent):
         self._feed_manager = feed_manager
         self._integration_id = integration_id
         self._external_id = external_id
-        self._title = None
         self._distance = None
         self._latitude = None
         self._longitude = None
-        self._attribution = None
-        self._depth = None
-        self._locality = None
-        self._magnitude = None
-        self._mmi = None
-        self._quality = None
-        self._time = None
         self._remove_signal_delete = None
         self._remove_signal_update = None
+        self._attr_icon = "mdi:pulse"
+        self._attr_should_poll = False
+        self._attr_unique_id = f"{integration_id}_{external_id}"
 
     async def async_added_to_hass(self):
         """Call when entity is added to hass."""
@@ -110,11 +105,6 @@ class GeonetnzQuakesEvent(GeolocationEvent):
         """Call update method."""
         self.async_schedule_update_ha_state(True)
 
-    @property
-    def should_poll(self):
-        """No polling needed for GeoNet NZ Quakes feed location events."""
-        return False
-
     async def async_update(self):
         """Update this entity from the data held in the feed manager."""
         _LOGGER.debug("Updating %s", self._external_id)
@@ -124,43 +114,37 @@ class GeonetnzQuakesEvent(GeolocationEvent):
 
     def _update_from_feed(self, feed_entry):
         """Update the internal state from the provided feed entry."""
-        self._title = feed_entry.title
+        self._attr_name = feed_entry.title
         # Convert distance if not metric system.
         if self.hass.config.units.name == CONF_UNIT_SYSTEM_IMPERIAL:
             self._distance = IMPERIAL_SYSTEM.length(
                 feed_entry.distance_to_home, LENGTH_KILOMETERS
             )
+            self._attr_unit_of_measurement = LENGTH_MILES
         else:
             self._distance = feed_entry.distance_to_home
+            self._attr_unit_of_measurement = LENGTH_KILOMETERS
         self._latitude = feed_entry.coordinates[0]
         self._longitude = feed_entry.coordinates[1]
-        self._attribution = feed_entry.attribution
-        self._depth = feed_entry.depth
-        self._locality = feed_entry.locality
-        self._magnitude = feed_entry.magnitude
-        self._mmi = feed_entry.mmi
-        self._quality = feed_entry.quality
-        self._time = feed_entry.time
-
-    @property
-    def unique_id(self) -> str | None:
-        """Return a unique ID containing latitude/longitude and external id."""
-        return f"{self._integration_id}_{self._external_id}"
-
-    @property
-    def icon(self):
-        """Return the icon to use in the frontend, if any."""
-        return "mdi:pulse"
+        attributes = {}
+        for key, value in (
+            (ATTR_EXTERNAL_ID, self._external_id),
+            (ATTR_ATTRIBUTION, feed_entry.attribution),
+            (ATTR_DEPTH, feed_entry.depth),
+            (ATTR_LOCALITY, feed_entry.locality),
+            (ATTR_MAGNITUDE, feed_entry.magnitude),
+            (ATTR_MMI, feed_entry.mmi),
+            (ATTR_QUALITY, feed_entry.quality),
+            (ATTR_TIME, feed_entry.time),
+        ):
+            if value or isinstance(value, bool):
+                attributes[key] = value
+        self._attr_extra_state_attributes = attributes
 
     @property
     def source(self) -> str:
         """Return source value of this external event."""
         return SOURCE
-
-    @property
-    def name(self) -> str | None:
-        """Return the name of the entity."""
-        return self._title
 
     @property
     def distance(self) -> float | None:
@@ -176,28 +160,3 @@ class GeonetnzQuakesEvent(GeolocationEvent):
     def longitude(self) -> float | None:
         """Return longitude value of this external event."""
         return self._longitude
-
-    @property
-    def unit_of_measurement(self):
-        """Return the unit of measurement."""
-        if self.hass.config.units.name == CONF_UNIT_SYSTEM_IMPERIAL:
-            return LENGTH_MILES
-        return LENGTH_KILOMETERS
-
-    @property
-    def extra_state_attributes(self):
-        """Return the device state attributes."""
-        attributes = {}
-        for key, value in (
-            (ATTR_EXTERNAL_ID, self._external_id),
-            (ATTR_ATTRIBUTION, self._attribution),
-            (ATTR_DEPTH, self._depth),
-            (ATTR_LOCALITY, self._locality),
-            (ATTR_MAGNITUDE, self._magnitude),
-            (ATTR_MMI, self._mmi),
-            (ATTR_QUALITY, self._quality),
-            (ATTR_TIME, self._time),
-        ):
-            if value or isinstance(value, bool):
-                attributes[key] = value
-        return attributes
