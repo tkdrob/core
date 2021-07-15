@@ -94,20 +94,10 @@ class GEMSensor(SensorEntity):
     def __init__(self, monitor_serial_number, name, sensor_type, number):
         """Construct the entity."""
         self._monitor_serial_number = monitor_serial_number
-        self._name = name
+        self._attr_name = name
         self._sensor = None
-        self._sensor_type = sensor_type
         self._number = number
-
-    @property
-    def unique_id(self):
-        """Return a unique ID for this sensor."""
-        return f"{self._monitor_serial_number}-{self._sensor_type}-{self._number}"
-
-    @property
-    def name(self):
-        """Return the name of the channel."""
-        return self._name
+        self._attr_unique_id = f"{monitor_serial_number}-{sensor_type}-{number}"
 
     async def async_added_to_hass(self):
         """Wait for and connect to the sensor."""
@@ -195,9 +185,9 @@ class PulseCounter(GEMSensor):
     ):
         """Construct the entity."""
         super().__init__(monitor_serial_number, name, "pulse", number)
-        self._counted_quantity = counted_quantity
         self._counted_quantity_per_pulse = counted_quantity_per_pulse
         self._time_unit = time_unit
+        self._attr_unit_of_measurement = f"{counted_quantity}/{time_unit}"
 
     def _get_sensor(self, monitor):
         return monitor.pulse_counters[self._number - 1]
@@ -225,11 +215,6 @@ class PulseCounter(GEMSensor):
             return 3600
 
     @property
-    def unit_of_measurement(self):
-        """Return the unit of measurement for this pulse counter."""
-        return f"{self._counted_quantity}/{self._time_unit}"
-
-    @property
     def extra_state_attributes(self):
         """Return total pulses in the data dictionary."""
         if not self._sensor:
@@ -247,7 +232,7 @@ class TemperatureSensor(GEMSensor):
     def __init__(self, monitor_serial_number, number, name, unit):
         """Construct the entity."""
         super().__init__(monitor_serial_number, name, "temp", number)
-        self._unit = unit
+        self._attr_unit_of_measurement = unit
 
     def _get_sensor(self, monitor):
         return monitor.temperature_sensors[self._number - 1]
@@ -259,11 +244,6 @@ class TemperatureSensor(GEMSensor):
             return None
 
         return self._sensor.temperature
-
-    @property
-    def unit_of_measurement(self):
-        """Return the unit of measurement for this sensor (user specified)."""
-        return self._unit
 
 
 class VoltageSensor(GEMSensor):
