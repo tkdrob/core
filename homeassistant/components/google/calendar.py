@@ -74,25 +74,14 @@ class GoogleCalendarEventDevice(CalendarEventDevice):
             data.get(CONF_MAX_RESULTS),
         )
         self._event = None
-        self._name = data[CONF_NAME]
+        self._attr_name = data[CONF_NAME]
         self._offset = data.get(CONF_OFFSET, DEFAULT_CONF_OFFSET)
-        self._offset_reached = False
         self.entity_id = entity_id
-
-    @property
-    def extra_state_attributes(self):
-        """Return the device state attributes."""
-        return {"offset_reached": self._offset_reached}
 
     @property
     def event(self):
         """Return the next upcoming event."""
         return self._event
-
-    @property
-    def name(self):
-        """Return the name of the entity."""
-        return self._name
 
     async def async_get_events(self, hass, start_date, end_date):
         """Get all events in a specific time frame."""
@@ -106,8 +95,8 @@ class GoogleCalendarEventDevice(CalendarEventDevice):
             self._event = event
             return
         event = calculate_offset(event, self._offset)
-        self._offset_reached = is_offset_reached(event)
         self._event = event
+        self._attr_extra_state_attributes = {"offset_reached": is_offset_reached(event)}
 
 
 class GoogleCalendarData:
