@@ -52,10 +52,7 @@ async def async_setup_platform(
 class GeniusSwitch(GeniusZone, SwitchEntity):
     """Representation of a Genius Hub switch."""
 
-    @property
-    def device_class(self):
-        """Return the class of this device, from component DEVICE_CLASSES."""
-        return DEVICE_CLASS_OUTLET
+    _attr_device_class = DEVICE_CLASS_OUTLET
 
     @property
     def is_on(self) -> bool:

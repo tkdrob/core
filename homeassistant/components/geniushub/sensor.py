@@ -2,7 +2,6 @@
 from __future__ import annotations
 
 from datetime import timedelta
-from typing import Any
 
 from homeassistant.components.sensor import SensorEntity
 from homeassistant.const import DEVICE_CLASS_BATTERY, PERCENTAGE
@@ -43,13 +42,15 @@ async def async_setup_platform(
 class GeniusBattery(GeniusDevice, SensorEntity):
     """Representation of a Genius Hub sensor."""
 
+    _attr_device_class = DEVICE_CLASS_BATTERY
+    _attr_unit_of_measurement = PERCENTAGE
+
     def __init__(self, broker, device, state_attr) -> None:
         """Initialize the sensor."""
         super().__init__(broker, device)
 
         self._state_attr = state_attr
-
-        self._name = f"{device.type} {device.id}"
+        self._attr_name = f"{device.type} {device.id}"
 
     @property
     def icon(self) -> str:
@@ -74,16 +75,6 @@ class GeniusBattery(GeniusDevice, SensorEntity):
         return icon
 
     @property
-    def device_class(self) -> str:
-        """Return the device class of the sensor."""
-        return DEVICE_CLASS_BATTERY
-
-    @property
-    def unit_of_measurement(self) -> str:
-        """Return the unit of measurement of the sensor."""
-        return PERCENTAGE
-
-    @property
     def state(self) -> str:
         """Return the state of the sensor."""
         level = self._device.data["state"][self._state_attr]
@@ -98,24 +89,15 @@ class GeniusIssue(GeniusEntity, SensorEntity):
         super().__init__()
 
         self._hub = broker.client
-        self._unique_id = f"{broker.hub_uid}_{GH_LEVEL_MAPPING[level]}"
-
-        self._name = f"GeniusHub {GH_LEVEL_MAPPING[level]}"
+        self._attr_unique_id = f"{broker.hub_uid}_{GH_LEVEL_MAPPING[level]}"
+        self._attr_name = f"GeniusHub {GH_LEVEL_MAPPING[level]}"
         self._level = level
         self._issues = []
-
-    @property
-    def state(self) -> str:
-        """Return the number of issues."""
-        return len(self._issues)
-
-    @property
-    def extra_state_attributes(self) -> dict[str, Any]:
-        """Return the device state attributes."""
-        return {f"{self._level}_list": self._issues}
 
     async def async_update(self) -> None:
         """Process the sensor's state data."""
         self._issues = [
             i["description"] for i in self._hub.issues if i["level"] == self._level
         ]
+        self._attr_state = len(self._issues)
+        self._attr_extra_state_attributes = {f"{self._level}_list": self._issues}

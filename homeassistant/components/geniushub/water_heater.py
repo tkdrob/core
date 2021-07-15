@@ -6,7 +6,7 @@ from homeassistant.components.water_heater import (
     SUPPORT_TARGET_TEMPERATURE,
     WaterHeaterEntity,
 )
-from homeassistant.const import STATE_OFF
+from homeassistant.const import STATE_OFF, TEMP_CELSIUS
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.typing import ConfigType
 
@@ -53,18 +53,11 @@ async def async_setup_platform(
 class GeniusWaterHeater(GeniusHeatingZone, WaterHeaterEntity):
     """Representation of a Genius Hub water_heater device."""
 
-    def __init__(self, broker, zone) -> None:
-        """Initialize the water_heater device."""
-        super().__init__(broker, zone)
-
-        self._max_temp = 80.0
-        self._min_temp = 30.0
-        self._supported_features = SUPPORT_TARGET_TEMPERATURE | SUPPORT_OPERATION_MODE
-
-    @property
-    def operation_list(self) -> list[str]:
-        """Return the list of available operation modes."""
-        return list(HA_OPMODE_TO_GH)
+    _attr_max_temp = 80.0
+    _attr_min_temp = 30.0
+    _attr_operation_list = list(HA_OPMODE_TO_GH)
+    _attr_supported_features = SUPPORT_TARGET_TEMPERATURE | SUPPORT_OPERATION_MODE
+    _attr_temperature_unit = TEMP_CELSIUS
 
     @property
     def current_operation(self) -> str:

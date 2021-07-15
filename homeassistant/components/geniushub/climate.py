@@ -13,6 +13,7 @@ from homeassistant.components.climate.const import (
     SUPPORT_PRESET_MODE,
     SUPPORT_TARGET_TEMPERATURE,
 )
+from homeassistant.const import TEMP_CELSIUS
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.typing import ConfigType
 
@@ -49,28 +50,25 @@ async def async_setup_platform(
 class GeniusClimateZone(GeniusHeatingZone, ClimateEntity):
     """Representation of a Genius Hub climate device."""
 
+    _attr_icon = "mdi:radiator"
+    _attr_hvac_modes = list(HA_HVAC_TO_GH)
+    _attr_max_temp = 28.0
+    _attr_min_temp = 4.0
+    _attr_supported_features = SUPPORT_TARGET_TEMPERATURE | SUPPORT_PRESET_MODE
+    _attr_temperature_unit = TEMP_CELSIUS
+
     def __init__(self, broker, zone) -> None:
         """Initialize the climate device."""
         super().__init__(broker, zone)
 
-        self._max_temp = 28.0
-        self._min_temp = 4.0
-        self._supported_features = SUPPORT_TARGET_TEMPERATURE | SUPPORT_PRESET_MODE
-
-    @property
-    def icon(self) -> str:
-        """Return the icon to use in the frontend UI."""
-        return "mdi:radiator"
+        self._attr_preset_modes = [PRESET_BOOST]
+        if "occupied" in zone.data:  # if has a movement sensor
+            self._attr_preset_modes = [PRESET_ACTIVITY, PRESET_BOOST]
 
     @property
     def hvac_mode(self) -> str:
         """Return hvac operation ie. heat, cool mode."""
         return GH_HVAC_TO_HA.get(self._zone.data["mode"], HVAC_MODE_HEAT)
-
-    @property
-    def hvac_modes(self) -> list[str]:
-        """Return the list of available hvac operation modes."""
-        return list(HA_HVAC_TO_GH)
 
     @property
     def hvac_action(self) -> str | None:
@@ -87,13 +85,6 @@ class GeniusClimateZone(GeniusHeatingZone, ClimateEntity):
     def preset_mode(self) -> str | None:
         """Return the current preset mode, e.g., home, away, temp."""
         return GH_PRESET_TO_HA.get(self._zone.data["mode"])
-
-    @property
-    def preset_modes(self) -> list[str] | None:
-        """Return a list of available preset modes."""
-        if "occupied" in self._zone.data:  # if has a movement sensor
-            return [PRESET_ACTIVITY, PRESET_BOOST]
-        return [PRESET_BOOST]
 
     async def async_set_hvac_mode(self, hvac_mode: str) -> None:
         """Set a new hvac mode."""

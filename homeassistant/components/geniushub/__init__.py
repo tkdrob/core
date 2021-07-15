@@ -17,7 +17,6 @@ from homeassistant.const import (
     CONF_PASSWORD,
     CONF_TOKEN,
     CONF_USERNAME,
-    TEMP_CELSIUS,
 )
 from homeassistant.core import HomeAssistant, callback
 from homeassistant.helpers import config_validation as cv
@@ -212,9 +211,11 @@ class GeniusBroker:
 class GeniusEntity(Entity):
     """Base for all Genius Hub entities."""
 
+    _attr_should_poll = False
+
     def __init__(self) -> None:
         """Initialize the entity."""
-        self._unique_id = self._name = None
+        self._attr_unique_id = self._attr_name = None
 
     async def async_added_to_hass(self) -> None:
         """Set up a listener when this entity is added to HA."""
@@ -223,21 +224,6 @@ class GeniusEntity(Entity):
     async def _refresh(self, payload: dict | None = None) -> None:
         """Process any signals."""
         self.async_schedule_update_ha_state(force_refresh=True)
-
-    @property
-    def unique_id(self) -> str | None:
-        """Return a unique ID."""
-        return self._unique_id
-
-    @property
-    def name(self) -> str:
-        """Return the name of the geniushub entity."""
-        return self._name
-
-    @property
-    def should_poll(self) -> bool:
-        """Return False as geniushub entities should not be polled."""
-        return False
 
 
 class GeniusDevice(GeniusEntity):
@@ -248,33 +234,25 @@ class GeniusDevice(GeniusEntity):
         super().__init__()
 
         self._device = device
-        self._unique_id = f"{broker.hub_uid}_device_{device.id}"
+        self._attr_unique_id = f"{broker.hub_uid}_device_{device.id}"
         self._last_comms = self._state_attr = None
-
-    @property
-    def extra_state_attributes(self) -> dict[str, Any]:
-        """Return the device state attributes."""
-        attrs = {}
-        attrs["assigned_zone"] = self._device.data["assignedZones"][0]["name"]
-        if self._last_comms:
-            attrs["last_comms"] = self._last_comms.isoformat()
-
-        state = dict(self._device.data["state"])
-        if "_state" in self._device.data:  # only via v3 API
-            state.update(self._device.data["_state"])
-
-        attrs["state"] = {
-            GH_DEVICE_ATTRS[k]: v for k, v in state.items() if k in GH_DEVICE_ATTRS
-        }
-
-        return attrs
 
     async def async_update(self) -> None:
         """Update an entity's state data."""
+        attrs = {}
+        attrs["assigned_zone"] = self._device.data["assignedZones"][0]["name"]
+        state = dict(self._device.data["state"])
         if "_state" in self._device.data:  # only via v3 API
             self._last_comms = dt_util.utc_from_timestamp(
                 self._device.data["_state"]["lastComms"]
             )
+            if self._last_comms:
+                attrs["last_comms"] = self._last_comms.isoformat()
+            state.update(self._device.data["_state"])
+        attrs["state"] = {
+            GH_DEVICE_ATTRS[k]: v for k, v in state.items() if k in GH_DEVICE_ATTRS
+        }
+        self._attr_extra_state_attributes = attrs
 
 
 class GeniusZone(GeniusEntity):
@@ -285,7 +263,8 @@ class GeniusZone(GeniusEntity):
         super().__init__()
 
         self._zone = zone
-        self._unique_id = f"{broker.hub_uid}_zone_{zone.id}"
+        self._attr_name = zone.name
+        self._attr_unique_id = f"{broker.hub_uid}_zone_{zone.id}"
 
     async def _refresh(self, payload: dict | None = None) -> None:
         """Process any signals."""
@@ -293,7 +272,7 @@ class GeniusZone(GeniusEntity):
             self.async_schedule_update_ha_state(force_refresh=True)
             return
 
-        if payload["unique_id"] != self._unique_id:
+        if payload["unique_id"] != self.unique_id:
             return
 
         if payload["service"] == SVC_SET_ZONE_OVERRIDE:
@@ -314,11 +293,6 @@ class GeniusZone(GeniusEntity):
         await self._zone.set_mode(mode)
 
     @property
-    def name(self) -> str:
-        """Return the name of the climate device."""
-        return self._zone.name
-
-    @property
     def extra_state_attributes(self) -> dict[str, Any]:
         """Return the device state attributes."""
         status = {k: v for k, v in self._zone.data.items() if k in GH_ZONE_ATTRS}
@@ -327,12 +301,6 @@ class GeniusZone(GeniusEntity):
 
 class GeniusHeatingZone(GeniusZone):
     """Base for Genius Heating Zones."""
-
-    def __init__(self, broker, zone) -> None:
-        """Initialize the Zone."""
-        super().__init__(broker, zone)
-
-        self._max_temp = self._min_temp = self._supported_features = None
 
     @property
     def current_temperature(self) -> float | None:
@@ -343,26 +311,6 @@ class GeniusHeatingZone(GeniusZone):
     def target_temperature(self) -> float:
         """Return the temperature we try to reach."""
         return self._zone.data["setpoint"]
-
-    @property
-    def min_temp(self) -> float:
-        """Return max valid temperature that can be set."""
-        return self._min_temp
-
-    @property
-    def max_temp(self) -> float:
-        """Return max valid temperature that can be set."""
-        return self._max_temp
-
-    @property
-    def temperature_unit(self) -> str:
-        """Return the unit of measurement."""
-        return TEMP_CELSIUS
-
-    @property
-    def supported_features(self) -> int:
-        """Return the bitmask of supported features."""
-        return self._supported_features
 
     async def async_set_temperature(self, **kwargs) -> None:
         """Set a new target temperature for this zone."""
