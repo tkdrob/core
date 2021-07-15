@@ -29,41 +29,21 @@ async def async_setup_entry(hass, config_entry, async_add_entities):
 class GreeSwitchEntity(CoordinatorEntity, SwitchEntity):
     """Representation of a Gree HVAC device."""
 
+    _attr_device_class = DEVICE_CLASS_SWITCH
+    _attr_icon = "mdi:lightbulb"
+
     def __init__(self, coordinator):
         """Initialize the Gree device."""
         super().__init__(coordinator)
-        self._name = coordinator.device.device_info.name + " Panel Light"
+        self._attr_name = coordinator.device.device_info.name + " Panel Light"
         self._mac = coordinator.device.device_info.mac
-
-    @property
-    def name(self) -> str:
-        """Return the name of the device."""
-        return self._name
-
-    @property
-    def unique_id(self) -> str:
-        """Return a unique id for the device."""
-        return f"{self._mac}-panel-light"
-
-    @property
-    def icon(self) -> str | None:
-        """Return the icon for the device."""
-        return "mdi:lightbulb"
-
-    @property
-    def device_info(self):
-        """Return device specific attributes."""
-        return {
-            "name": self._name,
-            "identifiers": {(DOMAIN, self._mac)},
+        self._attr_unique_id = f"{self._mac}-panel-light"
+        self._attr_device_info = {
+            "name": coordinator.device.device_info.name + " Panel Light",
+            "identifiers": {(DOMAIN, coordinator.device.device_info.mac)},
             "manufacturer": "Gree",
             "connections": {(CONNECTION_NETWORK_MAC, self._mac)},
         }
-
-    @property
-    def device_class(self):
-        """Return the class of this device, from component DEVICE_CLASSES."""
-        return DEVICE_CLASS_SWITCH
 
     @property
     def is_on(self) -> bool:

@@ -120,42 +120,37 @@ async def async_setup_entry(hass, config_entry, async_add_entities):
 class GreeClimateEntity(CoordinatorEntity, ClimateEntity):
     """Representation of a Gree HVAC device."""
 
+    _attr_fan_modes = [*FAN_MODES_REVERSE]
+    _attr_precision = PRECISION_WHOLE
+    _attr_preset_modes = PRESET_MODES
+    _attr_supported_features = SUPPORTED_FEATURES
+    _attr_swing_modes = SWING_MODES
+    _attr_target_temperature_step = TARGET_TEMPERATURE_STEP
+
     def __init__(self, coordinator):
         """Initialize the Gree device."""
         super().__init__(coordinator)
-        self._name = coordinator.device.device_info.name
-        self._mac = coordinator.device.device_info.mac
-
-    @property
-    def name(self) -> str:
-        """Return the name of the device."""
-        return self._name
-
-    @property
-    def unique_id(self) -> str:
-        """Return a unique id for the device."""
-        return self._mac
-
-    @property
-    def device_info(self):
-        """Return device specific attributes."""
-        return {
-            "name": self._name,
-            "identifiers": {(DOMAIN, self._mac)},
-            "manufacturer": "Gree",
-            "connections": {(CONNECTION_NETWORK_MAC, self._mac)},
-        }
-
-    @property
-    def temperature_unit(self) -> str:
-        """Return the temperature units for the device."""
+        self._attr_name = coordinator.device.device_info.name
+        self._attr_unique_id = coordinator.device.device_info.mac
         units = self.coordinator.device.temperature_units
-        return TEMP_CELSIUS if units == TemperatureUnits.C else TEMP_FAHRENHEIT
-
-    @property
-    def precision(self) -> float:
-        """Return the precision of temperature for the device."""
-        return PRECISION_WHOLE
+        self._attr_temperature_unit = (
+            TEMP_CELSIUS if units == TemperatureUnits.C else TEMP_FAHRENHEIT
+        )
+        self._attr_min_temp = (
+            TEMP_MIN if self.temperature_unit == TEMP_CELSIUS else TEMP_MIN_F
+        )
+        self._attr_max_temp = (
+            TEMP_MAX if self.temperature_unit == TEMP_CELSIUS else TEMP_MAX_F
+        )
+        modes = [*HVAC_MODES_REVERSE]
+        modes.append(HVAC_MODE_OFF)
+        self._attr_hvac_modes = modes
+        self._attr_device_info = {
+            "name": coordinator.device.device_info.name,
+            "identifiers": {(DOMAIN, self.unique_id)},
+            "manufacturer": "Gree",
+            "connections": {(CONNECTION_NETWORK_MAC, self.unique_id)},
+        }
 
     @property
     def current_temperature(self) -> float:
@@ -176,27 +171,12 @@ class GreeClimateEntity(CoordinatorEntity, ClimateEntity):
         _LOGGER.debug(
             "Setting temperature to %d for %s",
             temperature,
-            self._name,
+            self.name,
         )
 
         self.coordinator.device.target_temperature = round(temperature)
         await self.coordinator.push_state_update()
         self.async_write_ha_state()
-
-    @property
-    def min_temp(self) -> float:
-        """Return the minimum temperature supported by the device."""
-        return TEMP_MIN if self.temperature_unit == TEMP_CELSIUS else TEMP_MIN_F
-
-    @property
-    def max_temp(self) -> float:
-        """Return the maximum temperature supported by the device."""
-        return TEMP_MAX if self.temperature_unit == TEMP_CELSIUS else TEMP_MAX_F
-
-    @property
-    def target_temperature_step(self) -> float:
-        """Return the target temperature step support by the device."""
-        return TARGET_TEMPERATURE_STEP
 
     @property
     def hvac_mode(self) -> str:
@@ -214,7 +194,7 @@ class GreeClimateEntity(CoordinatorEntity, ClimateEntity):
         _LOGGER.debug(
             "Setting HVAC mode to %s for device %s",
             hvac_mode,
-            self._name,
+            self.name,
         )
 
         if hvac_mode == HVAC_MODE_OFF:
@@ -232,7 +212,7 @@ class GreeClimateEntity(CoordinatorEntity, ClimateEntity):
 
     async def async_turn_on(self) -> None:
         """Turn on the device."""
-        _LOGGER.debug("Turning on HVAC for device %s", self._name)
+        _LOGGER.debug("Turning on HVAC for device %s", self.name)
 
         self.coordinator.device.power = True
         await self.coordinator.push_state_update()
@@ -240,18 +220,11 @@ class GreeClimateEntity(CoordinatorEntity, ClimateEntity):
 
     async def async_turn_off(self) -> None:
         """Turn off the device."""
-        _LOGGER.debug("Turning off HVAC for device %s", self._name)
+        _LOGGER.debug("Turning off HVAC for device %s", self.name)
 
         self.coordinator.device.power = False
         await self.coordinator.push_state_update()
         self.async_write_ha_state()
-
-    @property
-    def hvac_modes(self) -> list[str]:
-        """Return the HVAC modes support by the device."""
-        modes = [*HVAC_MODES_REVERSE]
-        modes.append(HVAC_MODE_OFF)
-        return modes
 
     @property
     def preset_mode(self) -> str:
@@ -274,7 +247,7 @@ class GreeClimateEntity(CoordinatorEntity, ClimateEntity):
         _LOGGER.debug(
             "Setting preset mode to %s for device %s",
             preset_mode,
-            self._name,
+            self.name,
         )
 
         self.coordinator.device.steady_heat = False
@@ -295,11 +268,6 @@ class GreeClimateEntity(CoordinatorEntity, ClimateEntity):
         self.async_write_ha_state()
 
     @property
-    def preset_modes(self) -> list[str]:
-        """Return the preset modes support by the device."""
-        return PRESET_MODES
-
-    @property
     def fan_mode(self) -> str:
         """Return the current fan mode for the device."""
         speed = self.coordinator.device.fan_speed
@@ -313,11 +281,6 @@ class GreeClimateEntity(CoordinatorEntity, ClimateEntity):
         self.coordinator.device.fan_speed = FAN_MODES_REVERSE.get(fan_mode)
         await self.coordinator.push_state_update()
         self.async_write_ha_state()
-
-    @property
-    def fan_modes(self) -> list[str]:
-        """Return the fan modes support by the device."""
-        return [*FAN_MODES_REVERSE]
 
     @property
     def swing_mode(self) -> str:
@@ -341,7 +304,7 @@ class GreeClimateEntity(CoordinatorEntity, ClimateEntity):
         _LOGGER.debug(
             "Setting swing mode to %s for device %s",
             swing_mode,
-            self._name,
+            self.name,
         )
 
         self.coordinator.device.horizontal_swing = HorizontalSwing.Center
@@ -353,13 +316,3 @@ class GreeClimateEntity(CoordinatorEntity, ClimateEntity):
 
         await self.coordinator.push_state_update()
         self.async_write_ha_state()
-
-    @property
-    def swing_modes(self) -> list[str]:
-        """Return the swing modes currently supported for this device."""
-        return SWING_MODES
-
-    @property
-    def supported_features(self) -> int:
-        """Return the supported features for this device integration."""
-        return SUPPORTED_FEATURES
