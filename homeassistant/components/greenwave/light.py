@@ -57,41 +57,18 @@ def setup_platform(hass, config, add_entities, discovery_info=None):
 class GreenwaveLight(LightEntity):
     """Representation of an Greenwave Reality Light."""
 
+    _attr_supported_features = SUPPORTED_FEATURES
+
     def __init__(self, light, host, token, gatewaydata):
         """Initialize a Greenwave Reality Light."""
         self._did = int(light["did"])
-        self._name = light["name"]
-        self._state = int(light["state"])
-        self._brightness = greenwave.hass_brightness(light)
+        self._attr_name = light["name"]
+        self._attr_is_on = int(light["state"])
+        self._attr_brightness = greenwave.hass_brightness(light)
         self._host = host
-        self._online = greenwave.check_online(light)
+        self._attr_available = greenwave.check_online(light)
         self._token = token
         self._gatewaydata = gatewaydata
-
-    @property
-    def supported_features(self):
-        """Flag supported features."""
-        return SUPPORTED_FEATURES
-
-    @property
-    def available(self):
-        """Return True if entity is available."""
-        return self._online
-
-    @property
-    def name(self):
-        """Return the display name of this light."""
-        return self._name
-
-    @property
-    def brightness(self):
-        """Return the brightness of the light."""
-        return self._brightness
-
-    @property
-    def is_on(self):
-        """Return true if light is on."""
-        return self._state
 
     def turn_on(self, **kwargs):
         """Instruct the light to turn on."""
@@ -108,10 +85,10 @@ class GreenwaveLight(LightEntity):
         self._gatewaydata.update()
         bulbs = self._gatewaydata.greenwave
 
-        self._state = int(bulbs[self._did]["state"])
-        self._brightness = greenwave.hass_brightness(bulbs[self._did])
-        self._online = greenwave.check_online(bulbs[self._did])
-        self._name = bulbs[self._did]["name"]
+        self._attr_is_on = int(bulbs[self._did]["state"])
+        self._attr_brightness = greenwave.hass_brightness(bulbs[self._did])
+        self._attr_available = greenwave.check_online(bulbs[self._did])
+        self._attr_name = bulbs[self._did]["name"]
 
 
 class GatewayData:
