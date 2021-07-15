@@ -142,6 +142,8 @@ async def async_setup_platform(hass, config, async_add_entities, discovery_info=
 class GenericThermostat(ClimateEntity, RestoreEntity):
     """Representation of a Generic Thermostat device."""
 
+    _attr_should_poll = False
+
     def __init__(
         self,
         name,
@@ -162,7 +164,7 @@ class GenericThermostat(ClimateEntity, RestoreEntity):
         unique_id,
     ):
         """Initialize the thermostat."""
-        self._name = name
+        self._attr_name = name
         self.heater_entity_id = heater_entity_id
         self.sensor_entity_id = sensor_entity_id
         self.ac_mode = ac_mode
@@ -170,26 +172,28 @@ class GenericThermostat(ClimateEntity, RestoreEntity):
         self._cold_tolerance = cold_tolerance
         self._hot_tolerance = hot_tolerance
         self._keep_alive = keep_alive
-        self._hvac_mode = initial_hvac_mode
+        self._attr_hvac_mode = initial_hvac_mode
         self._saved_target_temp = target_temp or away_temp
         self._temp_precision = precision
-        if self.ac_mode:
-            self._hvac_list = [HVAC_MODE_COOL, HVAC_MODE_OFF]
-        else:
-            self._hvac_list = [HVAC_MODE_HEAT, HVAC_MODE_OFF]
+        self._attr_target_temperature_step = precision
+        self._attr_hvac_modes = [HVAC_MODE_HEAT, HVAC_MODE_OFF]
+        if ac_mode:
+            self._attr_hvac_modes = [HVAC_MODE_COOL, HVAC_MODE_OFF]
         self._active = False
-        self._cur_temp = None
         self._temp_lock = asyncio.Lock()
         self._min_temp = min_temp
         self._max_temp = max_temp
-        self._target_temp = target_temp
-        self._unit = unit
-        self._unique_id = unique_id
-        self._support_flags = SUPPORT_FLAGS
+        self._attr_target_temperature = target_temp
+        self._attr_temperature_unit = unit
+        self._attr_unique_id = unique_id
+        self._attr_supported_features = SUPPORT_FLAGS
         if away_temp:
-            self._support_flags = SUPPORT_FLAGS | SUPPORT_PRESET_MODE
+            self._attr_supported_features = SUPPORT_FLAGS | SUPPORT_PRESET_MODE
         self._away_temp = away_temp
-        self._is_away = False
+        self._attr_preset_modes = (
+            [PRESET_NONE, PRESET_AWAY] if away_temp else PRESET_NONE
+        )
+        self._attr_preset_mode = PRESET_NONE
 
     async def async_added_to_hass(self):
         """Run when entity about to be added."""
@@ -234,61 +238,49 @@ class GenericThermostat(ClimateEntity, RestoreEntity):
         old_state = await self.async_get_last_state()
         if old_state is not None:
             # If we have no initial temperature, restore
-            if self._target_temp is None:
+            if self.target_temperature is None:
                 # If we have a previously saved temperature
                 if old_state.attributes.get(ATTR_TEMPERATURE) is None:
                     if self.ac_mode:
-                        self._target_temp = self.max_temp
+                        self._attr_target_temperature = self.max_temp
                     else:
-                        self._target_temp = self.min_temp
+                        self._attr_target_temperature = self.min_temp
                     _LOGGER.warning(
                         "Undefined target temperature, falling back to %s",
-                        self._target_temp,
+                        self.target_temperature,
                     )
                 else:
-                    self._target_temp = float(old_state.attributes[ATTR_TEMPERATURE])
+                    self._attr_target_temperature = float(
+                        old_state.attributes[ATTR_TEMPERATURE]
+                    )
             if old_state.attributes.get(ATTR_PRESET_MODE) == PRESET_AWAY:
-                self._is_away = True
-            if not self._hvac_mode and old_state.state:
-                self._hvac_mode = old_state.state
+                self._attr_preset_mode = PRESET_AWAY
+            if not self.hvac_mode and old_state.state:
+                self._attr_hvac_mode = old_state.state
 
         else:
             # No previous state, try and restore defaults
-            if self._target_temp is None:
+            if self.target_temperature is None:
                 if self.ac_mode:
-                    self._target_temp = self.max_temp
+                    self._attr_target_temperature = self.max_temp
                 else:
-                    self._target_temp = self.min_temp
+                    self._attr_target_temperature = self.min_temp
             _LOGGER.warning(
-                "No previously saved temperature, setting to %s", self._target_temp
+                "No previously saved temperature, setting to %s",
+                self.target_temperature,
             )
 
         # Set default state to off
-        if not self._hvac_mode:
-            self._hvac_mode = HVAC_MODE_OFF
+        if not self.hvac_mode:
+            self._attr_hvac_mode = HVAC_MODE_OFF
 
         # Prevent the device from keep running if HVAC_MODE_OFF
-        if self._hvac_mode == HVAC_MODE_OFF and self._is_device_active:
+        if self.hvac_mode == HVAC_MODE_OFF and self._is_device_active:
             await self._async_heater_turn_off()
             _LOGGER.warning(
                 "The climate mode is OFF, but the switch device is ON. Turning off device %s",
                 self.heater_entity_id,
             )
-
-    @property
-    def should_poll(self):
-        """Return the polling state."""
-        return False
-
-    @property
-    def name(self):
-        """Return the name of the thermostat."""
-        return self._name
-
-    @property
-    def unique_id(self):
-        """Return the unique id of this thermostat."""
-        return self._unique_id
 
     @property
     def precision(self):
@@ -298,34 +290,12 @@ class GenericThermostat(ClimateEntity, RestoreEntity):
         return super().precision
 
     @property
-    def target_temperature_step(self):
-        """Return the supported step of target temperature."""
-        # Since this integration does not yet have a step size parameter
-        # we have to re-use the precision as the step size for now.
-        return self.precision
-
-    @property
-    def temperature_unit(self):
-        """Return the unit of measurement."""
-        return self._unit
-
-    @property
-    def current_temperature(self):
-        """Return the sensor temperature."""
-        return self._cur_temp
-
-    @property
-    def hvac_mode(self):
-        """Return current operation."""
-        return self._hvac_mode
-
-    @property
     def hvac_action(self):
         """Return the current running hvac operation if supported.
 
         Need to be one of CURRENT_HVAC_*.
         """
-        if self._hvac_mode == HVAC_MODE_OFF:
+        if self.hvac_mode == HVAC_MODE_OFF:
             return CURRENT_HVAC_OFF
         if not self._is_device_active:
             return CURRENT_HVAC_IDLE
@@ -333,36 +303,16 @@ class GenericThermostat(ClimateEntity, RestoreEntity):
             return CURRENT_HVAC_COOL
         return CURRENT_HVAC_HEAT
 
-    @property
-    def target_temperature(self):
-        """Return the temperature we try to reach."""
-        return self._target_temp
-
-    @property
-    def hvac_modes(self):
-        """List of available operation modes."""
-        return self._hvac_list
-
-    @property
-    def preset_mode(self):
-        """Return the current preset mode, e.g., home, away, temp."""
-        return PRESET_AWAY if self._is_away else PRESET_NONE
-
-    @property
-    def preset_modes(self):
-        """Return a list of available preset modes or PRESET_NONE if _away_temp is undefined."""
-        return [PRESET_NONE, PRESET_AWAY] if self._away_temp else PRESET_NONE
-
     async def async_set_hvac_mode(self, hvac_mode):
         """Set hvac mode."""
         if hvac_mode == HVAC_MODE_HEAT:
-            self._hvac_mode = HVAC_MODE_HEAT
+            self._attr_hvac_mode = HVAC_MODE_HEAT
             await self._async_control_heating(force=True)
         elif hvac_mode == HVAC_MODE_COOL:
-            self._hvac_mode = HVAC_MODE_COOL
+            self._attr_hvac_mode = HVAC_MODE_COOL
             await self._async_control_heating(force=True)
         elif hvac_mode == HVAC_MODE_OFF:
-            self._hvac_mode = HVAC_MODE_OFF
+            self._attr_hvac_mode = HVAC_MODE_OFF
             if self._is_device_active:
                 await self._async_heater_turn_off()
         else:
@@ -376,7 +326,7 @@ class GenericThermostat(ClimateEntity, RestoreEntity):
         temperature = kwargs.get(ATTR_TEMPERATURE)
         if temperature is None:
             return
-        self._target_temp = temperature
+        self._attr_target_temperature = temperature
         await self._async_control_heating(force=True)
         self.async_write_ha_state()
 
@@ -423,7 +373,7 @@ class GenericThermostat(ClimateEntity, RestoreEntity):
             cur_temp = float(state.state)
             if math.isnan(cur_temp) or math.isinf(cur_temp):
                 raise ValueError(f"Sensor has illegal state {state.state}")
-            self._cur_temp = cur_temp
+            self._attr_current_temperature = cur_temp
         except ValueError as ex:
             _LOGGER.error("Unable to update from sensor: %s", ex)
 
@@ -431,19 +381,19 @@ class GenericThermostat(ClimateEntity, RestoreEntity):
         """Check if we need to turn heating on or off."""
         async with self._temp_lock:
             if not self._active and None not in (
-                self._cur_temp,
-                self._target_temp,
+                self.current_temperature,
+                self.target_temperature,
                 self._is_device_active,
             ):
                 self._active = True
                 _LOGGER.info(
                     "Obtained current and target temperature. "
                     "Generic thermostat active. %s, %s",
-                    self._cur_temp,
-                    self._target_temp,
+                    self.current_temperature,
+                    self.target_temperature,
                 )
 
-            if not self._active or self._hvac_mode == HVAC_MODE_OFF:
+            if not self._active or self.hvac_mode == HVAC_MODE_OFF:
                 return
 
             # If the `force` argument is True, we
@@ -468,8 +418,14 @@ class GenericThermostat(ClimateEntity, RestoreEntity):
                 if not long_enough:
                     return
 
-            too_cold = self._target_temp >= self._cur_temp + self._cold_tolerance
-            too_hot = self._cur_temp >= self._target_temp + self._hot_tolerance
+            too_cold = (
+                self.target_temperature
+                >= self.current_temperature + self._cold_tolerance
+            )
+            too_hot = (
+                self.current_temperature
+                >= self.target_temperature + self._hot_tolerance
+            )
             if self._is_device_active:
                 if (self.ac_mode and too_cold) or (not self.ac_mode and too_hot):
                     _LOGGER.info("Turning off heater %s", self.heater_entity_id)
@@ -500,11 +456,6 @@ class GenericThermostat(ClimateEntity, RestoreEntity):
 
         return self.hass.states.is_state(self.heater_entity_id, STATE_ON)
 
-    @property
-    def supported_features(self):
-        """Return the list of supported features."""
-        return self._support_flags
-
     async def _async_heater_turn_on(self):
         """Turn heater toggleable device on."""
         data = {ATTR_ENTITY_ID: self.heater_entity_id}
@@ -521,14 +472,14 @@ class GenericThermostat(ClimateEntity, RestoreEntity):
 
     async def async_set_preset_mode(self, preset_mode: str):
         """Set new preset mode."""
-        if preset_mode == PRESET_AWAY and not self._is_away:
-            self._is_away = True
-            self._saved_target_temp = self._target_temp
-            self._target_temp = self._away_temp
+        if preset_mode == PRESET_AWAY and self.preset_mode != PRESET_AWAY:
+            self._attr_preset_mode = PRESET_AWAY
+            self._saved_target_temp = self._attr_target_temperature
+            self._attr_target_temperature = self._away_temp
             await self._async_control_heating(force=True)
-        elif preset_mode == PRESET_NONE and self._is_away:
-            self._is_away = False
-            self._target_temp = self._saved_target_temp
+        elif preset_mode == PRESET_NONE and self.preset_mode == PRESET_AWAY:
+            self._attr_preset_mode = PRESET_NONE
+            self._attr_target_temperature = self._saved_target_temp
             await self._async_control_heating(force=True)
 
         self.async_write_ha_state()
