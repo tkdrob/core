@@ -57,22 +57,16 @@ async def async_setup_entry(hass, entry, async_add_entities):
 class GeonetnzVolcanoSensor(SensorEntity):
     """This represents an external event with GeoNet NZ Volcano feed data."""
 
+    _attr_icon = DEFAULT_ICON
+    _attr_should_poll = False
+    _attr_unit_of_measurement = "alert level"
+
     def __init__(self, config_entry_id, feed_manager, external_id, unit_system):
         """Initialize entity with data from feed entry."""
         self._config_entry_id = config_entry_id
         self._feed_manager = feed_manager
         self._external_id = external_id
         self._unit_system = unit_system
-        self._title = None
-        self._distance = None
-        self._latitude = None
-        self._longitude = None
-        self._attribution = None
-        self._alert_level = None
-        self._activity = None
-        self._hazards = None
-        self._feed_last_update = None
-        self._feed_last_update_successful = None
         self._remove_signal_update = None
 
     async def async_added_to_hass(self):
@@ -93,11 +87,6 @@ class GeonetnzVolcanoSensor(SensorEntity):
         """Call update method."""
         self.async_schedule_update_ha_state(True)
 
-    @property
-    def should_poll(self):
-        """No polling needed for GeoNet NZ Volcano feed location events."""
-        return False
-
     async def async_update(self):
         """Update this entity from the data held in the feed manager."""
         _LOGGER.debug("Updating %s", self._external_id)
@@ -109,61 +98,30 @@ class GeonetnzVolcanoSensor(SensorEntity):
 
     def _update_from_feed(self, feed_entry, last_update, last_update_successful):
         """Update the internal state from the provided feed entry."""
-        self._title = feed_entry.title
+        self._attr_name = f"Volcano {feed_entry.title}"
         # Convert distance if not metric system.
         if self._unit_system == CONF_UNIT_SYSTEM_IMPERIAL:
-            self._distance = round(
+            distance = round(
                 IMPERIAL_SYSTEM.length(feed_entry.distance_to_home, LENGTH_KILOMETERS),
                 1,
             )
         else:
-            self._distance = round(feed_entry.distance_to_home, 1)
-        self._latitude = round(feed_entry.coordinates[0], 5)
-        self._longitude = round(feed_entry.coordinates[1], 5)
-        self._attribution = feed_entry.attribution
-        self._alert_level = feed_entry.alert_level
-        self._activity = feed_entry.activity
-        self._hazards = feed_entry.hazards
-        self._feed_last_update = dt.as_utc(last_update) if last_update else None
-        self._feed_last_update_successful = (
-            dt.as_utc(last_update_successful) if last_update_successful else None
-        )
-
-    @property
-    def state(self):
-        """Return the state of the sensor."""
-        return self._alert_level
-
-    @property
-    def icon(self):
-        """Return the icon to use in the frontend, if any."""
-        return DEFAULT_ICON
-
-    @property
-    def name(self) -> str | None:
-        """Return the name of the entity."""
-        return f"Volcano {self._title}"
-
-    @property
-    def unit_of_measurement(self):
-        """Return the unit of measurement."""
-        return "alert level"
-
-    @property
-    def extra_state_attributes(self):
-        """Return the device state attributes."""
-        attributes = {}
+            distance = round(feed_entry.distance_to_home, 1)
+        self._attr_state = feed_entry.alert_level
+        self._attr_extra_state_attributes = {}
         for key, value in (
             (ATTR_EXTERNAL_ID, self._external_id),
-            (ATTR_ATTRIBUTION, self._attribution),
-            (ATTR_ACTIVITY, self._activity),
-            (ATTR_HAZARDS, self._hazards),
-            (ATTR_LONGITUDE, self._longitude),
-            (ATTR_LATITUDE, self._latitude),
-            (ATTR_DISTANCE, self._distance),
-            (ATTR_LAST_UPDATE, self._feed_last_update),
-            (ATTR_LAST_UPDATE_SUCCESSFUL, self._feed_last_update_successful),
+            (ATTR_ATTRIBUTION, feed_entry.attribution),
+            (ATTR_ACTIVITY, feed_entry.activity),
+            (ATTR_HAZARDS, feed_entry.hazards),
+            (ATTR_LONGITUDE, round(feed_entry.coordinates[1], 5)),
+            (ATTR_LATITUDE, round(feed_entry.coordinates[0], 5)),
+            (ATTR_DISTANCE, distance),
+            (ATTR_LAST_UPDATE, dt.as_utc(last_update) if last_update else None),
+            (
+                ATTR_LAST_UPDATE_SUCCESSFUL,
+                dt.as_utc(last_update_successful) if last_update_successful else None,
+            ),
         ):
             if value or isinstance(value, bool):
-                attributes[key] = value
-        return attributes
+                self._attr_extra_state_attributes[key] = value
