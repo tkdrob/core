@@ -76,46 +76,20 @@ class GoogleWifiSensor(SensorEntity):
     def __init__(self, api, name, variable):
         """Initialize a Google Wifi sensor."""
         self._api = api
-        self._name = name
-        self._state = None
-
+        self._attr_name = f"{name}_{variable}"
         variable_info = MONITORED_CONDITIONS[variable]
         self._var_name = variable
-        self._var_units = variable_info[1]
-        self._var_icon = variable_info[2]
-
-    @property
-    def name(self):
-        """Return the name of the sensor."""
-        return f"{self._name}_{self._var_name}"
-
-    @property
-    def icon(self):
-        """Icon to use in the frontend, if any."""
-        return self._var_icon
-
-    @property
-    def unit_of_measurement(self):
-        """Return the unit the value is expressed in."""
-        return self._var_units
-
-    @property
-    def available(self):
-        """Return availability of Google Wifi API."""
-        return self._api.available
-
-    @property
-    def state(self):
-        """Return the state of the device."""
-        return self._state
+        self._attr_unit_of_measurement = variable_info[1]
+        self._attr_icon = variable_info[2]
 
     def update(self):
         """Get the latest data from the Google Wifi API."""
         self._api.update()
-        if self.available:
-            self._state = self._api.data[self._var_name]
+        self._attr_available = self._api.available
+        if self._api.available:
+            self._attr_state = self._api.data[self._var_name]
         else:
-            self._state = None
+            self._attr_state = None
 
 
 class GoogleWifiAPI:
