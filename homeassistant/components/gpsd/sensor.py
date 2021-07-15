@@ -70,18 +70,13 @@ class GpsdSensor(SensorEntity):
     def __init__(self, hass, name, host, port):
         """Initialize the GPSD sensor."""
         self.hass = hass
-        self._name = name
+        self._attr_name = name
         self._host = host
         self._port = port
 
         self.agps_thread = AGPS3mechanism()
         self.agps_thread.stream_data(host=self._host, port=self._port)
         self.agps_thread.run_thread()
-
-    @property
-    def name(self):
-        """Return the name."""
-        return self._name
 
     @property
     def state(self):
