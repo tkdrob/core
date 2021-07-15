@@ -74,109 +74,46 @@ def setup_platform(hass, config, add_entities, discovery_info=None):
 class GitHubSensor(SensorEntity):
     """Representation of a GitHub sensor."""
 
+    _attr_icon = "mdi:github"
+
     def __init__(self, github_data):
         """Initialize the GitHub sensor."""
-        self._unique_id = github_data.repository_path
-        self._name = None
-        self._state = None
-        self._available = False
-        self._repository_path = None
-        self._latest_commit_message = None
-        self._latest_commit_sha = None
-        self._latest_release_tag = None
-        self._latest_release_url = None
-        self._open_issue_count = None
-        self._latest_open_issue_url = None
-        self._pull_request_count = None
-        self._latest_open_pr_url = None
-        self._stargazers = None
-        self._forks = None
-        self._clones = None
-        self._clones_unique = None
-        self._views = None
-        self._views_unique = None
+        self._attr_unique_id = github_data.repository_path
+        self._attr_available = False
         self._github_data = github_data
-
-    @property
-    def name(self):
-        """Return the name of the sensor."""
-        return self._name
-
-    @property
-    def unique_id(self):
-        """Return unique ID for the sensor."""
-        return self._unique_id
-
-    @property
-    def state(self):
-        """Return the state of the sensor."""
-        return self._state
-
-    @property
-    def available(self):
-        """Return True if entity is available."""
-        return self._available
-
-    @property
-    def extra_state_attributes(self):
-        """Return the state attributes."""
-        attrs = {
-            ATTR_PATH: self._repository_path,
-            ATTR_NAME: self._name,
-            ATTR_LATEST_COMMIT_MESSAGE: self._latest_commit_message,
-            ATTR_LATEST_COMMIT_SHA: self._latest_commit_sha,
-            ATTR_LATEST_RELEASE_URL: self._latest_release_url,
-            ATTR_LATEST_OPEN_ISSUE_URL: self._latest_open_issue_url,
-            ATTR_OPEN_ISSUES: self._open_issue_count,
-            ATTR_LATEST_OPEN_PULL_REQUEST_URL: self._latest_open_pr_url,
-            ATTR_OPEN_PULL_REQUESTS: self._pull_request_count,
-            ATTR_STARGAZERS: self._stargazers,
-            ATTR_FORKS: self._forks,
-        }
-        if self._latest_release_tag is not None:
-            attrs[ATTR_LATEST_RELEASE_TAG] = self._latest_release_tag
-        if self._clones is not None:
-            attrs[ATTR_CLONES] = self._clones
-        if self._clones_unique is not None:
-            attrs[ATTR_CLONES_UNIQUE] = self._clones_unique
-        if self._views is not None:
-            attrs[ATTR_VIEWS] = self._views
-        if self._views_unique is not None:
-            attrs[ATTR_VIEWS_UNIQUE] = self._views_unique
-        return attrs
-
-    @property
-    def icon(self):
-        """Return the icon to use in the frontend."""
-        return "mdi:github"
 
     def update(self):
         """Collect updated data from GitHub API."""
         self._github_data.update()
-
-        self._name = self._github_data.name
-        self._repository_path = self._github_data.repository_path
-        self._available = self._github_data.available
-        self._latest_commit_message = self._github_data.latest_commit_message
-        self._latest_commit_sha = self._github_data.latest_commit_sha
+        self._attr_name = self._github_data.name
+        self._attr_available = self._github_data.available
+        self._attr_state = self._github_data.latest_commit_sha[0:7]
+        attrs = {
+            ATTR_PATH: self._github_data.repository_path,
+            ATTR_NAME: self._github_data.name,
+            ATTR_LATEST_COMMIT_MESSAGE: self._github_data.latest_commit_message,
+            ATTR_LATEST_COMMIT_SHA: self._github_data.latest_commit_sha,
+            ATTR_LATEST_RELEASE_URL: self._github_data.latest_release_url,
+            ATTR_LATEST_OPEN_ISSUE_URL: self._github_data.latest_open_issue_url,
+            ATTR_OPEN_ISSUES: self._github_data.open_issue_count,
+            ATTR_LATEST_OPEN_PULL_REQUEST_URL: self._github_data.latest_open_pr_url,
+            ATTR_OPEN_PULL_REQUESTS: self._github_data.pull_request_count,
+            ATTR_STARGAZERS: self._github_data.stargazers,
+            ATTR_FORKS: self._github_data.forks,
+        }
         if self._github_data.latest_release_url is not None:
-            self._latest_release_tag = self._github_data.latest_release_url.split(
+            attrs[ATTR_LATEST_RELEASE_TAG] = self._github_data.latest_release_url.split(
                 "tag/"
             )[1]
-        else:
-            self._latest_release_tag = None
-        self._latest_release_url = self._github_data.latest_release_url
-        self._state = self._github_data.latest_commit_sha[0:7]
-        self._open_issue_count = self._github_data.open_issue_count
-        self._latest_open_issue_url = self._github_data.latest_open_issue_url
-        self._pull_request_count = self._github_data.pull_request_count
-        self._latest_open_pr_url = self._github_data.latest_open_pr_url
-        self._stargazers = self._github_data.stargazers
-        self._forks = self._github_data.forks
-        self._clones = self._github_data.clones
-        self._clones_unique = self._github_data.clones_unique
-        self._views = self._github_data.views
-        self._views_unique = self._github_data.views_unique
+        if self._github_data.clones is not None:
+            attrs[ATTR_CLONES] = self._github_data.clones
+        if self._github_data.clones_unique is not None:
+            attrs[ATTR_CLONES_UNIQUE] = self._github_data.clones_unique
+        if self._github_data.views is not None:
+            attrs[ATTR_VIEWS] = self._github_data.views
+        if self._github_data.views_unique is not None:
+            attrs[ATTR_VIEWS_UNIQUE] = self._github_data.views_unique
+        self._attr_extra_state_attributes = attrs
 
 
 class GitHubData:
