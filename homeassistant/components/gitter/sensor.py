@@ -49,44 +49,16 @@ def setup_platform(hass, config, add_entities, discovery_info=None):
 class GitterSensor(SensorEntity):
     """Representation of a Gitter sensor."""
 
+    _attr_icon = ICON
+    _attr_unit_of_measurement = "Msg"
+
     def __init__(self, data, room, name, username):
         """Initialize the sensor."""
-        self._name = name
+        self._attr_name = name
         self._data = data
         self._room = room
         self._username = username
-        self._state = None
         self._mention = 0
-        self._unit_of_measurement = "Msg"
-
-    @property
-    def name(self):
-        """Return the name of the sensor."""
-        return self._name
-
-    @property
-    def state(self):
-        """Return the state of the sensor."""
-        return self._state
-
-    @property
-    def unit_of_measurement(self):
-        """Return the unit the value is expressed in."""
-        return self._unit_of_measurement
-
-    @property
-    def extra_state_attributes(self):
-        """Return the state attributes."""
-        return {
-            ATTR_USERNAME: self._username,
-            ATTR_ROOM: self._room,
-            ATTR_MENTION: self._mention,
-        }
-
-    @property
-    def icon(self):
-        """Return the icon to use in the frontend, if any."""
-        return ICON
 
     def update(self):
         """Get the latest data and updates the state."""
@@ -99,6 +71,12 @@ class GitterSensor(SensorEntity):
 
         if "error" not in data:
             self._mention = len(data["mention"])
-            self._state = len(data["chat"])
+            self._attr_state = len(data["chat"])
         else:
             _LOGGER.error("Not joined: %s", self._room)
+
+        self._attr_extra_state_attributes = {
+            ATTR_USERNAME: self._username,
+            ATTR_ROOM: self._room,
+            ATTR_MENTION: self._mention,
+        }
