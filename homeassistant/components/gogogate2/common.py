@@ -77,31 +77,20 @@ class GoGoGate2Entity(CoordinatorEntity):
     ) -> None:
         """Initialize gogogate2 base entity."""
         super().__init__(data_update_coordinator)
-        self._config_entry = config_entry
         self._door = door
-        self._unique_id = unique_id
-
-    @property
-    def unique_id(self) -> str | None:
-        """Return a unique ID."""
-        return self._unique_id
+        self._attr_unique_id = unique_id
+        self._attr_device_info = {
+            "identifiers": {(DOMAIN, str(config_entry.unique_id))},
+            "name": config_entry.title,
+            "manufacturer": MANUFACTURER,
+            "model": self.coordinator.data.model,
+            "sw_version": self.coordinator.data.firmwareversion,
+        }
 
     def _get_door(self) -> AbstractDoor:
         door = get_door_by_id(self._door.door_id, self.coordinator.data)
         self._door = door or self._door
         return self._door
-
-    @property
-    def device_info(self):
-        """Device info for the controller."""
-        data = self.coordinator.data
-        return {
-            "identifiers": {(DOMAIN, self._config_entry.unique_id)},
-            "name": self._config_entry.title,
-            "manufacturer": MANUFACTURER,
-            "model": data.model,
-            "sw_version": data.firmwareversion,
-        }
 
 
 def get_data_update_coordinator(

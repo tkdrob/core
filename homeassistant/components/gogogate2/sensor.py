@@ -51,6 +51,8 @@ async def async_setup_entry(
 class DoorSensorBattery(GoGoGate2Entity, SensorEntity):
     """Battery sensor entity for gogogate2 door sensor."""
 
+    _attr_device_class = DEVICE_CLASS_BATTERY
+
     def __init__(
         self,
         config_entry: ConfigEntry,
@@ -60,16 +62,7 @@ class DoorSensorBattery(GoGoGate2Entity, SensorEntity):
         """Initialize the object."""
         unique_id = sensor_unique_id(config_entry, door, "battery")
         super().__init__(config_entry, data_update_coordinator, door, unique_id)
-
-    @property
-    def name(self):
-        """Return the name of the door."""
-        return f"{self._get_door().name} battery"
-
-    @property
-    def device_class(self):
-        """Return the class of this device, from component DEVICE_CLASSES."""
-        return DEVICE_CLASS_BATTERY
+        self._attr_name = f"{self._get_door().name} battery"
 
     @property
     def state(self):
@@ -89,6 +82,9 @@ class DoorSensorBattery(GoGoGate2Entity, SensorEntity):
 class DoorSensorTemperature(GoGoGate2Entity, SensorEntity):
     """Temperature sensor entity for gogogate2 door sensor."""
 
+    _attr_device_class = DEVICE_CLASS_TEMPERATURE
+    _attr_unit_of_measurement = TEMP_CELSIUS
+
     def __init__(
         self,
         config_entry: ConfigEntry,
@@ -98,27 +94,13 @@ class DoorSensorTemperature(GoGoGate2Entity, SensorEntity):
         """Initialize the object."""
         unique_id = sensor_unique_id(config_entry, door, "temperature")
         super().__init__(config_entry, data_update_coordinator, door, unique_id)
-
-    @property
-    def name(self):
-        """Return the name of the door."""
-        return f"{self._get_door().name} temperature"
-
-    @property
-    def device_class(self):
-        """Return the class of this device, from component DEVICE_CLASSES."""
-        return DEVICE_CLASS_TEMPERATURE
+        self._attr_name = f"{self._get_door().name} temperature"
 
     @property
     def state(self):
         """Return the state of the entity."""
         door = self._get_door()
         return door.temperature
-
-    @property
-    def unit_of_measurement(self):
-        """Return the unit_of_measurement."""
-        return TEMP_CELSIUS
 
     @property
     def device_state_attributes(self):

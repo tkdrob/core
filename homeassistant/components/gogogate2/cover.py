@@ -50,6 +50,8 @@ async def async_setup_entry(
 class DeviceCover(GoGoGate2Entity, CoverEntity):
     """Cover entity for goggate2."""
 
+    _attr_supported_features = SUPPORT_OPEN | SUPPORT_CLOSE
+
     def __init__(
         self,
         config_entry: ConfigEntry,
@@ -61,11 +63,10 @@ class DeviceCover(GoGoGate2Entity, CoverEntity):
         super().__init__(config_entry, data_update_coordinator, door, unique_id)
         self._api = data_update_coordinator.api
         self._is_available = True
-
-    @property
-    def name(self):
-        """Return the name of the door."""
-        return self._get_door().name
+        self._attr_name = self._get_door().name
+        self._attr_device_class = DEVICE_CLASS_GARAGE
+        if self._get_door().gate:
+            self._attr_device_class = DEVICE_CLASS_GATE
 
     @property
     def is_closed(self):
@@ -77,19 +78,6 @@ class DeviceCover(GoGoGate2Entity, CoverEntity):
             return True
 
         return None
-
-    @property
-    def device_class(self):
-        """Return the class of this device, from component DEVICE_CLASSES."""
-        if self._get_door().gate:
-            return DEVICE_CLASS_GATE
-
-        return DEVICE_CLASS_GARAGE
-
-    @property
-    def supported_features(self):
-        """Flag supported features."""
-        return SUPPORT_OPEN | SUPPORT_CLOSE
 
     @property
     def is_closing(self):
