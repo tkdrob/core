@@ -68,22 +68,18 @@ class GPSLoggerEntity(TrackerEntity, RestoreEntity):
     def __init__(self, device, location, battery, accuracy, attributes):
         """Set up Geofency entity."""
         self._accuracy = accuracy
-        self._attributes = attributes
-        self._name = device
+        self._attr_extra_state_attributes = attributes
+        self._attr_name = device
         self._battery = battery
         self._location = location
         self._unsub_dispatcher = None
-        self._unique_id = device
+        self._attr_unique_id = device
+        self._attr_device_info = {"name": device, "identifiers": {(GPL_DOMAIN, device)}}
 
     @property
     def battery_level(self):
         """Return battery value of the device."""
         return self._battery
-
-    @property
-    def extra_state_attributes(self):
-        """Return device specific attributes."""
-        return self._attributes
 
     @property
     def latitude(self):
@@ -99,21 +95,6 @@ class GPSLoggerEntity(TrackerEntity, RestoreEntity):
     def location_accuracy(self):
         """Return the gps accuracy of the device."""
         return self._accuracy
-
-    @property
-    def name(self):
-        """Return the name of the device."""
-        return self._name
-
-    @property
-    def unique_id(self):
-        """Return the unique ID."""
-        return self._unique_id
-
-    @property
-    def device_info(self):
-        """Return the device info."""
-        return {"name": self._name, "identifiers": {(GPL_DOMAIN, self._unique_id)}}
 
     @property
     def source_type(self):
@@ -135,7 +116,7 @@ class GPSLoggerEntity(TrackerEntity, RestoreEntity):
         if state is None:
             self._location = (None, None)
             self._accuracy = None
-            self._attributes = {
+            self._attr_extra_state_attributes = {
                 ATTR_ALTITUDE: None,
                 ATTR_ACTIVITY: None,
                 ATTR_DIRECTION: None,
@@ -148,7 +129,7 @@ class GPSLoggerEntity(TrackerEntity, RestoreEntity):
         attr = state.attributes
         self._location = (attr.get(ATTR_LATITUDE), attr.get(ATTR_LONGITUDE))
         self._accuracy = attr.get(ATTR_GPS_ACCURACY)
-        self._attributes = {
+        self._attr_extra_state_attributes = {
             ATTR_ALTITUDE: attr.get(ATTR_ALTITUDE),
             ATTR_ACTIVITY: attr.get(ATTR_ACTIVITY),
             ATTR_DIRECTION: attr.get(ATTR_DIRECTION),
@@ -171,5 +152,5 @@ class GPSLoggerEntity(TrackerEntity, RestoreEntity):
         self._location = location
         self._battery = battery
         self._accuracy = accuracy
-        self._attributes.update(attributes)
+        self._attr_extra_state_attributes.update(attributes)
         self.async_write_ha_state()
