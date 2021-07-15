@@ -48,17 +48,13 @@ class GeofencyEntity(TrackerEntity, RestoreEntity):
 
     def __init__(self, device, gps=None, location_name=None, attributes=None):
         """Set up Geofency entity."""
-        self._attributes = attributes or {}
-        self._name = device
+        self._attr_extra_state_attributes = attributes or {}
+        self._attr_name = device
         self._location_name = location_name
         self._gps = gps
         self._unsub_dispatcher = None
-        self._unique_id = device
-
-    @property
-    def extra_state_attributes(self):
-        """Return device specific attributes."""
-        return self._attributes
+        self._attr_unique_id = device
+        self._attr_device_info = {"name": device, "identifiers": {(GF_DOMAIN, device)}}
 
     @property
     def latitude(self):
@@ -76,21 +72,6 @@ class GeofencyEntity(TrackerEntity, RestoreEntity):
         return self._location_name
 
     @property
-    def name(self):
-        """Return the name of the device."""
-        return self._name
-
-    @property
-    def unique_id(self):
-        """Return the unique ID."""
-        return self._unique_id
-
-    @property
-    def device_info(self):
-        """Return the device info."""
-        return {"name": self._name, "identifiers": {(GF_DOMAIN, self._unique_id)}}
-
-    @property
     def source_type(self):
         """Return the source type, eg gps or router, of the device."""
         return SOURCE_TYPE_GPS
@@ -102,7 +83,7 @@ class GeofencyEntity(TrackerEntity, RestoreEntity):
             self.hass, TRACKER_UPDATE, self._async_receive_data
         )
 
-        if self._attributes:
+        if self.extra_state_attributes:
             return
 
         state = await self.async_get_last_state()
@@ -118,7 +99,7 @@ class GeofencyEntity(TrackerEntity, RestoreEntity):
         """Clean up after entity before removal."""
         await super().async_will_remove_from_hass()
         self._unsub_dispatcher()
-        self.hass.data[GF_DOMAIN]["devices"].remove(self._unique_id)
+        self.hass.data[GF_DOMAIN]["devices"].remove(self.unique_id)
 
     @callback
     def _async_receive_data(self, device, gps, location_name, attributes):
@@ -126,7 +107,7 @@ class GeofencyEntity(TrackerEntity, RestoreEntity):
         if device != self.name:
             return
 
-        self._attributes.update(attributes)
+        self._attr_extra_state_attributes.update(attributes)
         self._location_name = location_name
         self._gps = gps
         self.async_write_ha_state()
