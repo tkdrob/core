@@ -1,7 +1,6 @@
 """Support for Efergy sensors."""
 from datetime import datetime, timedelta
 import logging
-
 import requests
 import voluptuous as vol
 
@@ -20,6 +19,8 @@ from homeassistant.const import (
     POWER_WATT,
 )
 import homeassistant.helpers.config_validation as cv
+from homeassistant.util import dt
+
 
 _LOGGER = logging.getLogger(__name__)
 _RESOURCE = "https://engage.efergy.com/mobile_proxy/"
@@ -123,8 +124,12 @@ class EfergySensor(SensorEntity):
         self.sid = sid
         if sid:
             self._attr_name = f"efergy_{sid}"
+        elif sensor_type == "amount":
+            self._attr_name = f"efergy {SENSOR_TYPES[sensor_type][0]} {period}"
+        elif sensor_type == "cost":
+            self._attr_name = f"efergy {SENSOR_TYPES[sensor_type][0]} {period}"
         else:
-            self._attr_name = SENSOR_TYPES[sensor_type][0]
+            self._attr_name = f"efergy {SENSOR_TYPES[sensor_type][0]}"
         self.type = sensor_type
         self.app_token = app_token
         self.utc_offset = utc_offset
@@ -147,10 +152,9 @@ class EfergySensor(SensorEntity):
                 url_string = f"{_RESOURCE}getEnergy?token={self.app_token}&offset={self.utc_offset}&period={self.period}"
                 response = requests.get(url_string, timeout=10)
                 self._attr_state = response.json()["sum"]
-                self._attr_last_reset = round(
-                    datetime.now() - timedelta(seconds=int(response.json()["duration"]))
-                )
-
+                last_reset = datetime.now() - timedelta(seconds=int(response.json()["duration"]))
+                last_reset -= timedelta(seconds = last_reset.second, microseconds =  last_reset.microsecond)
+                self._attr_last_reset = last_reset
             elif self.type == "budget":
                 url_string = f"{_RESOURCE}getBudget?token={self.app_token}"
                 response = requests.get(url_string, timeout=10)
