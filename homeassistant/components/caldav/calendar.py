@@ -119,12 +119,17 @@ class WebDavCalendarEventDevice(CalendarEventDevice):
         self.data = WebDavCalendarData(calendar, days, all_day, search)
         self.entity_id = entity_id
         self._event = None
-        self._attr_name = name
+        self._name = name
 
     @property
     def event(self):
         """Return the next upcoming event."""
         return self._event
+
+    @property
+    def name(self):
+        """Return the name of the entity."""
+        return self._name
 
     async def async_get_events(self, hass, start_date, end_date):
         """Get all events in a specific time frame."""
