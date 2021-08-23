@@ -146,6 +146,26 @@ async def test_flow_user(hass: HomeAssistant):
 
 
 @pytest.mark.usefixtures("mock_ssdp_scanner", "mock_upnp_device")
+async def test_flow_user_no_devices_found(hass: HomeAssistant):
+    """Test config flow: no devices found, configured through configuration.yaml."""
+    # Ensure we have a ssdp Scanner.
+    await async_setup_component(hass, DOMAIN, {})
+    await hass.async_block_till_done()
+    ssdp_scanner: ssdp.Scanner = hass.data[ssdp.DOMAIN]
+    ssdp_scanner.cache.clear()
+
+    # Discovered via step import.
+    with patch(
+        "homeassistant.components.upnp.config_flow.SSDP_SEARCH_TIMEOUT", new=0.0
+    ):
+        result = await hass.config_entries.flow.async_init(
+            DOMAIN, context={"source": config_entries.SOURCE_USER}
+        )
+        assert result["type"] == data_entry_flow.RESULT_TYPE_ABORT
+        assert result["reason"] == "no_devices_found"
+
+
+@pytest.mark.usefixtures("mock_ssdp_scanner", "mock_upnp_device")
 async def test_flow_import(hass: HomeAssistant):
     """Test config flow: configured through configuration.yaml."""
     # Ensure we have a ssdp Scanner.
@@ -211,6 +231,28 @@ async def test_flow_import_no_devices_found(hass: HomeAssistant):
         )
         assert result["type"] == data_entry_flow.RESULT_TYPE_ABORT
         assert result["reason"] == "no_devices_found"
+
+
+@pytest.mark.usefixtures("mock_ssdp_scanner")
+async def test_flow_import_incomplete_discovery(hass: HomeAssistant):
+    """Test config flow: incomplete discovery through import."""
+    await async_setup_component(hass, DOMAIN, {})
+    await hass.async_block_till_done()
+    ssdp_scanner: ssdp.Scanner = hass.data[ssdp.DOMAIN]
+    incomplete_discovery = TEST_DISCOVERY
+    del incomplete_discovery[ssdp.ATTR_SSDP_ST]
+    ssdp_scanner.cache[(TEST_UDN, TEST_ST)] = incomplete_discovery
+    # Speed up callback in ssdp.async_register_callback.
+    hass.state = CoreState.not_running
+    with patch(
+        "homeassistant.components.upnp.config_flow.SSDP_SEARCH_TIMEOUT", new=0.0
+    ):
+        result = await hass.config_entries.flow.async_init(
+            DOMAIN,
+            context={"source": config_entries.SOURCE_IMPORT},
+        )
+        assert result["type"] == data_entry_flow.RESULT_TYPE_ABORT
+        assert result["reason"] == "incomplete_discovery"
 
 
 @pytest.mark.usefixtures("mock_ssdp_scanner", "mock_upnp_device")
