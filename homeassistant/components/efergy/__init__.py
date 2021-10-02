@@ -58,7 +58,7 @@ async def async_unload_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
 
 
 class EfergyEntity(Entity):
-    """Representation of a Efergy entity."""
+    """Representation of an Efergy entity."""
 
     _attr_extra_state_attributes = {ATTR_ATTRIBUTION: ATTRIBUTION}
 

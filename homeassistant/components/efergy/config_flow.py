@@ -11,7 +11,7 @@ from homeassistant import config_entries
 from homeassistant.const import CONF_API_KEY
 from homeassistant.data_entry_flow import FlowResult
 from homeassistant.helpers.aiohttp_client import async_get_clientsession
-from homeassistant.helpers.typing import ConfigType
+from homeassistant.helpers.typing import ConfigType, DiscoveryInfoType
 
 from .const import CONF_APPTOKEN, DEFAULT_NAME, DOMAIN
 
@@ -22,6 +22,12 @@ class EfergyFlowHandler(config_entries.ConfigFlow, domain=DOMAIN):
     """Handle a config flow for Efergy."""
 
     VERSION = 1
+
+    async def async_step_dhcp(self, discovery_info: DiscoveryInfoType) -> FlowResult:
+        """Handle dhcp discovery."""
+        if self._async_current_entries():
+            return self.async_abort(reason="already_configured")
+        return await self.async_step_user()
 
     async def async_step_user(
         self, user_input: dict[str, Any] | None = None

@@ -63,6 +63,56 @@ DHCP = [
         "macaddress": "B4430D*"
     },
     {
+        "domain": "efergy",
+        "hostname": "efergyhub",
+        "macaddress": "803428*"
+    },
+    {
+        "domain": "efergy",
+        "hostname": "efergyhub",
+        "macaddress": "608A10*"
+    },
+    {
+        "domain": "efergy",
+        "hostname": "efergyhub",
+        "macaddress": "682719*"
+    },
+    {
+        "domain": "efergy",
+        "hostname": "efergyhub",
+        "macaddress": "0004A3*"
+    },
+    {
+        "domain": "efergy",
+        "hostname": "efergyhub",
+        "macaddress": "5410EC*"
+    },
+    {
+        "domain": "efergy",
+        "hostname": "efergyhub",
+        "macaddress": "D88039*"
+    },
+    {
+        "domain": "efergy",
+        "hostname": "efergyhub",
+        "macaddress": "001EC0*"
+    },
+    {
+        "domain": "efergy",
+        "hostname": "efergyhub",
+        "macaddress": "801F12*"
+    },
+    {
+        "domain": "efergy",
+        "hostname": "efergyhub",
+        "macaddress": "049162*"
+    },
+    {
+        "domain": "efergy",
+        "hostname": "efergyhub",
+        "macaddress": "E8EB1B*"
+    },
+    {
         "domain": "emonitor",
         "hostname": "emonitor*",
         "macaddress": "0090C2*"

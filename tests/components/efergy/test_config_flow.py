@@ -4,7 +4,12 @@ from unittest.mock import patch
 from pyefergy import exceptions
 
 from homeassistant.components.efergy.const import DEFAULT_NAME, DOMAIN
-from homeassistant.config_entries import SOURCE_IMPORT, SOURCE_REAUTH, SOURCE_USER
+from homeassistant.config_entries import (
+    SOURCE_DHCP,
+    SOURCE_IMPORT,
+    SOURCE_REAUTH,
+    SOURCE_USER,
+)
 from homeassistant.const import CONF_API_KEY, CONF_SOURCE
 from homeassistant.core import HomeAssistant
 from homeassistant.data_entry_flow import (
@@ -129,3 +134,36 @@ async def test_flow_reauth(hass: HomeAssistant):
         assert result["type"] == RESULT_TYPE_ABORT
         assert result["reason"] == "reauth_successful"
         assert entry.data == new_conf
+
+
+async def test_dhcp_discovery(hass: HomeAssistant):
+    """Test we can process the discovery from dhcp."""
+    with _patch_efergy(), _patch_setup():
+        result = await hass.config_entries.flow.async_init(
+            DOMAIN,
+            context={"source": SOURCE_DHCP},
+        )
+        assert result["type"] == RESULT_TYPE_FORM
+        assert result["step_id"] == "user"
+        result = await hass.config_entries.flow.async_configure(
+            result["flow_id"],
+            user_input=CONF_DATA,
+        )
+        await hass.async_block_till_done()
+
+        assert result["type"] == RESULT_TYPE_CREATE_ENTRY
+        assert result["title"] == DEFAULT_NAME
+        assert result["data"] == CONF_DATA
+        assert result["result"].unique_id == HID
+
+
+async def test_dhcp_discovery_already_configured(hass: HomeAssistant):
+    """Test we can process the discovery from dhcp already configured."""
+    create_entry(hass)
+    with _patch_efergy():
+        result = await hass.config_entries.flow.async_init(
+            DOMAIN,
+            context={"source": SOURCE_DHCP},
+        )
+        assert result["type"] == RESULT_TYPE_ABORT
+        assert result["reason"] == "already_configured"
