@@ -2,7 +2,7 @@
 from __future__ import annotations
 
 import logging
-from typing import Any
+from typing import Any, cast
 
 from adax import Adax
 
@@ -66,7 +66,7 @@ class AdaxDevice(ClimateEntity):
     @property
     def name(self) -> str:
         """Return the name of the device, if any."""
-        return self._heater_data["name"]
+        return cast(str, self._heater_data["name"])
 
     @property
     def hvac_mode(self) -> str:
