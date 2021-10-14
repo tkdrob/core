@@ -49,7 +49,7 @@ async def async_unload_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
 class AirtouchDataUpdateCoordinator(DataUpdateCoordinator):
     """Class to manage fetching Airtouch data."""
 
-    def __init__(self, hass, airtouch):
+    def __init__(self, hass: HomeAssistant, airtouch: AirTouch) -> None:
         """Initialize global Airtouch data updater."""
         self.airtouch = airtouch
 
@@ -60,7 +60,7 @@ class AirtouchDataUpdateCoordinator(DataUpdateCoordinator):
             update_interval=SCAN_INTERVAL,
         )
 
-    async def _async_update_data(self):
+    async def _async_update_data(self) -> dict:
         """Fetch data from Airtouch."""
         await self.airtouch.UpdateInfo()
         if self.airtouch.Status != AirTouchStatus.OK:
