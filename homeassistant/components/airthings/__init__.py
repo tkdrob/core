@@ -3,6 +3,7 @@ from __future__ import annotations
 
 from datetime import timedelta
 import logging
+from typing import Any
 
 from airthings import Airthings, AirthingsError
 
@@ -29,7 +30,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
         async_get_clientsession(hass),
     )
 
-    async def _update_method():
+    async def _update_method() -> Any:
         """Get the latest data from Airthings."""
         try:
             return await airthings.update_devices()

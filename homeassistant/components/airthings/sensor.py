@@ -1,6 +1,8 @@
 """Support for Airthings sensors."""
 from __future__ import annotations
 
+from typing import cast
+
 from airthings import AirthingsDevice
 
 from homeassistant.components.sensor import (
@@ -161,4 +163,5 @@ class AirthingsHeaterEnergySensor(CoordinatorEntity, SensorEntity):
     @property
     def native_value(self) -> StateType:
         """Return the value reported by the sensor."""
-        return self.coordinator.data[self._id].sensors[self.entity_description.key]
+        value = self.coordinator.data[self._id].sensors[self.entity_description.key]
+        return cast(StateType, value)
