@@ -1,13 +1,16 @@
 """Support for AlarmDecoder sensors (Shows Panel Display)."""
+from alarmdecoder.messages import Message
+
 from homeassistant.components.sensor import SensorEntity
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant
+from homeassistant.helpers.entity_platform import AddEntitiesCallback
 
 from .const import SIGNAL_PANEL_MESSAGE
 
 
 async def async_setup_entry(
-    hass: HomeAssistant, entry: ConfigEntry, async_add_entities
+    hass: HomeAssistant, entry: ConfigEntry, async_add_entities: AddEntitiesCallback
 ) -> bool:
     """Set up for AlarmDecoder sensor."""
 
@@ -23,7 +26,7 @@ class AlarmDecoderSensor(SensorEntity):
     _attr_name = "Alarm Panel Display"
     _attr_should_poll = False
 
-    async def async_added_to_hass(self):
+    async def async_added_to_hass(self) -> None:
         """Register callbacks."""
         self.async_on_remove(
             self.hass.helpers.dispatcher.async_dispatcher_connect(
@@ -31,7 +34,7 @@ class AlarmDecoderSensor(SensorEntity):
             )
         )
 
-    def _message_callback(self, message):
+    def _message_callback(self, message: Message) -> None:
         if self._attr_native_value != message.text:
             self._attr_native_value = message.text
             self.schedule_update_ha_state()

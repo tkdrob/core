@@ -1,9 +1,14 @@
 """Support for AlarmDecoder zone states- represented as binary sensors."""
 import logging
 
+from alarmdecoder.messages import ExpanderMessage
+from alarmdecoder.messages.rf_message import RFMessage
+from alarmdecoder.zonetracking import Zone
+
 from homeassistant.components.binary_sensor import BinarySensorEntity
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant
+from homeassistant.helpers.entity_platform import AddEntitiesCallback
 
 from .const import (
     CONF_RELAY_ADDR,
@@ -34,8 +39,8 @@ ATTR_RF_LOOP1 = "rf_loop1"
 
 
 async def async_setup_entry(
-    hass: HomeAssistant, entry: ConfigEntry, async_add_entities
-):
+    hass: HomeAssistant, entry: ConfigEntry, async_add_entities: AddEntitiesCallback
+) -> None:
     """Set up for AlarmDecoder sensor."""
 
     zones = entry.options.get(OPTIONS_ZONES, DEFAULT_ZONE_OPTIONS)
@@ -64,14 +69,14 @@ class AlarmDecoderBinarySensor(BinarySensorEntity):
 
     def __init__(
         self,
-        zone_number,
-        zone_name,
-        zone_type,
-        zone_rfid,
-        zone_loop,
-        relay_addr,
-        relay_chan,
-    ):
+        zone_number: str,
+        zone_name: str,
+        zone_type: str,
+        zone_rfid: str,
+        zone_loop: str,
+        relay_addr: str,
+        relay_chan: str,
+    ) -> None:
         """Initialize the binary_sensor."""
         self._zone_number = int(zone_number)
         self._zone_type = zone_type
@@ -82,7 +87,7 @@ class AlarmDecoderBinarySensor(BinarySensorEntity):
         self._relay_chan = relay_chan
         self._attr_device_class = zone_type
 
-    async def async_added_to_hass(self):
+    async def async_added_to_hass(self) -> None:
         """Register callbacks."""
         self.async_on_remove(
             self.hass.helpers.dispatcher.async_dispatcher_connect(
@@ -108,24 +113,24 @@ class AlarmDecoderBinarySensor(BinarySensorEntity):
             )
         )
 
-    def _fault_callback(self, zone):
+    def _fault_callback(self, zone: Zone) -> None:
         """Update the zone's state, if needed."""
         if zone is None or int(zone) == self._zone_number:
             self._attr_is_on = True
             self.schedule_update_ha_state()
 
-    def _restore_callback(self, zone):
+    def _restore_callback(self, zone: Zone) -> None:
         """Update the zone's state, if needed."""
         if zone is None or (int(zone) == self._zone_number and not self._loop):
             self._attr_is_on = False
             self.schedule_update_ha_state()
 
-    def _rfx_message_callback(self, message):
+    def _rfx_message_callback(self, message: RFMessage) -> None:
         """Update RF state."""
         if self._rfid and message and message.serial_number == self._rfid:
             rfstate = message.value
             if self._loop:
-                self._attr_is_on = bool(message.loop[self._loop - 1])
+                self._attr_is_on = bool(message.loop[int(self._loop) - 1])
             attr = {CONF_ZONE_NUMBER: self._zone_number}
             if self._rfid and rfstate is not None:
                 attr[ATTR_RF_BIT0] = bool(rfstate & 0x01)
@@ -139,7 +144,7 @@ class AlarmDecoderBinarySensor(BinarySensorEntity):
             self._attr_extra_state_attributes = attr
             self.schedule_update_ha_state()
 
-    def _rel_message_callback(self, message):
+    def _rel_message_callback(self, message: ExpanderMessage) -> None:
         """Update relay / expander state."""
 
         if self._relay_addr == message.address and self._relay_chan == message.channel:

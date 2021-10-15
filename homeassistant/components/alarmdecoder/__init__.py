@@ -4,7 +4,9 @@ import logging
 
 from adext import AdExt
 from alarmdecoder.devices import SerialDevice, SocketDevice
+from alarmdecoder.messages.panel_message import Message
 from alarmdecoder.util import NoDeviceError
+from alarmdecoder.zonetracking import Zone
 
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.const import (
@@ -14,6 +16,7 @@ from homeassistant.const import (
     EVENT_HOMEASSISTANT_STOP,
 )
 from homeassistant.core import HomeAssistant
+from homeassistant.helpers.event import Event
 from homeassistant.util import dt as dt_util
 
 from .const import (
@@ -45,7 +48,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     ad_connection = entry.data
     protocol = ad_connection[CONF_PROTOCOL]
 
-    def stop_alarmdecoder(event):
+    def stop_alarmdecoder(event: Event) -> None:
         """Handle the shutdown of AlarmDecoder."""
         if not hass.data.get(DOMAIN):
             return
@@ -53,7 +56,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
         hass.data[DOMAIN][entry.entry_id][DATA_RESTART] = False
         controller.close()
 
-    async def open_connection(now=None):
+    async def open_connection() -> None:
         """Open a connection to AlarmDecoder."""
         try:
             await hass.async_add_executor_job(controller.open, baud)
@@ -66,7 +69,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
         _LOGGER.debug("Established a connection with the alarmdecoder")
         hass.data[DOMAIN][entry.entry_id][DATA_RESTART] = True
 
-    def handle_closed_connection(event):
+    def handle_closed_connection(event: Event) -> None:
         """Restart after unexpected loss of connection."""
         if not hass.data[DOMAIN][entry.entry_id][DATA_RESTART]:
             return
@@ -74,23 +77,23 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
         _LOGGER.warning("AlarmDecoder unexpectedly lost connection")
         hass.add_job(open_connection)
 
-    def handle_message(sender, message):
+    def handle_message(sender: None, message: Message) -> None:
         """Handle message from AlarmDecoder."""
         hass.helpers.dispatcher.dispatcher_send(SIGNAL_PANEL_MESSAGE, message)
 
-    def handle_rfx_message(sender, message):
+    def handle_rfx_message(sender: None, message: Message) -> None:
         """Handle RFX message from AlarmDecoder."""
         hass.helpers.dispatcher.dispatcher_send(SIGNAL_RFX_MESSAGE, message)
 
-    def zone_fault_callback(sender, zone):
+    def zone_fault_callback(sender: None, zone: Zone) -> None:
         """Handle zone fault from AlarmDecoder."""
         hass.helpers.dispatcher.dispatcher_send(SIGNAL_ZONE_FAULT, zone)
 
-    def zone_restore_callback(sender, zone):
+    def zone_restore_callback(sender: None, zone: Zone) -> None:
         """Handle zone restore from AlarmDecoder."""
         hass.helpers.dispatcher.dispatcher_send(SIGNAL_ZONE_RESTORE, zone)
 
-    def handle_rel_message(sender, message):
+    def handle_rel_message(sender: None, message: Message) -> None:
         """Handle relay or zone expander message from AlarmDecoder."""
         hass.helpers.dispatcher.dispatcher_send(SIGNAL_REL_MESSAGE, message)
 
@@ -150,7 +153,7 @@ async def async_unload_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     return True
 
 
-async def _update_listener(hass: HomeAssistant, entry: ConfigEntry):
+async def _update_listener(hass: HomeAssistant, entry: ConfigEntry) -> None:
     """Handle options update."""
     _LOGGER.debug("AlarmDecoder options updated: %s", entry.as_dict()["options"])
     await hass.config_entries.async_reload(entry.entry_id)
