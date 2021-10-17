@@ -24,6 +24,8 @@ from homeassistant.const import (
     DEVICE_CLASS_MONETARY,
     DEVICE_CLASS_POWER,
     ENERGY_KILO_WATT_HOUR,
+    ENTITY_CATEGORY_CONFIG,
+    ENTITY_CATEGORY_DIAGNOSTIC,
     POWER_WATT,
 )
 from homeassistant.core import HomeAssistant
@@ -43,6 +45,7 @@ SENSOR_TYPES: tuple[SensorEntityDescription, ...] = (
         device_class=DEVICE_CLASS_POWER,
         native_unit_of_measurement=POWER_WATT,
         state_class=STATE_CLASS_MEASUREMENT,
+        entity_category=ENTITY_CATEGORY_DIAGNOSTIC,
     ),
     SensorEntityDescription(
         key="energy_day",
@@ -51,6 +54,7 @@ SENSOR_TYPES: tuple[SensorEntityDescription, ...] = (
         native_unit_of_measurement=ENERGY_KILO_WATT_HOUR,
         state_class=STATE_CLASS_TOTAL_INCREASING,
         entity_registry_enabled_default=False,
+        entity_category=ENTITY_CATEGORY_DIAGNOSTIC,
     ),
     SensorEntityDescription(
         key="energy_week",
@@ -59,6 +63,7 @@ SENSOR_TYPES: tuple[SensorEntityDescription, ...] = (
         native_unit_of_measurement=ENERGY_KILO_WATT_HOUR,
         state_class=STATE_CLASS_TOTAL_INCREASING,
         entity_registry_enabled_default=False,
+        entity_category=ENTITY_CATEGORY_DIAGNOSTIC,
     ),
     SensorEntityDescription(
         key="energy_month",
@@ -66,6 +71,7 @@ SENSOR_TYPES: tuple[SensorEntityDescription, ...] = (
         device_class=DEVICE_CLASS_ENERGY,
         native_unit_of_measurement=ENERGY_KILO_WATT_HOUR,
         state_class=STATE_CLASS_TOTAL_INCREASING,
+        entity_category=ENTITY_CATEGORY_DIAGNOSTIC,
     ),
     SensorEntityDescription(
         key="energy_year",
@@ -74,11 +80,13 @@ SENSOR_TYPES: tuple[SensorEntityDescription, ...] = (
         native_unit_of_measurement=ENERGY_KILO_WATT_HOUR,
         state_class=STATE_CLASS_TOTAL_INCREASING,
         entity_registry_enabled_default=False,
+        entity_category=ENTITY_CATEGORY_DIAGNOSTIC,
     ),
     SensorEntityDescription(
         key="budget",
         name="Energy Budget",
         entity_registry_enabled_default=False,
+        entity_category=ENTITY_CATEGORY_CONFIG,
     ),
     SensorEntityDescription(
         key="cost_day",
@@ -86,6 +94,7 @@ SENSOR_TYPES: tuple[SensorEntityDescription, ...] = (
         device_class=DEVICE_CLASS_MONETARY,
         state_class=STATE_CLASS_TOTAL_INCREASING,
         entity_registry_enabled_default=False,
+        entity_category=ENTITY_CATEGORY_DIAGNOSTIC,
     ),
     SensorEntityDescription(
         key="cost_week",
@@ -93,12 +102,14 @@ SENSOR_TYPES: tuple[SensorEntityDescription, ...] = (
         device_class=DEVICE_CLASS_MONETARY,
         state_class=STATE_CLASS_TOTAL_INCREASING,
         entity_registry_enabled_default=False,
+        entity_category=ENTITY_CATEGORY_DIAGNOSTIC,
     ),
     SensorEntityDescription(
         key="cost_month",
         name="Monthly Energy Cost",
         device_class=DEVICE_CLASS_MONETARY,
         state_class=STATE_CLASS_TOTAL_INCREASING,
+        entity_category=ENTITY_CATEGORY_DIAGNOSTIC,
     ),
     SensorEntityDescription(
         key="cost_year",
@@ -106,6 +117,7 @@ SENSOR_TYPES: tuple[SensorEntityDescription, ...] = (
         device_class=DEVICE_CLASS_MONETARY,
         state_class=STATE_CLASS_TOTAL_INCREASING,
         entity_registry_enabled_default=False,
+        entity_category=ENTITY_CATEGORY_DIAGNOSTIC,
     ),
     SensorEntityDescription(
         key=CONF_CURRENT_VALUES,
@@ -113,6 +125,7 @@ SENSOR_TYPES: tuple[SensorEntityDescription, ...] = (
         device_class=DEVICE_CLASS_POWER,
         native_unit_of_measurement=POWER_WATT,
         state_class=STATE_CLASS_MEASUREMENT,
+        entity_category=ENTITY_CATEGORY_DIAGNOSTIC,
     ),
 )
 
