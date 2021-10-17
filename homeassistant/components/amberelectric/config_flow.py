@@ -10,6 +10,7 @@ import voluptuous as vol
 
 from homeassistant import config_entries
 from homeassistant.const import CONF_API_TOKEN
+from homeassistant.data_entry_flow import FlowResult
 
 from .const import CONF_SITE_ID, CONF_SITE_NAME, CONF_SITE_NMI, DOMAIN
 
@@ -32,7 +33,7 @@ class AmberElectricConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
         api = amber_api.AmberApi.create(configuration)
 
         try:
-            sites = api.get_sites()
+            sites: list = api.get_sites()
             if len(sites) == 0:
                 self._errors[CONF_API_TOKEN] = "no_site"
                 return None
@@ -44,7 +45,9 @@ class AmberElectricConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                 self._errors[CONF_API_TOKEN] = "unknown_error"
             return None
 
-    async def async_step_user(self, user_input: dict[str, Any] | None = None):
+    async def async_step_user(
+        self, user_input: dict[str, Any] | None = None
+    ) -> FlowResult:
         """Step when user initializes a integration."""
         self._errors = {}
         self._sites = None
@@ -76,7 +79,9 @@ class AmberElectricConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
             errors=self._errors,
         )
 
-    async def async_step_site(self, user_input: dict[str, Any] = None):
+    async def async_step_site(
+        self, user_input: dict[str, Any] | None = None
+    ) -> FlowResult:
         """Step to select site."""
         self._errors = {}
 

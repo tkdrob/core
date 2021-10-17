@@ -8,8 +8,9 @@
 from __future__ import annotations
 
 from collections.abc import Mapping
-from typing import Any
+from typing import Any, cast
 
+from amberelectric.model.actual_interval import ActualInterval
 from amberelectric.model.channel import ChannelType
 from amberelectric.model.current_interval import CurrentInterval
 from amberelectric.model.forecast_interval import ForecastInterval
@@ -23,6 +24,7 @@ from homeassistant.config_entries import ConfigEntry
 from homeassistant.const import CURRENCY_DOLLAR, ENERGY_KILO_WATT_HOUR
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
+from homeassistant.helpers.typing import StateType
 from homeassistant.helpers.update_coordinator import CoordinatorEntity
 
 from .const import ATTRIBUTION, DOMAIN
@@ -79,7 +81,9 @@ class AmberPriceSensor(AmberSensor):
     @property
     def native_value(self) -> float | None:
         """Return the current price in $/kWh."""
-        interval = self.coordinator.data[self.entity_description.key][self.channel_type]
+        interval: ActualInterval | CurrentInterval | ForecastInterval = (
+            self.coordinator.data[self.entity_description.key][self.channel_type]
+        )
 
         if interval.channel_type == ChannelType.FEED_IN:
             return format_cents_to_dollars(interval.per_kwh) * -1
@@ -88,7 +92,9 @@ class AmberPriceSensor(AmberSensor):
     @property
     def device_state_attributes(self) -> Mapping[str, Any] | None:
         """Return additional pieces of information about the price."""
-        interval = self.coordinator.data[self.entity_description.key][self.channel_type]
+        interval: ActualInterval | CurrentInterval | ForecastInterval = (
+            self.coordinator.data[self.entity_description.key][self.channel_type]
+        )
 
         data: dict[str, Any] = {}
         if interval is None:
@@ -126,7 +132,7 @@ class AmberForecastSensor(AmberSensor):
         )
         if not intervals:
             return None
-        interval = intervals[0]
+        interval: ActualInterval | CurrentInterval | ForecastInterval = intervals[0]
 
         if interval.channel_type == ChannelType.FEED_IN:
             return format_cents_to_dollars(interval.per_kwh) * -1
@@ -141,13 +147,15 @@ class AmberForecastSensor(AmberSensor):
 
         if not intervals:
             return None
-
         data = {
             "forecasts": [],
             "channel_type": intervals[0].channel_type.value,
         }
 
         for interval in intervals:
+            assert isinstance(
+                interval, ActualInterval | CurrentInterval | ForecastInterval
+            )
             datum = {}
             datum["duration"] = interval.duration
             datum["date"] = interval.date.isoformat()
@@ -187,9 +195,11 @@ class AmberGridSensor(CoordinatorEntity, SensorEntity):
         self._attr_unique_id = f"{coordinator.site_id}-{description.key}"
 
     @property
-    def native_value(self) -> str | None:
+    def native_value(self) -> StateType:
         """Return the value of the sensor."""
-        return self.coordinator.data["grid"][self.entity_description.key]
+        return cast(
+            StateType, self.coordinator.data["grid"][self.entity_description.key]
+        )
 
 
 async def async_setup_entry(

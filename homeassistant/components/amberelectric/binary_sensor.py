@@ -41,24 +41,24 @@ class AmberPriceGridSensor(CoordinatorEntity, BinarySensorEntity):
         self._attr_unique_id = f"{coordinator.site_id}-{description.key}"
 
     @property
-    def is_on(self) -> bool | None:
+    def is_on(self) -> bool:
         """Return true if the binary sensor is on."""
-        return self.coordinator.data["grid"][self.entity_description.key]
+        return bool(self.coordinator.data["grid"][self.entity_description.key])
 
 
 class AmberPriceSpikeBinarySensor(AmberPriceGridSensor):
     """Sensor to show single grid binary values."""
 
     @property
-    def icon(self):
+    def icon(self) -> str:
         """Return the sensor icon."""
         status = self.coordinator.data["grid"]["price_spike"]
         return PRICE_SPIKE_ICONS[status]
 
     @property
-    def is_on(self) -> bool | None:
+    def is_on(self) -> bool:
         """Return true if the binary sensor is on."""
-        return self.coordinator.data["grid"]["price_spike"] == "spike"
+        return bool(self.coordinator.data["grid"]["price_spike"] == "spike")
 
     @property
     def device_state_attributes(self) -> Mapping[str, Any] | None:
