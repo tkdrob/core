@@ -12,6 +12,7 @@ homeassistant.components.airly.*
 homeassistant.components.airvisual.*
 homeassistant.components.aladdin_connect.*
 homeassistant.components.alarm_control_panel.*
+homeassistant.components.alpha_vantage.*
 homeassistant.components.amazon_polly.*
 homeassistant.components.ambee.*
 homeassistant.components.ambient_station.*
