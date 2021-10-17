@@ -1,5 +1,8 @@
 """Config flow for Ambiclimate."""
+from __future__ import annotations
+
 import logging
+from typing import cast
 
 from aiohttp import web
 import ambiclimate
@@ -7,7 +10,8 @@ import ambiclimate
 from homeassistant import config_entries
 from homeassistant.components.http import HomeAssistantView
 from homeassistant.const import CONF_CLIENT_ID, CONF_CLIENT_SECRET
-from homeassistant.core import callback
+from homeassistant.core import HomeAssistant, callback
+from homeassistant.data_entry_flow import FlowResult
 from homeassistant.helpers.aiohttp_client import async_get_clientsession
 from homeassistant.helpers.network import get_url
 
@@ -25,7 +29,9 @@ _LOGGER = logging.getLogger(__name__)
 
 
 @callback
-def register_flow_implementation(hass, client_id, client_secret):
+def register_flow_implementation(
+    hass: HomeAssistant, client_id: str, client_secret: str
+) -> None:
     """Register a ambiclimate implementation.
 
     client_id: Client id.
@@ -44,12 +50,12 @@ class AmbiclimateFlowHandler(config_entries.ConfigFlow, domain=DOMAIN):
 
     VERSION = 1
 
-    def __init__(self):
+    def __init__(self) -> None:
         """Initialize flow."""
         self._registered_view = False
         self._oauth = None
 
-    async def async_step_user(self, user_input=None):
+    async def async_step_user(self, user_input: dict | None = None) -> FlowResult:
         """Handle external yaml configuration."""
         self._async_abort_entries_match()
 
@@ -61,7 +67,7 @@ class AmbiclimateFlowHandler(config_entries.ConfigFlow, domain=DOMAIN):
 
         return await self.async_step_auth()
 
-    async def async_step_auth(self, user_input=None):
+    async def async_step_auth(self, user_input: dict | None = None) -> FlowResult:
         """Handle a flow start."""
         self._async_abort_entries_match()
 
@@ -82,11 +88,11 @@ class AmbiclimateFlowHandler(config_entries.ConfigFlow, domain=DOMAIN):
             errors=errors,
         )
 
-    async def async_step_code(self, code=None):
+    async def async_step_code(self, code: str | None = None) -> FlowResult:
         """Received code for authentication."""
         self._async_abort_entries_match()
-
-        token_info = await self._get_token_info(code)
+        if code:
+            token_info = await self._get_token_info(code)
 
         if token_info is None:
             return self.async_abort(reason="access_token")
@@ -96,10 +102,10 @@ class AmbiclimateFlowHandler(config_entries.ConfigFlow, domain=DOMAIN):
 
         return self.async_create_entry(title="Ambiclimate", data=config)
 
-    async def _get_token_info(self, code):
+    async def _get_token_info(self, code: str) -> dict | None:
         oauth = self._generate_oauth()
         try:
-            token_info = await oauth.get_access_token(code)
+            token_info: dict = await oauth.get_access_token(code)
         except ambiclimate.AmbiclimateOauthError:
             _LOGGER.error("Failed to get access token", exc_info=True)
             return None
@@ -109,11 +115,11 @@ class AmbiclimateFlowHandler(config_entries.ConfigFlow, domain=DOMAIN):
 
         return token_info
 
-    def _generate_view(self):
+    def _generate_view(self) -> None:
         self.hass.http.register_view(AmbiclimateAuthCallbackView())
         self._registered_view = True
 
-    def _generate_oauth(self):
+    def _generate_oauth(self) -> ambiclimate.AmbiclimateOAuth:
         config = self.hass.data[DATA_AMBICLIMATE_IMPL]
         clientsession = async_get_clientsession(self.hass)
         callback_url = self._cb_url()
@@ -125,12 +131,12 @@ class AmbiclimateFlowHandler(config_entries.ConfigFlow, domain=DOMAIN):
             clientsession,
         )
 
-    def _cb_url(self):
+    def _cb_url(self) -> str:
         return f"{get_url(self.hass)}{AUTH_CALLBACK_PATH}"
 
-    async def _get_authorize_url(self):
+    async def _get_authorize_url(self) -> str:
         oauth = self._generate_oauth()
-        return oauth.get_authorize_url()
+        return cast(str, oauth.get_authorize_url())
 
 
 class AmbiclimateAuthCallbackView(HomeAssistantView):
