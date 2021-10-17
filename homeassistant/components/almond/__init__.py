@@ -66,7 +66,7 @@ CONFIG_SCHEMA = vol.Schema(
 _LOGGER = logging.getLogger(__name__)
 
 
-async def async_setup(hass, config):
+async def async_setup(hass: HomeAssistant, config: dict) -> bool:
     """Set up the Almond component."""
     hass.data[DOMAIN] = {}
 
@@ -152,7 +152,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
 
 async def _configure_almond_for_ha(
     hass: HomeAssistant, entry: ConfigEntry, api: WebAlmondAPI
-):
+) -> None:
     """Configure Almond to connect to HA."""
     try:
         if entry.data["type"] == TYPE_OAUTH2:
@@ -218,7 +218,7 @@ async def _configure_almond_for_ha(
             await hass.auth.async_remove_refresh_token(token)
 
 
-async def async_unload_entry(hass, entry):
+async def async_unload_entry(hass, entry: ConfigEntry) -> bool:
     """Unload Almond."""
     conversation.async_set_agent(hass, None)
     return True
@@ -237,7 +237,7 @@ class AlmondOAuth(AbstractAlmondWebAuth):
         super().__init__(host, websession)
         self._oauth_session = oauth_session
 
-    async def async_get_access_token(self):
+    async def async_get_access_token(self) -> str:
         """Return a valid access token."""
         if not self._oauth_session.valid_token:
             await self._oauth_session.async_ensure_token_valid()
@@ -257,11 +257,11 @@ class AlmondAgent(conversation.AbstractConversationAgent):
         self.entry = entry
 
     @property
-    def attribution(self):
+    def attribution(self) -> dict[str, str]:
         """Return the attribution."""
         return {"name": "Powered by Almond", "url": "https://almond.stanford.edu/"}
 
-    async def async_get_onboarding(self):
+    async def async_get_onboarding(self) -> dict[str, str] | None:
         """Get onboard url if not onboarded."""
         if self.entry.data.get("onboarded"):
             return None
@@ -274,7 +274,7 @@ class AlmondAgent(conversation.AbstractConversationAgent):
             "url": f"{host}/conversation",
         }
 
-    async def async_set_onboarding(self, shown):
+    async def async_set_onboarding(self, shown: bool) -> bool:
         """Set onboarding status."""
         self.hass.config_entries.async_update_entry(
             self.entry, data={**self.entry.data, "onboarded": shown}

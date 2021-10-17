@@ -14,11 +14,12 @@ from yarl import URL
 from homeassistant import config_entries, core, data_entry_flow
 from homeassistant.data_entry_flow import FlowResult
 from homeassistant.helpers import aiohttp_client, config_entry_oauth2_flow
+from homeassistant.helpers.typing import DiscoveryInfoType
 
 from .const import DOMAIN as ALMOND_DOMAIN, TYPE_LOCAL, TYPE_OAUTH2
 
 
-async def async_verify_local_connection(hass: core.HomeAssistant, host: str):
+async def async_verify_local_connection(hass: core.HomeAssistant, host: str) -> bool:
     """Verify that a local connection works."""
     websession = aiohttp_client.async_get_clientsession(hass)
     api = WebAlmondAPI(AlmondLocalAuth(host, websession))
@@ -47,11 +48,11 @@ class AlmondFlowHandler(config_entry_oauth2_flow.AbstractOAuth2FlowHandler):
         return logging.getLogger(__name__)
 
     @property
-    def extra_authorize_data(self) -> dict:
+    def extra_authorize_data(self) -> dict[str, str]:
         """Extra data that needs to be appended to the authorize url."""
         return {"scope": "profile user-read user-read-results user-exec-command"}
 
-    async def async_step_user(self, user_input=None):
+    async def async_step_user(self, user_input: dict | None = None) -> FlowResult:
         """Handle a flow start."""
         # Only allow 1 instance.
         if self._async_current_entries():
@@ -59,7 +60,7 @@ class AlmondFlowHandler(config_entry_oauth2_flow.AbstractOAuth2FlowHandler):
 
         return await super().async_step_user(user_input)
 
-    async def async_step_auth(self, user_input=None):
+    async def async_step_auth(self, user_input: dict | None = None) -> FlowResult:
         """Handle authorize step."""
         result = await super().async_step_auth(user_input)
 
@@ -94,7 +95,7 @@ class AlmondFlowHandler(config_entry_oauth2_flow.AbstractOAuth2FlowHandler):
             data={"type": TYPE_LOCAL, "host": user_input["host"]},
         )
 
-    async def async_step_hassio(self, discovery_info):
+    async def async_step_hassio(self, discovery_info: DiscoveryInfoType) -> FlowResult:
         """Receive a Hass.io discovery."""
         if self._async_current_entries():
             return self.async_abort(reason="single_instance_allowed")
@@ -103,22 +104,26 @@ class AlmondFlowHandler(config_entry_oauth2_flow.AbstractOAuth2FlowHandler):
 
         return await self.async_step_hassio_confirm()
 
-    async def async_step_hassio_confirm(self, user_input=None):
+    async def async_step_hassio_confirm(
+        self, user_input: dict | None = None
+    ) -> FlowResult:
         """Confirm a Hass.io discovery."""
-        data = self.hassio_discovery
-
-        if user_input is not None:
-            return self.async_create_entry(
-                title=data["addon"],
-                data={
-                    "is_hassio": True,
-                    "type": TYPE_LOCAL,
-                    "host": f"http://{data['host']}:{data['port']}",
-                },
-            )
+        placeholders = {}
+        if self.hassio_discovery:
+            data = self.hassio_discovery
+            placeholders = {"addon": data["addon"]}
+            if user_input is not None:
+                return self.async_create_entry(
+                    title=data["addon"],
+                    data={
+                        "is_hassio": True,
+                        "type": TYPE_LOCAL,
+                        "host": f"http://{data['host']}:{data['port']}",
+                    },
+                )
 
         return self.async_show_form(
             step_id="hassio_confirm",
-            description_placeholders={"addon": data["addon"]},
+            description_placeholders=placeholders,
             data_schema=vol.Schema({}),
         )
