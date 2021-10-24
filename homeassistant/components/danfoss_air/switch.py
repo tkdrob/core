@@ -49,16 +49,11 @@ class DanfossAir(SwitchEntity):
     def __init__(self, data, name, state_command, on_command, off_command):
         """Initialize the switch."""
         self._data = data
-        self._name = name
+        self._attr_name = name
         self._state_command = state_command
         self._on_command = on_command
         self._off_command = off_command
         self._state = None
-
-    @property
-    def name(self):
-        """Return the name of the switch."""
-        return self._name
 
     @property
     def is_on(self):

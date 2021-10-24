@@ -63,12 +63,7 @@ class SmartPlugSwitch(SwitchEntity):
         """Initialize the switch."""
         self.units = hass.config.units
         self.data = data
-        self._name = name
-
-    @property
-    def name(self):
-        """Return the name of the Smart Plug."""
-        return self._name
+        self._attr_name = name
 
     @property
     def extra_state_attributes(self):

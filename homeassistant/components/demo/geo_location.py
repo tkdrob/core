@@ -106,7 +106,7 @@ class DemoGeolocationEvent(GeolocationEvent):
 
     def __init__(self, name, distance, latitude, longitude, unit_of_measurement):
         """Initialize entity with data provided."""
-        self._name = name
+        self._attr_name = name
         self._distance = distance
         self._latitude = latitude
         self._longitude = longitude
@@ -116,11 +116,6 @@ class DemoGeolocationEvent(GeolocationEvent):
     def source(self) -> str:
         """Return source value of this external event."""
         return SOURCE
-
-    @property
-    def name(self) -> str | None:
-        """Return the name of the event."""
-        return self._name
 
     @property
     def should_poll(self):

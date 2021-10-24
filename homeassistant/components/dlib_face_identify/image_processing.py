@@ -57,9 +57,9 @@ class DlibFaceIdentifyEntity(ImageProcessingFaceEntity):
         self._camera = camera_entity
 
         if name:
-            self._name = name
+            self._attr_name = name
         else:
-            self._name = f"Dlib Face {split_entity_id(camera_entity)[1]}"
+            self._attr_name = f"Dlib Face {split_entity_id(camera_entity)[1]}"
 
         self._faces = {}
         for face_name, face_file in faces.items():
@@ -75,11 +75,6 @@ class DlibFaceIdentifyEntity(ImageProcessingFaceEntity):
     def camera_entity(self):
         """Return camera entity id from process pictures."""
         return self._camera
-
-    @property
-    def name(self):
-        """Return the name of the entity."""
-        return self._name
 
     def process_image(self, image):
         """Process image."""

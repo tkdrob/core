@@ -104,17 +104,12 @@ class DanfossAir(SensorEntity):
     def __init__(self, data, name, sensor_unit, sensor_type, device_class, state_class):
         """Initialize the sensor."""
         self._data = data
-        self._name = name
+        self._attr_name = name
         self._state = None
         self._type = sensor_type
         self._unit = sensor_unit
         self._device_class = device_class
         self._attr_state_class = state_class
-
-    @property
-    def name(self):
-        """Return the name of the sensor."""
-        return self._name
 
     @property
     def device_class(self):

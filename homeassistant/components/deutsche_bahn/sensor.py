@@ -44,14 +44,9 @@ class DeutscheBahnSensor(SensorEntity):
 
     def __init__(self, start, goal, offset, only_direct):
         """Initialize the sensor."""
-        self._name = f"{start} to {goal}"
+        self._attr_name = f"{start} to {goal}"
         self.data = SchieneData(start, goal, offset, only_direct)
         self._state = None
-
-    @property
-    def name(self):
-        """Return the name of the sensor."""
-        return self._name
 
     @property
     def icon(self):

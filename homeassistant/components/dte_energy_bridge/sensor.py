@@ -57,14 +57,9 @@ class DteEnergyBridgeSensor(SensorEntity):
         elif self._version == 2:
             self._url = f"http://{ip_address}:8888/zigbee/se/instantaneousdemand"
 
-        self._name = name
+        self._attr_name = name
         self._unit_of_measurement = "kW"
         self._state = None
-
-    @property
-    def name(self):
-        """Return the name of th sensor."""
-        return self._name
 
     @property
     def native_value(self):
@@ -87,7 +82,7 @@ class DteEnergyBridgeSensor(SensorEntity):
             response = requests.get(self._url, timeout=5)
         except (requests.exceptions.RequestException, ValueError):
             _LOGGER.warning(
-                "Could not update status for DTE Energy Bridge (%s)", self._name
+                "Could not update status for DTE Energy Bridge (%s)", self.name
             )
             return
 
@@ -95,7 +90,7 @@ class DteEnergyBridgeSensor(SensorEntity):
             _LOGGER.warning(
                 "Invalid status_code from DTE Energy Bridge: %s (%s)",
                 response.status_code,
-                self._name,
+                self.name,
             )
             return
 
@@ -105,7 +100,7 @@ class DteEnergyBridgeSensor(SensorEntity):
             _LOGGER.warning(
                 'Invalid response from DTE Energy Bridge: "%s" (%s)',
                 response.text,
-                self._name,
+                self.name,
             )
             return
 

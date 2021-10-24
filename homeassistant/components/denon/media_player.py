@@ -91,7 +91,7 @@ class DenonDevice(MediaPlayerEntity):
 
     def __init__(self, name, host):
         """Initialize the Denon device."""
-        self._name = name
+        self._attr_name = name
         self._host = host
         self._pwstate = "PWSTANDBY"
         self._volume = 0
@@ -109,7 +109,7 @@ class DenonDevice(MediaPlayerEntity):
         # NSFRN - Network name
         nsfrn = self.telnet_request(telnet, "NSFRN ?")[len("NSFRN ") :]
         if nsfrn:
-            self._name = nsfrn
+            self._attr_name = nsfrn
 
         # SSFUN - Configured sources with (optional) names
         self._source_list = {}
@@ -201,11 +201,6 @@ class DenonDevice(MediaPlayerEntity):
 
         telnet.close()
         return True
-
-    @property
-    def name(self):
-        """Return the name of the device."""
-        return self._name
 
     @property
     def state(self):

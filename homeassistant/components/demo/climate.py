@@ -120,7 +120,7 @@ class DemoClimate(ClimateEntity):
     ):
         """Initialize the climate device."""
         self._unique_id = unique_id
-        self._name = name
+        self._attr_name = name
         self._support_flags = SUPPORT_FLAGS
         if target_temperature is not None:
             self._support_flags = self._support_flags | SUPPORT_TARGET_TEMPERATURE
@@ -179,11 +179,6 @@ class DemoClimate(ClimateEntity):
     def should_poll(self):
         """Return the polling state."""
         return False
-
-    @property
-    def name(self):
-        """Return the name of the climate device."""
-        return self._name
 
     @property
     def temperature_unit(self):

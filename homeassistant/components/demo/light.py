@@ -119,7 +119,7 @@ class DemoLight(LightEntity):
         self._effect_list = effect_list
         self._features = 0
         self._hs_color = hs_color
-        self._name = name
+        self._attr_name = name
         self._rgbw_color = rgbw_color
         self._rgbww_color = rgbww_color
         self._state = state
@@ -153,11 +153,6 @@ class DemoLight(LightEntity):
     def should_poll(self) -> bool:
         """No polling needed for a demo light."""
         return False
-
-    @property
-    def name(self) -> str:
-        """Return the name of the light if any."""
-        return self._name
 
     @property
     def unique_id(self):

@@ -28,13 +28,8 @@ class DexcomGlucoseValueSensor(CoordinatorEntity, SensorEntity):
         self._attribute_unit_of_measurement = (
             "mg_dl" if unit_of_measurement == MG_DL else "mmol_l"
         )
-        self._name = f"{DOMAIN}_{username}_glucose_value"
+        self._attr_name = f"{DOMAIN}_{username}_glucose_value"
         self._unique_id = f"{username}-value"
-
-    @property
-    def name(self):
-        """Return the name of the sensor."""
-        return self._name
 
     @property
     def icon(self):
@@ -66,13 +61,8 @@ class DexcomGlucoseTrendSensor(CoordinatorEntity, SensorEntity):
         """Initialize the sensor."""
         super().__init__(coordinator)
         self._state = None
-        self._name = f"{DOMAIN}_{username}_glucose_trend"
+        self._attr_name = f"{DOMAIN}_{username}_glucose_trend"
         self._unique_id = f"{username}-trend"
-
-    @property
-    def name(self):
-        """Return the name of the sensor."""
-        return self._name
 
     @property
     def icon(self):

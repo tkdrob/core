@@ -66,7 +66,6 @@ class DeLijnPublicTransportSensor(SensorEntity):
         """Initialize the sensor."""
         self.line = line
         self._attributes = {ATTR_ATTRIBUTION: ATTRIBUTION}
-        self._name = None
         self._state = None
         self._available = True
 
@@ -74,13 +73,13 @@ class DeLijnPublicTransportSensor(SensorEntity):
         """Get the latest data from the De Lijn API."""
         try:
             await self.line.get_passages()
-            self._name = await self.line.get_stopname()
+            self._attr_name = await self.line.get_stopname()
         except HttpException:
             self._available = False
             _LOGGER.error("De Lijn http error")
             return
 
-        self._attributes["stopname"] = self._name
+        self._attributes["stopname"] = self.name
 
         try:
             first = self.line.passages[0]
@@ -105,11 +104,6 @@ class DeLijnPublicTransportSensor(SensorEntity):
     def available(self):
         """Return True if entity is available."""
         return self._available
-
-    @property
-    def name(self):
-        """Return the name of the sensor."""
-        return self._name
 
     @property
     def native_value(self):

@@ -124,7 +124,7 @@ class BaseDemoFan(FanEntity):
         self._preset_mode = None
         self._oscillating = None
         self._direction = None
-        self._name = name
+        self._attr_name = name
         if supported_features & SUPPORT_OSCILLATE:
             self._oscillating = False
         if supported_features & SUPPORT_DIRECTION:
@@ -134,11 +134,6 @@ class BaseDemoFan(FanEntity):
     def unique_id(self):
         """Return the unique id."""
         return self._unique_id
-
-    @property
-    def name(self) -> str:
-        """Get entity name."""
-        return self._name
 
     @property
     def should_poll(self):

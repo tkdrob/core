@@ -177,15 +177,10 @@ class DominosOrder(Entity):
 
     def __init__(self, order_info, dominos):
         """Set up the entity."""
-        self._name = order_info["name"]
+        self._attr_name = order_info["name"]
         self._product_codes = order_info["codes"]
         self._orderable = False
         self.dominos = dominos
-
-    @property
-    def name(self):
-        """Return the orders name."""
-        return self._name
 
     @property
     def product_codes(self):

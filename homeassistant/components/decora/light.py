@@ -91,7 +91,7 @@ class DecoraLight(LightEntity):
     def __init__(self, device):
         """Initialize the light."""
 
-        self._name = device["name"]
+        self._attr_name = device["name"]
         self._address = device["address"]
         self._key = device["key"]
         self._switch = decora.decora(self._address, self._key)
@@ -102,11 +102,6 @@ class DecoraLight(LightEntity):
     def unique_id(self):
         """Return the ID of this light."""
         return self._address
-
-    @property
-    def name(self):
-        """Return the name of the device if any."""
-        return self._name
 
     @property
     def is_on(self):

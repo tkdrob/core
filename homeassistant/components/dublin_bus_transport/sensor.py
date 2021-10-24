@@ -72,15 +72,10 @@ class DublinPublicTransportSensor(SensorEntity):
     def __init__(self, data, stop, route, name):
         """Initialize the sensor."""
         self.data = data
-        self._name = name
+        self._attr_name = name
         self._stop = stop
         self._route = route
         self._times = self._state = None
-
-    @property
-    def name(self):
-        """Return the name of the sensor."""
-        return self._name
 
     @property
     def native_value(self):

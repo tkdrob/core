@@ -68,7 +68,7 @@ class DemoCover(CoverEntity):
         """Initialize the cover."""
         self.hass = hass
         self._unique_id = unique_id
-        self._name = name
+        self._attr_name = name
         self._position = position
         self._device_class = device_class
         self._supported_features = supported_features
@@ -101,11 +101,6 @@ class DemoCover(CoverEntity):
     def unique_id(self):
         """Return unique ID for cover."""
         return self._unique_id
-
-    @property
-    def name(self):
-        """Return the name of the cover."""
-        return self._name
 
     @property
     def should_poll(self):

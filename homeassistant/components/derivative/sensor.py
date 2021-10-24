@@ -105,7 +105,7 @@ class DerivativeSensor(RestoreEntity, SensorEntity):
         self._state = 0
         self._state_list = []  # List of tuples with (timestamp, sensor_value)
 
-        self._name = name if name is not None else f"{source_entity} derivative"
+        self._attr_name = name if name is not None else f"{source_entity} derivative"
 
         if unit_of_measurement is None:
             final_unit_prefix = "" if unit_prefix is None else unit_prefix
@@ -189,11 +189,6 @@ class DerivativeSensor(RestoreEntity, SensorEntity):
         async_track_state_change_event(
             self.hass, [self._sensor_source_id], calc_derivative
         )
-
-    @property
-    def name(self):
-        """Return the name of the sensor."""
-        return self._name
 
     @property
     def native_value(self):

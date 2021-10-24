@@ -96,18 +96,13 @@ class DemoVacuum(VacuumEntity):
 
     def __init__(self, name, supported_features):
         """Initialize the vacuum."""
-        self._name = name
+        self._attr_name = name
         self._supported_features = supported_features
         self._state = False
         self._status = "Charging"
         self._fan_speed = FAN_SPEEDS[1]
         self._cleaned_area = 0
         self._battery_level = 100
-
-    @property
-    def name(self):
-        """Return the name of the vacuum."""
-        return self._name
 
     @property
     def should_poll(self):
@@ -245,17 +240,12 @@ class StateDemoVacuum(StateVacuumEntity):
 
     def __init__(self, name):
         """Initialize the vacuum."""
-        self._name = name
+        self._attr_name = name
         self._supported_features = SUPPORT_STATE_SERVICES
         self._state = STATE_DOCKED
         self._fan_speed = FAN_SPEEDS[1]
         self._cleaned_area = 0
         self._battery_level = 100
-
-    @property
-    def name(self):
-        """Return the name of the vacuum."""
-        return self._name
 
     @property
     def should_poll(self):

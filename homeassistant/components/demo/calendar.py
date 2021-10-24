@@ -71,17 +71,12 @@ class DemoGoogleCalendar(CalendarEventDevice):
     def __init__(self, hass, calendar_data, name):
         """Initialize demo calendar."""
         self.data = calendar_data
-        self._name = name
+        self._attr_name = name
 
     @property
     def event(self):
         """Return the next upcoming event."""
         return self.data.event
-
-    @property
-    def name(self):
-        """Return the name of the entity."""
-        return self._name
 
     async def async_get_events(self, hass, start_date, end_date):
         """Return calendar events within a datetime range."""

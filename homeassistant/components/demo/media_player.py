@@ -109,7 +109,7 @@ class AbstractDemoPlayer(MediaPlayerEntity):
 
     def __init__(self, name, device_class=None):
         """Initialize the demo device."""
-        self._name = name
+        self._attr_name = name
         self._player_state = STATE_PLAYING
         self._volume_level = 1.0
         self._volume_muted = False
@@ -122,11 +122,6 @@ class AbstractDemoPlayer(MediaPlayerEntity):
     def should_poll(self):
         """Push an update after each command."""
         return False
-
-    @property
-    def name(self):
-        """Return the name of the media player."""
-        return self._name
 
     @property
     def state(self):

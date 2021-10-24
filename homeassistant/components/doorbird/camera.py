@@ -87,7 +87,7 @@ class DoorBirdCamera(DoorBirdEntity, Camera):
         super().__init__(doorstation, doorstation_info)
         self._url = url
         self._stream_url = stream_url
-        self._name = name
+        self._attr_name = name
         self._last_image = None
         self._supported_features = SUPPORT_STREAM if self._stream_url else 0
         self._interval = interval or datetime.timedelta
@@ -109,11 +109,6 @@ class DoorBirdCamera(DoorBirdEntity, Camera):
         """Return supported features."""
         return self._supported_features
 
-    @property
-    def name(self):
-        """Get the name of the camera."""
-        return self._name
-
     async def async_camera_image(
         self, width: int | None = None, height: int | None = None
     ) -> bytes | None:
@@ -132,11 +127,11 @@ class DoorBirdCamera(DoorBirdEntity, Camera):
             self._last_update = now
             return self._last_image
         except asyncio.TimeoutError:
-            _LOGGER.error("DoorBird %s: Camera image timed out", self._name)
+            _LOGGER.error("DoorBird %s: Camera image timed out", self.name)
             return self._last_image
         except aiohttp.ClientError as error:
             _LOGGER.error(
-                "DoorBird %s: Error getting camera image: %s", self._name, error
+                "DoorBird %s: Error getting camera image: %s", self.name, error
             )
             return self._last_image
 

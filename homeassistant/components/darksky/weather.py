@@ -104,7 +104,7 @@ class DarkSkyWeather(WeatherEntity):
 
     def __init__(self, name, dark_sky, mode):
         """Initialize Dark Sky weather."""
-        self._name = name
+        self._attr_name = name
         self._dark_sky = dark_sky
         self._mode = mode
 
@@ -122,11 +122,6 @@ class DarkSkyWeather(WeatherEntity):
     def attribution(self):
         """Return the attribution."""
         return ATTRIBUTION
-
-    @property
-    def name(self):
-        """Return the name of the sensor."""
-        return self._name
 
     @property
     def temperature(self):

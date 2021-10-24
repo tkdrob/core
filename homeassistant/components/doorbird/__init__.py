@@ -207,7 +207,7 @@ class ConfiguredDoorBird:
 
     def __init__(self, device, name, custom_url, token):
         """Initialize configured device."""
-        self._name = name
+        self._attr_name = name
         self._device = device
         self._custom_url = custom_url
         self.events = None
@@ -218,11 +218,6 @@ class ConfiguredDoorBird:
         """Update the doorbird events."""
         self.events = events
         self.doorstation_events = [self._get_event_name(event) for event in self.events]
-
-    @property
-    def name(self):
-        """Get custom device name."""
-        return self._name
 
     @property
     def device(self):
@@ -256,7 +251,7 @@ class ConfiguredDoorBird:
     @property
     def slug(self):
         """Get device slug."""
-        return slugify(self._name)
+        return slugify(self.name)
 
     def _get_event_name(self, event):
         return f"{self.slug}_{event}"

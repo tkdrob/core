@@ -58,15 +58,10 @@ class DelugeSwitch(ToggleEntity):
 
     def __init__(self, deluge_client, name):
         """Initialize the Deluge switch."""
-        self._name = name
+        self._attr_name = name
         self.deluge_client = deluge_client
         self._state = STATE_OFF
         self._available = False
-
-    @property
-    def name(self):
-        """Return the name of the switch."""
-        return self._name
 
     @property
     def is_on(self):

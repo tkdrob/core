@@ -88,7 +88,7 @@ class DuneHDPlayerEntity(MediaPlayerEntity):
     def __init__(self, player: DuneHDPlayer, name: str, unique_id: str) -> None:
         """Initialize entity to control Dune HD."""
         self._player = player
-        self._name = name
+        self._attr_name = name
         self._media_title: str | None = None
         self._state: dict[str, Any] = {}
         self._unique_id = unique_id
@@ -112,11 +112,6 @@ class DuneHDPlayerEntity(MediaPlayerEntity):
         if self._state.get("player_state") == "navigator":
             state = STATE_ON
         return state
-
-    @property
-    def name(self) -> str:
-        """Return the name of the device."""
-        return self._name
 
     @property
     def available(self) -> bool:
