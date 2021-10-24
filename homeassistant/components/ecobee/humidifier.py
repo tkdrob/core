@@ -41,15 +41,10 @@ class EcobeeHumidifier(HumidifierEntity):
         self.data = data
         self.thermostat_index = thermostat_index
         self.thermostat = self.data.ecobee.get_thermostat(self.thermostat_index)
-        self._name = self.thermostat["name"]
+        self._attr_name = self.thermostat["name"]
         self._last_humidifier_on_mode = MODE_MANUAL
 
         self.update_without_throttle = False
-
-    @property
-    def name(self):
-        """Return the name of the humidifier."""
-        return self._name
 
     @property
     def unique_id(self):

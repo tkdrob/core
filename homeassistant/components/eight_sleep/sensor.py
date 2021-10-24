@@ -80,8 +80,7 @@ class EightHeatSensor(EightSleepHeatEntity, SensorEntity):
         super().__init__(eight)
 
         self._sensor = sensor
-        self._mapped_name = NAME_MAP.get(self._sensor, self._sensor)
-        self._name = f"{name} {self._mapped_name}"
+        self._attr_name = f"{name} {NAME_MAP.get(sensor, sensor)}"
         self._state = None
 
         self._side = self._sensor.split("_")[0]
@@ -94,11 +93,6 @@ class EightHeatSensor(EightSleepHeatEntity, SensorEntity):
             self._side,
             self._userid,
         )
-
-    @property
-    def name(self):
-        """Return the name of the sensor, if any."""
-        return self._name
 
     @property
     def native_value(self):
@@ -134,8 +128,7 @@ class EightUserSensor(EightSleepUserEntity, SensorEntity):
 
         self._sensor = sensor
         self._sensor_root = self._sensor.split("_", 1)[1]
-        self._mapped_name = NAME_MAP.get(self._sensor, self._sensor)
-        self._name = f"{name} {self._mapped_name}"
+        self._attr_name = f"{name} {NAME_MAP.get(sensor, sensor)}"
         self._state = None
         self._attr = None
         self._units = units
@@ -150,11 +143,6 @@ class EightUserSensor(EightSleepUserEntity, SensorEntity):
             self._side,
             self._userid,
         )
-
-    @property
-    def name(self):
-        """Return the name of the sensor, if any."""
-        return self._name
 
     @property
     def native_value(self):
@@ -304,16 +292,10 @@ class EightRoomSensor(EightSleepUserEntity, SensorEntity):
         super().__init__(eight)
 
         self._sensor = sensor
-        self._mapped_name = NAME_MAP.get(self._sensor, self._sensor)
-        self._name = f"{name} {self._mapped_name}"
+        self._attr_name = f"{name} {NAME_MAP.get(sensor, sensor)}"
         self._state = None
         self._attr = None
         self._units = units
-
-    @property
-    def name(self):
-        """Return the name of the sensor, if any."""
-        return self._name
 
     @property
     def native_value(self):

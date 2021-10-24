@@ -112,17 +112,12 @@ class Envoy(CoordinatorEntity, SensorEntity):
     ):
         """Initialize Envoy entity."""
         self.entity_description = description
-        self._name = name
+        self._attr_name = name
         self._serial_number = serial_number
         self._device_name = device_name
         self._device_serial_number = device_serial_number
 
         super().__init__(coordinator)
-
-    @property
-    def name(self):
-        """Return the name of the sensor."""
-        return self._name
 
     @property
     def unique_id(self):

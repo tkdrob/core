@@ -23,14 +23,9 @@ class EcoalTempSensor(SensorEntity):
     def __init__(self, ecoal_contr, name, status_attr):
         """Initialize the sensor."""
         self._ecoal_contr = ecoal_contr
-        self._name = name
+        self._attr_name = name
         self._status_attr = status_attr
         self._state = None
-
-    @property
-    def name(self):
-        """Return the name of the sensor."""
-        return self._name
 
     @property
     def native_value(self):

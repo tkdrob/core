@@ -18,7 +18,7 @@ class EufySwitch(SwitchEntity):
         """Initialize the light."""
 
         self._state = None
-        self._name = device["name"]
+        self._attr_name = device["name"]
         self._address = device["address"]
         self._code = device["code"]
         self._type = device["type"]
@@ -34,11 +34,6 @@ class EufySwitch(SwitchEntity):
     def unique_id(self):
         """Return the ID of this light."""
         return self._address
-
-    @property
-    def name(self):
-        """Return the name of the device if any."""
-        return self._name
 
     @property
     def is_on(self):

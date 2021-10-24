@@ -102,16 +102,11 @@ class EddystoneTemp(SensorEntity):
 
     def __init__(self, name, namespace, instance):
         """Initialize a sensor."""
-        self._name = name
+        self._attr_name = name
         self.namespace = namespace
         self.instance = instance
         self.bt_addr = None
         self.temperature = STATE_UNKNOWN
-
-    @property
-    def name(self):
-        """Return the name of the sensor."""
-        return self._name
 
     @property
     def native_value(self):

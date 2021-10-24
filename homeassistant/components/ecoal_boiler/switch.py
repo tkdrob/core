@@ -28,7 +28,7 @@ class EcoalSwitch(SwitchEntity):
         Sets HA switch to state as read from controller.
         """
         self._ecoal_contr = ecoal_contr
-        self._name = name
+        self._attr_name = name
         self._state_attr = state_attr
         # Ecoalcotroller holds convention that same postfix is used
         # to set attribute
@@ -38,11 +38,6 @@ class EcoalSwitch(SwitchEntity):
         self._contr_set_fun = getattr(self._ecoal_contr, f"set_{state_attr}")
         # No value set, will be read from controller instead
         self._state = None
-
-    @property
-    def name(self) -> str | None:
-        """Return the name of the switch."""
-        return self._name
 
     def update(self):
         """Fetch new state data for the sensor.

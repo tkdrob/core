@@ -243,12 +243,7 @@ class EnvisalinkDevice(Entity):
         """Initialize the device."""
         self._controller = controller
         self._info = info
-        self._name = name
-
-    @property
-    def name(self):
-        """Return the name of the device."""
-        return self._name
+        self._attr_name = name
 
     @property
     def should_poll(self):

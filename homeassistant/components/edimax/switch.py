@@ -37,7 +37,7 @@ class SmartPlugSwitch(SwitchEntity):
     def __init__(self, smartplug, name):
         """Initialize the switch."""
         self.smartplug = smartplug
-        self._name = name
+        self._attr_name = name
         self._now_power = None
         self._now_energy_day = None
         self._state = False
@@ -49,11 +49,6 @@ class SmartPlugSwitch(SwitchEntity):
     def unique_id(self):
         """Return the device's MAC address."""
         return self._mac
-
-    @property
-    def name(self):
-        """Return the name of the Smart Plug, if any."""
-        return self._name
 
     @property
     def current_power_w(self):

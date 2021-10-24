@@ -86,7 +86,7 @@ class EpsonProjectorMediaPlayer(MediaPlayerEntity):
         """Initialize entity to control Epson projector."""
         self._projector = projector
         self._entry = entry
-        self._name = name
+        self._attr_name = name
         self._available = False
         self._cmode = None
         self._source_list = list(DEFAULT_SOURCES.values())
@@ -151,11 +151,6 @@ class EpsonProjectorMediaPlayer(MediaPlayerEntity):
             name="Epson projector",
             via_device=(DOMAIN, self._unique_id),
         )
-
-    @property
-    def name(self):
-        """Return the name of the device."""
-        return self._name
 
     @property
     def unique_id(self):

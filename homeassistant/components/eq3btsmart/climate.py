@@ -82,7 +82,7 @@ class EQ3BTSmartThermostat(ClimateEntity):
     def __init__(self, _mac, _name):
         """Initialize the thermostat."""
         # We want to avoid name clash with this module.
-        self._name = _name
+        self._attr_name = _name
         self._mac = _mac
         self._thermostat = eq3.Thermostat(_mac)
 
@@ -95,11 +95,6 @@ class EQ3BTSmartThermostat(ClimateEntity):
     def available(self) -> bool:
         """Return if thermostat is available."""
         return self._thermostat.mode >= 0
-
-    @property
-    def name(self):
-        """Return the name of the device."""
-        return self._name
 
     @property
     def temperature_unit(self):

@@ -46,17 +46,12 @@ class EtherscanSensor(SensorEntity):
 
     def __init__(self, name, address, token, token_address):
         """Initialize the sensor."""
-        self._name = name
+        self._attr_name = name
         self._address = address
         self._token_address = token_address
         self._token = token
         self._state = None
         self._unit_of_measurement = self._token or "ETH"
-
-    @property
-    def name(self):
-        """Return the name of the sensor."""
-        return self._name
 
     @property
     def native_value(self):

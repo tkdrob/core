@@ -118,13 +118,8 @@ class Enigma2Device(MediaPlayerEntity):
 
     def __init__(self, name, device):
         """Initialize the Enigma2 device."""
-        self._name = name
+        self._attr_name = name
         self.e2_box = device
-
-    @property
-    def name(self):
-        """Return the name of the device."""
-        return self._name
 
     @property
     def unique_id(self):

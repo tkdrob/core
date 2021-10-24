@@ -44,16 +44,11 @@ class SmartPlugSwitch(SwitchEntity):
     def __init__(self, pca, device_id):
         """Initialize the switch."""
         self._device_id = device_id
-        self._name = "PCA 301"
+        self._attr_name = "PCA 301"
         self._state = None
         self._available = True
         self._emeter_params = {}
         self._pca = pca
-
-    @property
-    def name(self):
-        """Return the name of the Smart Plug, if any."""
-        return self._name
 
     @property
     def available(self) -> bool:

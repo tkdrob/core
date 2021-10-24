@@ -60,7 +60,7 @@ class EgardiaAlarm(alarm.AlarmControlPanelEntity):
         self, name, egardiasystem, rs_enabled=False, rs_codes=None, rs_port=52010
     ):
         """Initialize the Egardia alarm."""
-        self._name = name
+        self._attr_name = name
         self._egardiasystem = egardiasystem
         self._status = None
         self._rs_enabled = rs_enabled
@@ -72,11 +72,6 @@ class EgardiaAlarm(alarm.AlarmControlPanelEntity):
         if self._rs_enabled:
             _LOGGER.debug("Registering callback to Egardiaserver")
             self.hass.data[EGARDIA_SERVER].register_callback(self.handle_status_event)
-
-    @property
-    def name(self):
-        """Return the name of the device."""
-        return self._name
 
     @property
     def state(self):

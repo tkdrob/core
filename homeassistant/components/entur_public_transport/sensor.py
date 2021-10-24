@@ -159,15 +159,10 @@ class EnturPublicTransportSensor(SensorEntity):
         self.api = api
         self._stop = stop
         self._show_on_map = show_on_map
-        self._name = name
+        self._attr_name = name
         self._state: int | None = None
         self._icon = ICONS[DEFAULT_ICON_KEY]
         self._attributes: dict[str, str] = {}
-
-    @property
-    def name(self) -> str:
-        """Return the name of the sensor."""
-        return self._name
 
     @property
     def native_value(self) -> int | None:

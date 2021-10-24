@@ -62,15 +62,10 @@ class EliqSensor(SensorEntity):
 
     def __init__(self, api, channel_id, name):
         """Initialize the sensor."""
-        self._name = name
+        self._attr_name = name
         self._state = None
         self._api = api
         self._channel_id = channel_id
-
-    @property
-    def name(self):
-        """Return the name of the sensor."""
-        return self._name
 
     @property
     def icon(self):

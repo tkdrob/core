@@ -235,7 +235,7 @@ class EDL21Entity(SensorEntity):
         """Initialize an EDL21Entity."""
         self._electricity_id = electricity_id
         self._obis = obis
-        self._name = name
+        self._attr_name = name
         self._unique_id = f"{electricity_id}_{obis}"
         self._telegram = telegram
         self._min_time = MIN_TIME_BETWEEN_UPDATES
@@ -292,11 +292,6 @@ class EDL21Entity(SensorEntity):
     def old_unique_id(self) -> str:
         """Return a less unique ID as used in the first version of edl21."""
         return self._obis
-
-    @property
-    def name(self) -> str | None:
-        """Return a name."""
-        return self._name
 
     @property
     def native_value(self) -> str:

@@ -519,7 +519,7 @@ class EvoDevice(Entity):
         self._evo_broker = evo_broker
         self._evo_tcs = evo_broker.tcs
 
-        self._unique_id = self._name = self._icon = self._precision = None
+        self._unique_id = self._attr_name = self._icon = self._precision = None
         self._supported_features = None
         self._device_state_attrs = {}
 
@@ -552,11 +552,6 @@ class EvoDevice(Entity):
     def unique_id(self) -> str | None:
         """Return a unique ID."""
         return self._unique_id
-
-    @property
-    def name(self) -> str:
-        """Return the name of the evohome entity."""
-        return self._name
 
     @property
     def extra_state_attributes(self) -> dict[str, Any]:

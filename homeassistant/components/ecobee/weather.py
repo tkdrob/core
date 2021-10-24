@@ -45,7 +45,7 @@ class EcobeeWeather(WeatherEntity):
     def __init__(self, data, name, index):
         """Initialize the Ecobee weather platform."""
         self.data = data
-        self._name = name
+        self._attr_name = name
         self._index = index
         self.weather = None
 
@@ -56,11 +56,6 @@ class EcobeeWeather(WeatherEntity):
             return forecast[param]
         except (IndexError, KeyError) as err:
             raise ValueError from err
-
-    @property
-    def name(self):
-        """Return the name of the sensor."""
-        return self._name
 
     @property
     def unique_id(self):

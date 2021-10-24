@@ -56,10 +56,10 @@ class EcovacsVacuum(VacuumEntity):
         self.device = device
         self.device.connect_and_wait_until_ready()
         if self.device.vacuum.get("nick") is not None:
-            self._name = str(self.device.vacuum["nick"])
+            self._attr_name = str(self.device.vacuum["nick"])
         else:
             # In case there is no nickname defined, use the device id
-            self._name = str(format(self.device.vacuum["did"]))
+            self._attr_name = str(format(self.device.vacuum["did"]))
 
         self._fan_speed = None
         self._error = None
@@ -107,11 +107,6 @@ class EcovacsVacuum(VacuumEntity):
     def is_charging(self):
         """Return true if vacuum is currently charging."""
         return self.device.is_charging
-
-    @property
-    def name(self):
-        """Return the name of the device."""
-        return self._name
 
     @property
     def supported_features(self):
