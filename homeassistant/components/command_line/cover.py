@@ -87,7 +87,7 @@ class CommandCover(CoverEntity):
     ):
         """Initialize the cover."""
         self._hass = hass
-        self._name = name
+        self._attr_name = name
         self._state = None
         self._command_open = command_open
         self._command_close = command_close
@@ -111,11 +111,6 @@ class CommandCover(CoverEntity):
     def should_poll(self):
         """Only poll if we have state command."""
         return self._command_state is not None
-
-    @property
-    def name(self):
-        """Return the name of the cover."""
-        return self._name
 
     @property
     def is_closed(self):

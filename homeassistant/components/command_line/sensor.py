@@ -73,15 +73,10 @@ class CommandSensor(SensorEntity):
         self.data = data
         self._attributes = None
         self._json_attributes = json_attributes
-        self._name = name
+        self._attr_name = name
         self._state = None
         self._unit_of_measurement = unit_of_measurement
         self._value_template = value_template
-
-    @property
-    def name(self):
-        """Return the name of the sensor."""
-        return self._name
 
     @property
     def native_unit_of_measurement(self):

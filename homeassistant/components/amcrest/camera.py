@@ -6,7 +6,7 @@ from collections.abc import Callable
 from datetime import timedelta
 from functools import partial
 import logging
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING, Any, cast
 
 from aiohttp import web
 from amcrest import AmcrestError
@@ -167,7 +167,7 @@ class AmcrestCam(Camera):
     def __init__(self, name: str, device: AmcrestDevice, ffmpeg: FFmpegManager) -> None:
         """Initialize an Amcrest camera."""
         super().__init__()
-        self._name = name
+        self._attr_name = name
         self._api = device.api
         self._ffmpeg = ffmpeg
         self._ffmpeg_arguments = device.ffmpeg_arguments
@@ -219,7 +219,7 @@ class AmcrestCam(Camera):
         self, width: int | None = None, height: int | None = None
     ) -> bytes | None:
         """Return a still image response from the camera."""
-        _LOGGER.debug("Take snapshot from %s", self._name)
+        _LOGGER.debug("Take snapshot from %s", self.name)
         try:
             # Amcrest cameras only support one snapshot command at a time.
             # Hence need to wait if a previous snapshot has not yet finished.
@@ -227,7 +227,7 @@ class AmcrestCam(Camera):
             # and before initiating shapshot.
             while self._snapshot_task:
                 self._check_snapshot_ok()
-                _LOGGER.debug("Waiting for previous snapshot from %s", self._name)
+                _LOGGER.debug("Waiting for previous snapshot from %s", self.name)
                 await self._snapshot_task
             self._check_snapshot_ok()
             # Run snapshot command in separate Task that can't be cancelled so
@@ -291,11 +291,6 @@ class AmcrestCam(Camera):
         False if entity pushes its state to HA.
         """
         return True
-
-    @property
-    def name(self) -> str:
-        """Return the name of this camera."""
-        return self._name
 
     @property
     def extra_state_attributes(self) -> dict[str, Any]:
@@ -371,7 +366,7 @@ class AmcrestCam(Camera):
         self._unsub_dispatcher.append(
             async_dispatcher_connect(
                 self.hass,
-                service_signal(SERVICE_UPDATE, self.name),
+                service_signal(SERVICE_UPDATE, cast(str, self.name)),
                 self.async_on_demand_update,
             )
         )

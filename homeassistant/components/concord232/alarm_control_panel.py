@@ -69,17 +69,12 @@ class Concord232Alarm(alarm.AlarmControlPanelEntity):
         """Initialize the Concord232 alarm panel."""
 
         self._state = None
-        self._name = name
+        self._attr_name = name
         self._code = code
         self._mode = mode
         self._url = url
         self._alarm = concord232_client.Client(self._url)
         self._alarm.partitions = self._alarm.list_partitions()
-
-    @property
-    def name(self):
-        """Return the name of the device."""
-        return self._name
 
     @property
     def code_format(self):

@@ -91,7 +91,7 @@ class CommandSwitch(SwitchEntity):
         """Initialize the switch."""
         self._hass = hass
         self.entity_id = ENTITY_ID_FORMAT.format(object_id)
-        self._name = friendly_name
+        self._attr_name = friendly_name
         self._state = False
         self._command_on = command_on
         self._command_off = command_off
@@ -126,11 +126,6 @@ class CommandSwitch(SwitchEntity):
     def should_poll(self):
         """Only poll if we have state command."""
         return self._command_state is not None
-
-    @property
-    def name(self):
-        """Return the name of the switch."""
-        return self._name
 
     @property
     def is_on(self):

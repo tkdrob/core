@@ -151,7 +151,7 @@ class AsusWrtDevInfo:
     def __init__(self, mac, name=None):
         """Initialize a AsusWrt device info."""
         self._mac = mac
-        self._name = name
+        self._attr_name = name
         self._ip_address = None
         self._last_activity = None
         self._connected = False
@@ -160,8 +160,8 @@ class AsusWrtDevInfo:
         """Update AsusWrt device info."""
         utc_point_in_time = dt_util.utcnow()
         if dev_info:
-            if not self._name:
-                self._name = dev_info.name or self._mac.replace(":", "_")
+            if not self.name:
+                self._attr_name = dev_info.name or self._mac.replace(":", "_")
             self._ip_address = dev_info.ip
             self._last_activity = utc_point_in_time
             self._connected = True
@@ -181,11 +181,6 @@ class AsusWrtDevInfo:
     def mac(self):
         """Return device mac address."""
         return self._mac
-
-    @property
-    def name(self):
-        """Return device name."""
-        return self._name
 
     @property
     def ip_address(self):

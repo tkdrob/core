@@ -160,18 +160,13 @@ class Control4Entity(CoordinatorEntity):
         super().__init__(coordinator)
         self.entry = entry
         self.entry_data = entry_data
-        self._name = name
+        self._attr_name = name
         self._idx = idx
         self._controller_unique_id = entry_data[CONF_CONTROLLER_UNIQUE_ID]
         self._device_name = device_name
         self._device_manufacturer = device_manufacturer
         self._device_model = device_model
         self._device_id = device_id
-
-    @property
-    def name(self):
-        """Return name of entity."""
-        return self._name
 
     @property
     def unique_id(self) -> str:

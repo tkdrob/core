@@ -207,7 +207,7 @@ class BluesoundPlayer(MediaPlayerEntity):
         self.port = port
         self._polling_session = async_get_clientsession(hass)
         self._polling_task = None  # The actual polling task.
-        self._name = name
+        self._attr_name = name
         self._icon = None
         self._capture_items = []
         self._services_items = []
@@ -249,8 +249,8 @@ class BluesoundPlayer(MediaPlayerEntity):
             return None
         self._sync_status = resp["SyncStatus"].copy()
 
-        if not self._name:
-            self._name = self._sync_status.get("@name", self.host)
+        if not self.name:
+            self._attr_name = self._sync_status.get("@name", self.host)
         if not self._bluesound_device_name:
             self._bluesound_device_name = self._sync_status.get("@name", self.host)
         if not self._icon:
@@ -287,14 +287,14 @@ class BluesoundPlayer(MediaPlayerEntity):
                 await self.async_update_status()
 
         except (asyncio.TimeoutError, ClientError, BluesoundPlayer._TimeoutException):
-            _LOGGER.info("Node %s is offline, retrying later", self._name)
+            _LOGGER.info("Node %s is offline, retrying later", self.name)
             await asyncio.sleep(NODE_OFFLINE_CHECK_TIMEOUT)
             self.start_polling()
 
         except CancelledError:
-            _LOGGER.debug("Stopping the polling of node %s", self._name)
+            _LOGGER.debug("Stopping the polling of node %s", self.name)
         except Exception:
-            _LOGGER.exception("Unexpected error in %s", self._name)
+            _LOGGER.exception("Unexpected error in %s", self.name)
             raise
 
     def start_polling(self):
@@ -437,7 +437,7 @@ class BluesoundPlayer(MediaPlayerEntity):
             self._last_status_update = None
             self._status = None
             self.async_write_ha_state()
-            _LOGGER.info("Client connection error, marking %s as offline", self._name)
+            _LOGGER.info("Client connection error, marking %s as offline", self.name)
             raise
 
     async def async_trigger_sync_on_all(self):
@@ -658,11 +658,6 @@ class BluesoundPlayer(MediaPlayerEntity):
         if mute is not None:
             mute = bool(int(mute))
         return mute
-
-    @property
-    def name(self):
-        """Return the name of the device."""
-        return self._name
 
     @property
     def bluesound_device_name(self):

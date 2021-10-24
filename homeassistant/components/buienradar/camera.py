@@ -69,7 +69,7 @@ class BuienradarCam(Camera):
         """
         super().__init__()
 
-        self._name = "Buienradar"
+        self._attr_name = "Buienradar"
 
         # dimension (x and y) of returned radar image
         self._dimension = DEFAULT_DIMENSION
@@ -97,11 +97,6 @@ class BuienradarCam(Camera):
         self._deadline: datetime | None = None
 
         self._unique_id = f"{latitude:2.6f}{longitude:2.6f}"
-
-    @property
-    def name(self) -> str:
-        """Return the component name."""
-        return self._name
 
     def __needs_refresh(self) -> bool:
         if not (self._delta and self._deadline and self._last_image):

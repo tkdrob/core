@@ -33,14 +33,9 @@ class CpuSpeedSensor(SensorEntity):
 
     def __init__(self, name):
         """Initialize the CPU sensor."""
-        self._name = name
+        self._attr_name = name
         self._state = None
         self.info = None
-
-    @property
-    def name(self):
-        """Return the name of the sensor."""
-        return self._name
 
     @property
     def native_value(self):

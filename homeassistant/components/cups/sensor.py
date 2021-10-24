@@ -101,14 +101,9 @@ class CupsSensor(SensorEntity):
     def __init__(self, data, printer):
         """Initialize the CUPS sensor."""
         self.data = data
-        self._name = printer
+        self._attr_name = printer
         self._printer = None
         self._available = False
-
-    @property
-    def name(self):
-        """Return the name of the sensor."""
-        return self._name
 
     @property
     def native_value(self):
@@ -150,7 +145,7 @@ class CupsSensor(SensorEntity):
     def update(self):
         """Get the latest data and updates the states."""
         self.data.update()
-        self._printer = self.data.printers.get(self._name)
+        self._printer = self.data.printers.get(self.name)
         self._available = self.data.available
 
 
@@ -240,16 +235,11 @@ class MarkerSensor(SensorEntity):
     def __init__(self, data, printer, name, is_cups):
         """Initialize the sensor."""
         self.data = data
-        self._name = name
+        self._attr_name = name
         self._printer = printer
         self._index = data.attributes[printer]["marker-names"].index(name)
         self._is_cups = is_cups
         self._attributes = None
-
-    @property
-    def name(self):
-        """Return the name of the sensor."""
-        return self._name
 
     @property
     def icon(self):

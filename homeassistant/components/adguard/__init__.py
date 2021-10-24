@@ -145,14 +145,9 @@ class AdGuardHomeEntity(Entity):
         self._available = True
         self._enabled_default = enabled_default
         self._icon = icon
-        self._name = name
+        self._attr_name = name
         self._entry = entry
         self.adguard = adguard
-
-    @property
-    def name(self) -> str:
-        """Return the name of the entity."""
-        return self._name
 
     @property
     def icon(self) -> str:

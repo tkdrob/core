@@ -90,7 +90,7 @@ class AccountSensor(SensorEntity):
                 account[API_ACCOUNT_CURRENCY] == currency
                 and account[API_RESOURCE_TYPE] != API_TYPE_VAULT
             ):
-                self._name = f"Coinbase {account[API_ACCOUNT_NAME]}"
+                self._attr_name = f"Coinbase {account[API_ACCOUNT_NAME]}"
                 self._id = (
                     f"coinbase-{account[API_ACCOUNT_ID]}-wallet-"
                     f"{account[API_ACCOUNT_CURRENCY]}"
@@ -104,11 +104,6 @@ class AccountSensor(SensorEntity):
                     API_ACCOUNT_CURRENCY
                 ]
                 break
-
-    @property
-    def name(self):
-        """Return the name of the sensor."""
-        return self._name
 
     @property
     def unique_id(self):
@@ -163,17 +158,12 @@ class ExchangeRateSensor(SensorEntity):
         """Initialize the sensor."""
         self._coinbase_data = coinbase_data
         self.currency = exchange_currency
-        self._name = f"{exchange_currency} Exchange Rate"
+        self._attr_name = f"{exchange_currency} Exchange Rate"
         self._id = f"coinbase-{coinbase_data.user_id}-xe-{exchange_currency}"
         self._state = round(
             1 / float(self._coinbase_data.exchange_rates[API_RATES][self.currency]), 2
         )
         self._unit_of_measurement = exchange_base
-
-    @property
-    def name(self):
-        """Return the name of the sensor."""
-        return self._name
 
     @property
     def unique_id(self):

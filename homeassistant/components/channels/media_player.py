@@ -84,7 +84,7 @@ class ChannelsPlayer(MediaPlayerEntity):
     def __init__(self, name, host, port):
         """Initialize the Channels app."""
 
-        self._name = name
+        self._attr_name = name
         self._host = host
         self._port = port
 
@@ -141,11 +141,6 @@ class ChannelsPlayer(MediaPlayerEntity):
             self.now_playing_episode_number = None
             self.now_playing_summary = None
             self.now_playing_image_url = None
-
-    @property
-    def name(self):
-        """Return the name of the player."""
-        return self._name
 
     @property
     def state(self):

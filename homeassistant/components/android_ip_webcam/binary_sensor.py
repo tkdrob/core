@@ -28,14 +28,9 @@ class IPWebcamBinarySensor(AndroidIPCamEntity, BinarySensorEntity):
 
         self._sensor = sensor
         self._mapped_name = KEY_MAP.get(self._sensor, self._sensor)
-        self._name = f"{name} {self._mapped_name}"
+        self._attr_name = f"{name} {self._mapped_name}"
         self._state = None
         self._unit = None
-
-    @property
-    def name(self):
-        """Return the name of the binary sensor, if any."""
-        return self._name
 
     @property
     def is_on(self):

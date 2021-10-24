@@ -79,7 +79,7 @@ class CompensationSensor(SensorEntity):
         self._coefficients = polynomial.coefficients.tolist()
         self._state = None
         self._unique_id = unique_id
-        self._name = name
+        self._attr_name = name
 
     async def async_added_to_hass(self):
         """Handle added to Hass."""
@@ -95,11 +95,6 @@ class CompensationSensor(SensorEntity):
     def unique_id(self):
         """Return the unique id of this sensor."""
         return self._unique_id
-
-    @property
-    def name(self):
-        """Return the name of the sensor."""
-        return self._name
 
     @property
     def should_poll(self):

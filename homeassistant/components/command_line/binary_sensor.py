@@ -77,17 +77,12 @@ class CommandBinarySensor(BinarySensorEntity):
         """Initialize the Command line binary sensor."""
         self._hass = hass
         self.data = data
-        self._name = name
+        self._attr_name = name
         self._device_class = device_class
         self._state = False
         self._payload_on = payload_on
         self._payload_off = payload_off
         self._value_template = value_template
-
-    @property
-    def name(self):
-        """Return the name of the sensor."""
-        return self._name
 
     @property
     def is_on(self):

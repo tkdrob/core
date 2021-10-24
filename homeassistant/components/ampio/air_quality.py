@@ -60,12 +60,7 @@ class AmpioSmogQuality(AirQualityEntity):
         """Initialize the air quality entity."""
         self._ampio = api
         self._station_id = station_id
-        self._name = name or api.api.name
-
-    @property
-    def name(self) -> str:
-        """Return the name of the air quality entity."""
-        return self._name
+        self._attr_name = name or api.api.name
 
     @property
     def unique_id(self) -> str:
