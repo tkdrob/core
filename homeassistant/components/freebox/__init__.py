@@ -1,6 +1,4 @@
 """Support for Freebox devices (Freebox v6 and Freebox mini 4K)."""
-import logging
-
 import voluptuous as vol
 
 from homeassistant.config_entries import SOURCE_IMPORT, ConfigEntry
@@ -10,8 +8,6 @@ from homeassistant.helpers import config_validation as cv
 
 from .const import DOMAIN, PLATFORMS, SERVICE_REBOOT
 from .router import FreeboxRouter
-
-_LOGGER = logging.getLogger(__name__)
 
 FREEBOX_SCHEMA = vol.Schema(
     {vol.Required(CONF_HOST): cv.string, vol.Required(CONF_PORT): cv.port}
