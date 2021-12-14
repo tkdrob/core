@@ -1,9 +1,7 @@
 """Support for the Daikin HVAC."""
 import logging
 
-import voluptuous as vol
-
-from homeassistant.components.climate import PLATFORM_SCHEMA, ClimateEntity
+from homeassistant.components.climate import ClimateEntity
 from homeassistant.components.climate.const import (
     ATTR_FAN_MODE,
     ATTR_HVAC_MODE,
@@ -28,8 +26,7 @@ from homeassistant.components.climate.const import (
     SUPPORT_SWING_MODE,
     SUPPORT_TARGET_TEMPERATURE,
 )
-from homeassistant.const import ATTR_TEMPERATURE, CONF_HOST, CONF_NAME, TEMP_CELSIUS
-import homeassistant.helpers.config_validation as cv
+from homeassistant.const import ATTR_TEMPERATURE, TEMP_CELSIUS
 
 from . import DOMAIN as DAIKIN_DOMAIN
 from .const import (
@@ -41,10 +38,6 @@ from .const import (
 )
 
 _LOGGER = logging.getLogger(__name__)
-
-PLATFORM_SCHEMA = PLATFORM_SCHEMA.extend(
-    {vol.Required(CONF_HOST): cv.string, vol.Optional(CONF_NAME): cv.string}
-)
 
 HA_STATE_TO_DAIKIN = {
     HVAC_MODE_FAN_ONLY: "fan",
@@ -88,14 +81,6 @@ HA_ATTR_TO_DAIKIN = {
 }
 
 DAIKIN_ATTR_ADVANCED = "adv"
-
-
-async def async_setup_platform(hass, config, async_add_entities, discovery_info=None):
-    """Old way of setting up the Daikin HVAC platform.
-
-    Can only be called when a user accidentally mentions the platform in their
-    config. But even in that case it would have been ignored.
-    """
 
 
 async def async_setup_entry(hass, entry, async_add_entities):
