@@ -35,18 +35,6 @@ TEST_DISCOVERY_WO_UUID = zeroconf.ZeroconfServiceInfo(
 )
 
 
-TEST_IMPORT = {
-    "name": "name",
-    "host": "1.1.1.1",
-    "port": 8080,
-    "ws_port": 9090,
-    "username": "username",
-    "password": "password",
-    "ssl": True,
-    "timeout": 7,
-}
-
-
 def get_kodi_connection(
     host, port, ws_port, username, password, ssl=False, timeout=5, session=None
 ):

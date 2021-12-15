@@ -10,7 +10,7 @@ from jsonrpc_base.jsonrpc import ProtocolError, TransportError
 from pykodi import CannotConnectError
 import voluptuous as vol
 
-from homeassistant.components.media_player import PLATFORM_SCHEMA, MediaPlayerEntity
+from homeassistant.components.media_player import MediaPlayerEntity
 from homeassistant.components.media_player.const import (
     MEDIA_TYPE_ALBUM,
     MEDIA_TYPE_ARTIST,
@@ -39,17 +39,10 @@ from homeassistant.components.media_player.const import (
     SUPPORT_VOLUME_STEP,
 )
 from homeassistant.components.media_player.errors import BrowseError
-from homeassistant.config_entries import SOURCE_IMPORT
 from homeassistant.const import (
     ATTR_ENTITY_ID,
     CONF_HOST,
     CONF_NAME,
-    CONF_PASSWORD,
-    CONF_PORT,
-    CONF_PROXY_SSL,
-    CONF_SSL,
-    CONF_TIMEOUT,
-    CONF_USERNAME,
     EVENT_HOMEASSISTANT_STARTED,
     STATE_IDLE,
     STATE_OFF,
@@ -68,18 +61,7 @@ from homeassistant.helpers.network import is_internal_request
 import homeassistant.util.dt as dt_util
 
 from .browse_media import build_item_response, get_media_info, library_payload
-from .const import (
-    CONF_WS_PORT,
-    DATA_CONNECTION,
-    DATA_KODI,
-    DEFAULT_PORT,
-    DEFAULT_SSL,
-    DEFAULT_TIMEOUT,
-    DEFAULT_WS_PORT,
-    DOMAIN,
-    EVENT_TURN_OFF,
-    EVENT_TURN_ON,
-)
+from .const import DATA_CONNECTION, DATA_KODI, DOMAIN, EVENT_TURN_OFF, EVENT_TURN_ON
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -89,15 +71,6 @@ CONF_TCP_PORT = "tcp_port"
 CONF_TURN_ON_ACTION = "turn_on_action"
 CONF_TURN_OFF_ACTION = "turn_off_action"
 CONF_ENABLE_WEBSOCKET = "enable_websocket"
-
-DEPRECATED_TURN_OFF_ACTIONS = {
-    None: None,
-    "quit": "Application.Quit",
-    "hibernate": "System.Hibernate",
-    "suspend": "System.Suspend",
-    "reboot": "System.Reboot",
-    "shutdown": "System.Shutdown",
-}
 
 WEBSOCKET_WATCHDOG_INTERVAL = timedelta(seconds=10)
 
@@ -145,25 +118,6 @@ SUPPORT_KODI = (
 )
 
 
-PLATFORM_SCHEMA = PLATFORM_SCHEMA.extend(
-    {
-        vol.Required(CONF_HOST): cv.string,
-        vol.Optional(CONF_NAME): cv.string,
-        vol.Optional(CONF_PORT, default=DEFAULT_PORT): cv.port,
-        vol.Optional(CONF_TCP_PORT, default=DEFAULT_WS_PORT): cv.port,
-        vol.Optional(CONF_PROXY_SSL, default=DEFAULT_SSL): cv.boolean,
-        vol.Optional(CONF_TURN_ON_ACTION): cv.SCRIPT_SCHEMA,
-        vol.Optional(CONF_TURN_OFF_ACTION): vol.Any(
-            cv.SCRIPT_SCHEMA, vol.In(DEPRECATED_TURN_OFF_ACTIONS)
-        ),
-        vol.Optional(CONF_TIMEOUT, default=DEFAULT_TIMEOUT): cv.positive_int,
-        vol.Inclusive(CONF_USERNAME, "auth"): cv.string,
-        vol.Inclusive(CONF_PASSWORD, "auth"): cv.string,
-        vol.Optional(CONF_ENABLE_WEBSOCKET, default=True): cv.boolean,
-    }
-)
-
-
 SERVICE_ADD_MEDIA = "add_to_playlist"
 SERVICE_CALL_METHOD = "call_method"
 
@@ -192,37 +146,6 @@ def find_matching_config_entries_for_host(hass, host):
         if entry.data[CONF_HOST] == host:
             return entry
     return None
-
-
-async def async_setup_platform(hass, config, async_add_entities, discovery_info=None):
-    """Set up the Kodi platform."""
-    if discovery_info:
-        # Now handled by zeroconf in the config flow
-        return
-
-    host = config[CONF_HOST]
-    if find_matching_config_entries_for_host(hass, host):
-        return
-
-    websocket = config.get(CONF_ENABLE_WEBSOCKET)
-    ws_port = config.get(CONF_TCP_PORT) if websocket else None
-
-    entry_data = {
-        CONF_NAME: config.get(CONF_NAME, host),
-        CONF_HOST: host,
-        CONF_PORT: config.get(CONF_PORT),
-        CONF_WS_PORT: ws_port,
-        CONF_USERNAME: config.get(CONF_USERNAME),
-        CONF_PASSWORD: config.get(CONF_PASSWORD),
-        CONF_SSL: config.get(CONF_PROXY_SSL),
-        CONF_TIMEOUT: config.get(CONF_TIMEOUT),
-    }
-
-    hass.async_create_task(
-        hass.config_entries.flow.async_init(
-            DOMAIN, context={"source": SOURCE_IMPORT}, data=entry_data
-        )
-    )
 
 
 async def async_setup_entry(hass, config_entry, async_add_entities):

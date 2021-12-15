@@ -222,26 +222,6 @@ class KodiConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
 
         return self._show_ws_port_form(errors)
 
-    async def async_step_import(self, data):
-        """Handle import from YAML."""
-        reason = None
-        try:
-            await validate_http(self.hass, data)
-            await validate_ws(self.hass, data)
-        except InvalidAuth:
-            _LOGGER.exception("Invalid Kodi credentials")
-            reason = "invalid_auth"
-        except CannotConnect:
-            _LOGGER.exception("Cannot connect to Kodi")
-            reason = "cannot_connect"
-        except Exception:  # pylint: disable=broad-except
-            _LOGGER.exception("Unexpected exception")
-            reason = "unknown"
-        else:
-            return self.async_create_entry(title=data[CONF_NAME], data=data)
-
-        return self.async_abort(reason=reason)
-
     @callback
     def _show_credentials_form(self, errors=None):
         schema = vol.Schema(
