@@ -1,68 +1,20 @@
 """Support for Yale Alarm."""
 from __future__ import annotations
 
-import voluptuous as vol
-
-from homeassistant.components.alarm_control_panel import (
-    PLATFORM_SCHEMA as PARENT_PLATFORM_SCHEMA,
-    AlarmControlPanelEntity,
-)
+from homeassistant.components.alarm_control_panel import AlarmControlPanelEntity
 from homeassistant.components.alarm_control_panel.const import (
     SUPPORT_ALARM_ARM_AWAY,
     SUPPORT_ALARM_ARM_HOME,
 )
-from homeassistant.config_entries import SOURCE_IMPORT, ConfigEntry
-from homeassistant.const import CONF_NAME, CONF_PASSWORD, CONF_USERNAME
+from homeassistant.config_entries import ConfigEntry
+from homeassistant.const import CONF_NAME, CONF_USERNAME
 from homeassistant.core import HomeAssistant
-import homeassistant.helpers.config_validation as cv
 from homeassistant.helpers.entity import DeviceInfo
-from homeassistant.helpers.entity_platform import (
-    AddEntitiesCallback,
-    ConfigType,
-    DiscoveryInfoType,
-)
+from homeassistant.helpers.entity_platform import AddEntitiesCallback
 from homeassistant.helpers.update_coordinator import CoordinatorEntity
 
-from .const import (
-    CONF_AREA_ID,
-    COORDINATOR,
-    DEFAULT_AREA_ID,
-    DEFAULT_NAME,
-    DOMAIN,
-    LOGGER,
-    MANUFACTURER,
-    MODEL,
-    STATE_MAP,
-)
+from .const import COORDINATOR, DOMAIN, MANUFACTURER, MODEL, STATE_MAP
 from .coordinator import YaleDataUpdateCoordinator
-
-PLATFORM_SCHEMA = PARENT_PLATFORM_SCHEMA.extend(
-    {
-        vol.Required(CONF_USERNAME): cv.string,
-        vol.Required(CONF_PASSWORD): cv.string,
-        vol.Optional(CONF_NAME, default=DEFAULT_NAME): cv.string,
-        vol.Optional(CONF_AREA_ID, default=DEFAULT_AREA_ID): cv.string,
-    }
-)
-
-
-async def async_setup_platform(
-    hass: HomeAssistant,
-    config: ConfigType,
-    async_add_entities: AddEntitiesCallback,
-    discovery_info: DiscoveryInfoType | None = None,
-) -> None:
-    """Import Yale configuration from YAML."""
-    LOGGER.warning(
-        "Loading Yale Alarm via platform setup is deprecated; Please remove it from your configuration"
-    )
-    hass.async_create_task(
-        hass.config_entries.flow.async_init(
-            DOMAIN,
-            context={"source": SOURCE_IMPORT},
-            data=config,
-        )
-    )
 
 
 async def async_setup_entry(

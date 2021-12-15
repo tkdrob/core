@@ -34,14 +34,6 @@ class YaleConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
 
     entry: config_entries.ConfigEntry
 
-    async def async_step_import(self, config: dict):
-        """Import a configuration from config.yaml."""
-
-        self.context.update(
-            {"title_placeholders": {CONF_NAME: f"YAML import {DOMAIN}"}}
-        )
-        return await self.async_step_user(user_input=config)
-
     async def async_step_reauth(self, user_input=None):
         """Handle initiation of re-authentication with Yale."""
         self.entry = self.hass.config_entries.async_get_entry(self.context["entry_id"])
