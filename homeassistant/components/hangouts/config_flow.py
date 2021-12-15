@@ -7,7 +7,12 @@ import voluptuous as vol
 from homeassistant import config_entries
 from homeassistant.const import CONF_EMAIL, CONF_PASSWORD
 
-from .const import CONF_2FA, CONF_AUTH_CODE, CONF_REFRESH_TOKEN
+from .const import (
+    CONF_2FA,
+    CONF_AUTH_CODE,
+    CONF_REFRESH_TOKEN,
+    DOMAIN as HANGOUTS_DOMAIN,
+)
 from .hangups_utils import (
     Google2FAError,
     GoogleAuthError,
@@ -16,6 +21,7 @@ from .hangups_utils import (
 )
 
 
+@config_entries.HANDLERS.register(HANGOUTS_DOMAIN)
 class HangoutsFlowHandler(config_entries.ConfigFlow):
     """Config flow Google Hangouts."""
 
