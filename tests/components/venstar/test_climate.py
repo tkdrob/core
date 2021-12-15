@@ -21,7 +21,7 @@ async def test_colortouch(hass):
     """Test interfacing with a venstar colortouch with attached humidifier."""
 
     with patch("homeassistant.components.venstar.VENSTAR_SLEEP", new=0):
-        await async_init_integration(hass)
+        await async_init_integration(hass, "climate", "colortouch")
 
     state = hass.states.get("climate.colortouch")
     assert state.state == "heat"
@@ -57,7 +57,7 @@ async def test_t2000(hass):
     """Test interfacing with a venstar T2000 presently turned off."""
 
     with patch("homeassistant.components.venstar.VENSTAR_SLEEP", new=0):
-        await async_init_integration(hass)
+        await async_init_integration(hass, "climate", "t2k")
 
     state = hass.states.get("climate.t2000")
     assert state.state == "off"

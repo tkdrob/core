@@ -1,15 +1,31 @@
 """Tests for the venstar integration."""
 
+from unittest.mock import patch
+
 import requests_mock
 
-from homeassistant.components.climate.const import DOMAIN
-from homeassistant.const import CONF_HOST, CONF_PLATFORM
+from homeassistant.components.venstar.const import DOMAIN
+from homeassistant.const import (
+    CONF_HOST,
+    CONF_PASSWORD,
+    CONF_PIN,
+    CONF_SSL,
+    CONF_USERNAME,
+)
 from homeassistant.core import HomeAssistant
 from homeassistant.setup import async_setup_component
 
-from tests.common import load_fixture
+from tests.common import MockConfigEntry, load_fixture
 
 TEST_MODELS = ["t2k", "colortouch"]
+
+TEST_DATA = {
+    CONF_HOST: "1.1.1.1",
+    CONF_USERNAME: "test-username",
+    CONF_PASSWORD: "test-password",
+    CONF_PIN: "test-pin",
+    CONF_SSL: False,
+}
 
 
 def mock_venstar_devices(f):
@@ -44,18 +60,30 @@ def mock_venstar_devices(f):
 
 async def async_init_integration(
     hass: HomeAssistant,
+    platform: str,
+    model: str,
     skip_setup: bool = False,
 ):
     """Set up the venstar integration in Home Assistant."""
-    platform_config = []
-    for model in TEST_MODELS:
-        platform_config.append(
-            {
-                CONF_PLATFORM: "venstar",
-                CONF_HOST: f"venstar-{model}.localdomain",
-            }
-        )
-    config = {DOMAIN: platform_config}
+    entry = create_entry(hass, model)
+    if not skip_setup:
+        await hass.config_entries.async_setup(entry.entry_id)
+        await hass.async_block_till_done()
 
-    await async_setup_component(hass, DOMAIN, config)
-    await hass.async_block_till_done()
+    with patch("homeassistant.components.venstar.PLATFORMS", [platform]):
+        await async_setup_component(hass, DOMAIN, {})
+        await hass.async_block_till_done()
+
+
+def create_entry(hass: HomeAssistant, model: str):
+    """Add config entry in Home Assistant."""
+    entry = MockConfigEntry(
+        domain=DOMAIN,
+        data={
+            CONF_HOST: f"venstar-{model}.localdomain",
+            CONF_SSL: False,
+        },
+    )
+    entry.add_to_hass(hass)
+
+    return entry

@@ -1,17 +1,9 @@
 """Test the Venstar config flow."""
-import logging
 from unittest.mock import patch
 
 from homeassistant import config_entries
 from homeassistant.components.venstar.const import DOMAIN
 from homeassistant.config_entries import SOURCE_USER
-from homeassistant.const import (
-    CONF_HOST,
-    CONF_PASSWORD,
-    CONF_PIN,
-    CONF_SSL,
-    CONF_USERNAME,
-)
 from homeassistant.core import HomeAssistant
 from homeassistant.data_entry_flow import (
     RESULT_TYPE_ABORT,
@@ -20,18 +12,10 @@ from homeassistant.data_entry_flow import (
 )
 
 from . import VenstarColorTouchMock
+from .util import TEST_DATA
 
 from tests.common import MockConfigEntry
 
-_LOGGER = logging.getLogger(__name__)
-
-TEST_DATA = {
-    CONF_HOST: "1.1.1.1",
-    CONF_USERNAME: "test-username",
-    CONF_PASSWORD: "test-password",
-    CONF_PIN: "test-pin",
-    CONF_SSL: False,
-}
 TEST_ID = "VenstarUniqueID"
 
 

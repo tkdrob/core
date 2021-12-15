@@ -1,7 +1,5 @@
 """Support for Venstar WiFi Thermostats."""
-import voluptuous as vol
-
-from homeassistant.components.climate import PLATFORM_SCHEMA, ClimateEntity
+from homeassistant.components.climate import ClimateEntity
 from homeassistant.components.climate.const import (
     ATTR_HVAC_MODE,
     ATTR_TARGET_TEMP_HIGH,
@@ -24,22 +22,15 @@ from homeassistant.components.climate.const import (
     SUPPORT_TARGET_TEMPERATURE,
     SUPPORT_TARGET_TEMPERATURE_RANGE,
 )
-from homeassistant.config_entries import SOURCE_IMPORT, ConfigEntry
+from homeassistant.config_entries import ConfigEntry
 from homeassistant.const import (
     ATTR_TEMPERATURE,
-    CONF_HOST,
-    CONF_PASSWORD,
-    CONF_PIN,
-    CONF_SSL,
-    CONF_TIMEOUT,
-    CONF_USERNAME,
     PRECISION_HALVES,
     STATE_ON,
     TEMP_CELSIUS,
     TEMP_FAHRENHEIT,
 )
 from homeassistant.core import HomeAssistant
-import homeassistant.helpers.config_validation as cv
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 
 from . import VenstarDataUpdateCoordinator, VenstarEntity
@@ -47,26 +38,10 @@ from .const import (
     _LOGGER,
     ATTR_FAN_STATE,
     ATTR_HVAC_STATE,
-    CONF_HUMIDIFIER,
-    DEFAULT_SSL,
     DOMAIN,
     HOLD_MODE_TEMPERATURE,
     VALID_FAN_STATES,
     VALID_THERMOSTAT_MODES,
-)
-
-PLATFORM_SCHEMA = PLATFORM_SCHEMA.extend(
-    {
-        vol.Required(CONF_HOST): cv.string,
-        vol.Optional(CONF_PASSWORD): cv.string,
-        vol.Optional(CONF_HUMIDIFIER, default=True): cv.boolean,
-        vol.Optional(CONF_SSL, default=DEFAULT_SSL): cv.boolean,
-        vol.Optional(CONF_TIMEOUT, default=5): vol.All(
-            vol.Coerce(int), vol.Range(min=1)
-        ),
-        vol.Optional(CONF_USERNAME): cv.string,
-        vol.Optional(CONF_PIN): cv.string,
-    }
 )
 
 
@@ -85,24 +60,6 @@ async def async_setup_entry(
             )
         ],
     )
-
-
-async def async_setup_platform(hass, config, add_entities, discovery_info=None):
-    """Set up the Venstar thermostat platform.
-
-    Venstar uses config flow for configuration now. If an entry exists in
-    configuration.yaml, the import flow will attempt to import it and create
-    a config entry.
-    """
-    _LOGGER.warning(
-        "Loading venstar via platform config is deprecated; The configuration"
-        " has been migrated to a config entry and can be safely removed"
-    )
-    # No config entry exists and configuration.yaml config exists, trigger the import flow.
-    if not hass.config_entries.async_entries(DOMAIN):
-        await hass.config_entries.flow.async_init(
-            DOMAIN, context={"source": SOURCE_IMPORT}, data=config
-        )
 
 
 class VenstarThermostat(VenstarEntity, ClimateEntity):

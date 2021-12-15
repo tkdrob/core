@@ -78,19 +78,6 @@ class VenstarConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
             step_id="user", data_schema=DATA_SCHEMA, errors=errors
         )
 
-    async def async_step_import(self, import_data):
-        """Import entry from configuration.yaml."""
-        self._async_abort_entries_match({CONF_HOST: import_data[CONF_HOST]})
-        return await self.async_step_user(
-            {
-                CONF_HOST: import_data[CONF_HOST],
-                CONF_USERNAME: import_data.get(CONF_USERNAME),
-                CONF_PASSWORD: import_data.get(CONF_PASSWORD),
-                CONF_PIN: import_data.get(CONF_PIN),
-                CONF_SSL: import_data[CONF_SSL],
-            }
-        )
-
 
 class CannotConnect(exceptions.HomeAssistantError):
     """Error to indicate we cannot connect."""
