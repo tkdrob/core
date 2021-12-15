@@ -4,11 +4,8 @@ import logging
 from hangups.auth import GoogleAuthError
 import voluptuous as vol
 
-from homeassistant import config_entries
-from homeassistant.components.conversation.util import create_matcher
 from homeassistant.const import EVENT_HOMEASSISTANT_STOP
 from homeassistant.helpers import dispatcher, intent
-import homeassistant.helpers.config_validation as cv
 
 # We need an import from .config_flow, without it .config_flow is never loaded.
 from .config_flow import HangoutsFlowHandler  # noqa: F401
@@ -17,82 +14,20 @@ from .const import (
     CONF_DEFAULT_CONVERSATIONS,
     CONF_ERROR_SUPPRESSED_CONVERSATIONS,
     CONF_INTENTS,
-    CONF_MATCHERS,
     CONF_REFRESH_TOKEN,
-    CONF_SENTENCES,
     DOMAIN,
     EVENT_HANGOUTS_CONNECTED,
     EVENT_HANGOUTS_CONVERSATIONS_CHANGED,
     EVENT_HANGOUTS_CONVERSATIONS_RESOLVED,
-    INTENT_HELP,
-    INTENT_SCHEMA,
     MESSAGE_SCHEMA,
     SERVICE_RECONNECT,
     SERVICE_SEND_MESSAGE,
     SERVICE_UPDATE,
-    TARGETS_SCHEMA,
 )
 from .hangouts_bot import HangoutsBot
 from .intents import HelpIntent
 
 _LOGGER = logging.getLogger(__name__)
-
-CONFIG_SCHEMA = vol.Schema(
-    {
-        DOMAIN: vol.Schema(
-            {
-                vol.Optional(CONF_INTENTS, default={}): vol.Schema(
-                    {cv.string: INTENT_SCHEMA}
-                ),
-                vol.Optional(CONF_DEFAULT_CONVERSATIONS, default=[]): [TARGETS_SCHEMA],
-                vol.Optional(CONF_ERROR_SUPPRESSED_CONVERSATIONS, default=[]): [
-                    TARGETS_SCHEMA
-                ],
-            }
-        )
-    },
-    extra=vol.ALLOW_EXTRA,
-)
-
-
-async def async_setup(hass, config):
-    """Set up the Hangouts bot component."""
-    if (config := config.get(DOMAIN)) is None:
-        hass.data[DOMAIN] = {
-            CONF_INTENTS: {},
-            CONF_DEFAULT_CONVERSATIONS: [],
-            CONF_ERROR_SUPPRESSED_CONVERSATIONS: [],
-        }
-        return True
-
-    hass.data[DOMAIN] = {
-        CONF_INTENTS: config[CONF_INTENTS],
-        CONF_DEFAULT_CONVERSATIONS: config[CONF_DEFAULT_CONVERSATIONS],
-        CONF_ERROR_SUPPRESSED_CONVERSATIONS: config[
-            CONF_ERROR_SUPPRESSED_CONVERSATIONS
-        ],
-    }
-
-    if (
-        hass.data[DOMAIN][CONF_INTENTS]
-        and INTENT_HELP not in hass.data[DOMAIN][CONF_INTENTS]
-    ):
-        hass.data[DOMAIN][CONF_INTENTS][INTENT_HELP] = {CONF_SENTENCES: ["HELP"]}
-
-    for data in hass.data[DOMAIN][CONF_INTENTS].values():
-        matchers = []
-        for sentence in data[CONF_SENTENCES]:
-            matchers.append(create_matcher(sentence))
-
-        data[CONF_MATCHERS] = matchers
-
-    hass.async_create_task(
-        hass.config_entries.flow.async_init(
-            DOMAIN, context={"source": config_entries.SOURCE_IMPORT}
-        )
-    )
-
-    return True
 
 
 async def async_setup_entry(hass, config):

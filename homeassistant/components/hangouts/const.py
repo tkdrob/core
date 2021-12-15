@@ -17,7 +17,6 @@ CONF_ERROR_SUPPRESSED_CONVERSATIONS = "error_suppressed_conversations"
 
 CONF_INTENTS = "intents"
 CONF_INTENT_TYPE = "intent_type"
-CONF_SENTENCES = "sentences"
 CONF_MATCHERS = "matchers"
 
 INTENT_HELP = "HangoutsHelp"
@@ -67,14 +66,4 @@ MESSAGE_SCHEMA = vol.Schema(
         vol.Required(ATTR_MESSAGE): [MESSAGE_SEGMENT_SCHEMA],
         vol.Optional(ATTR_DATA): MESSAGE_DATA_SCHEMA,
     }
-)
-
-INTENT_SCHEMA = vol.All(
-    # Basic Schema
-    vol.Schema(
-        {
-            vol.Required(CONF_SENTENCES): vol.All(cv.ensure_list, [cv.string]),
-            vol.Optional(CONF_CONVERSATIONS): [TARGETS_SCHEMA],
-        }
-    )
 )

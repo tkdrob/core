@@ -1,29 +1,12 @@
 """Support for Hangouts notifications."""
-import voluptuous as vol
-
 from homeassistant.components.notify import (
     ATTR_DATA,
     ATTR_MESSAGE,
     ATTR_TARGET,
-    PLATFORM_SCHEMA,
     BaseNotificationService,
 )
 
-from .const import (
-    CONF_DEFAULT_CONVERSATIONS,
-    DOMAIN,
-    SERVICE_SEND_MESSAGE,
-    TARGETS_SCHEMA,
-)
-
-PLATFORM_SCHEMA = PLATFORM_SCHEMA.extend(
-    {vol.Required(CONF_DEFAULT_CONVERSATIONS): [TARGETS_SCHEMA]}
-)
-
-
-def get_service(hass, config, discovery_info=None):
-    """Get the Hangouts notification service."""
-    return HangoutsNotificationService(config.get(CONF_DEFAULT_CONVERSATIONS))
+from .const import DOMAIN, SERVICE_SEND_MESSAGE
 
 
 class HangoutsNotificationService(BaseNotificationService):
