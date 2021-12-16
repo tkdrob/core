@@ -6,13 +6,15 @@ from tellcore import telldus
 import tellcore.constants as tellcore_constants
 import voluptuous as vol
 
-from homeassistant.components.sensor import PLATFORM_SCHEMA, SensorEntity
+from homeassistant.components.sensor import (
+    PLATFORM_SCHEMA,
+    SensorDeviceClass,
+    SensorEntity,
+)
 from homeassistant.const import (
     CONF_ID,
     CONF_NAME,
     CONF_PROTOCOL,
-    DEVICE_CLASS_HUMIDITY,
-    DEVICE_CLASS_TEMPERATURE,
     PERCENTAGE,
     TEMP_CELSIUS,
 )
@@ -62,12 +64,14 @@ def setup_platform(hass, config, add_entities, discovery_info=None):
 
     sensor_value_descriptions = {
         tellcore_constants.TELLSTICK_TEMPERATURE: DatatypeDescription(
-            "temperature", config.get(CONF_TEMPERATURE_SCALE), DEVICE_CLASS_TEMPERATURE
+            "temperature",
+            config.get(CONF_TEMPERATURE_SCALE),
+            SensorDeviceClass.TEMPERATURE,
         ),
         tellcore_constants.TELLSTICK_HUMIDITY: DatatypeDescription(
             "humidity",
             PERCENTAGE,
-            DEVICE_CLASS_HUMIDITY,
+            SensorDeviceClass.HUMIDITY,
         ),
         tellcore_constants.TELLSTICK_RAINRATE: DatatypeDescription(
             "rain rate", "", None
