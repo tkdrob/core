@@ -4,10 +4,10 @@ import logging
 
 from homeassistant.components.cover import (
     ATTR_POSITION,
-    DEVICE_CLASS_CURTAIN,
     STATE_CLOSED,
     STATE_CLOSING,
     STATE_OPENING,
+    CoverDeviceClass,
     CoverEntity,
 )
 from homeassistant.const import ATTR_ID
@@ -89,7 +89,7 @@ class SlideCover(CoverEntity):
     @property
     def device_class(self):
         """Return the device class of the cover."""
-        return DEVICE_CLASS_CURTAIN
+        return CoverDeviceClass.CURTAIN
 
     @property
     def current_cover_position(self):
