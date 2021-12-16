@@ -4,12 +4,8 @@ from __future__ import annotations
 import datetime as dt
 import logging
 
-from homeassistant.components.sensor import SensorEntity
-from homeassistant.const import (
-    DEVICE_CLASS_TEMPERATURE,
-    DEVICE_CLASS_TIMESTAMP,
-    TEMP_CELSIUS,
-)
+from homeassistant.components.sensor import SensorDeviceClass, SensorEntity
+from homeassistant.const import TEMP_CELSIUS
 from homeassistant.core import callback
 from homeassistant.helpers.dispatcher import async_dispatcher_connect
 import homeassistant.util.dt as dt_util
@@ -91,7 +87,7 @@ class SupplyAirTemperatureSensor(SmartySensor):
         """Supply Air Temperature Init."""
         super().__init__(
             name=f"{name} Supply Air Temperature",
-            device_class=DEVICE_CLASS_TEMPERATURE,
+            device_class=SensorDeviceClass.TEMPERATURE,
             unit_of_measurement=TEMP_CELSIUS,
             smarty=smarty,
         )
@@ -109,7 +105,7 @@ class ExtractAirTemperatureSensor(SmartySensor):
         """Supply Air Temperature Init."""
         super().__init__(
             name=f"{name} Extract Air Temperature",
-            device_class=DEVICE_CLASS_TEMPERATURE,
+            device_class=SensorDeviceClass.TEMPERATURE,
             unit_of_measurement=TEMP_CELSIUS,
             smarty=smarty,
         )
@@ -127,7 +123,7 @@ class OutdoorAirTemperatureSensor(SmartySensor):
         """Outdoor Air Temperature Init."""
         super().__init__(
             name=f"{name} Outdoor Air Temperature",
-            device_class=DEVICE_CLASS_TEMPERATURE,
+            device_class=SensorDeviceClass.TEMPERATURE,
             unit_of_measurement=TEMP_CELSIUS,
             smarty=smarty,
         )
@@ -181,7 +177,7 @@ class FilterDaysLeftSensor(SmartySensor):
         """Filter Days Left Init."""
         super().__init__(
             name=f"{name} Filter Days Left",
-            device_class=DEVICE_CLASS_TIMESTAMP,
+            device_class=SensorDeviceClass.TIMESTAMP,
             unit_of_measurement=None,
             smarty=smarty,
         )
