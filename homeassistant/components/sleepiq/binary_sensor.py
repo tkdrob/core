@@ -1,6 +1,6 @@
 """Support for SleepIQ sensors."""
 from homeassistant.components.binary_sensor import (
-    DEVICE_CLASS_OCCUPANCY,
+    BinarySensorDeviceClass,
     BinarySensorEntity,
 )
 
@@ -42,7 +42,7 @@ class IsInBedBinarySensor(SleepIQSensor, BinarySensorEntity):
     @property
     def device_class(self):
         """Return the class of this sensor."""
-        return DEVICE_CLASS_OCCUPANCY
+        return BinarySensorDeviceClass.OCCUPANCY
 
     def update(self):
         """Get the latest data from SleepIQ and updates the states."""
