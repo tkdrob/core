@@ -1,12 +1,7 @@
 """Cover Platform for the Somfy MyLink component."""
 import logging
 
-from homeassistant.components.cover import (
-    DEVICE_CLASS_BLIND,
-    DEVICE_CLASS_SHUTTER,
-    DEVICE_CLASS_WINDOW,
-    CoverEntity,
-)
+from homeassistant.components.cover import CoverDeviceClass, CoverEntity
 from homeassistant.const import STATE_CLOSED, STATE_OPEN
 from homeassistant.helpers.entity import DeviceInfo
 from homeassistant.helpers.restore_state import RestoreEntity
@@ -21,7 +16,10 @@ from .const import (
 
 _LOGGER = logging.getLogger(__name__)
 
-MYLINK_COVER_TYPE_TO_DEVICE_CLASS = {0: DEVICE_CLASS_BLIND, 1: DEVICE_CLASS_SHUTTER}
+MYLINK_COVER_TYPE_TO_DEVICE_CLASS = {
+    0: CoverDeviceClass.BLIND,
+    1: CoverDeviceClass.SHUTTER,
+}
 
 
 async def async_setup_entry(hass, config_entry, async_add_entities):
@@ -38,7 +36,7 @@ async def async_setup_entry(hass, config_entry, async_add_entities):
             "target_id": cover["targetID"],
             "name": cover["name"],
             "device_class": MYLINK_COVER_TYPE_TO_DEVICE_CLASS.get(
-                cover.get("type"), DEVICE_CLASS_WINDOW
+                cover.get("type"), CoverDeviceClass.WINDOW
             ),
             "reverse": reversed_target_ids.get(cover["targetID"], False),
         }
@@ -63,7 +61,7 @@ class SomfyShade(RestoreEntity, CoverEntity):
         target_id,
         name="SomfyShade",
         reverse=False,
-        device_class=DEVICE_CLASS_WINDOW,
+        device_class=CoverDeviceClass.WINDOW,
     ):
         """Initialize the cover."""
         self.somfy_mylink = somfy_mylink
@@ -97,7 +95,7 @@ class SomfyShade(RestoreEntity, CoverEntity):
 
     @property
     def device_class(self):
-        """Return the class of this device, from component DEVICE_CLASSES."""
+        """Return the class of this device, from CoverDeviceClass."""
         return self._device_class
 
     @property
