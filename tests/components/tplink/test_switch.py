@@ -6,9 +6,8 @@ from unittest.mock import AsyncMock
 from kasa import SmartDeviceException
 
 from homeassistant.components import tplink
-from homeassistant.components.switch import DOMAIN as SWITCH_DOMAIN
 from homeassistant.components.tplink.const import DOMAIN
-from homeassistant.const import ATTR_ENTITY_ID, STATE_ON, STATE_UNAVAILABLE
+from homeassistant.const import ATTR_ENTITY_ID, STATE_ON, STATE_UNAVAILABLE, Platform
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers import entity_registry as er
 from homeassistant.setup import async_setup_component
@@ -41,13 +40,13 @@ async def test_plug(hass: HomeAssistant) -> None:
     assert state.state == STATE_ON
 
     await hass.services.async_call(
-        SWITCH_DOMAIN, "turn_off", {ATTR_ENTITY_ID: entity_id}, blocking=True
+        Platform.SWITCH, "turn_off", {ATTR_ENTITY_ID: entity_id}, blocking=True
     )
     plug.turn_off.assert_called_once()
     plug.turn_off.reset_mock()
 
     await hass.services.async_call(
-        SWITCH_DOMAIN, "turn_on", {ATTR_ENTITY_ID: entity_id}, blocking=True
+        Platform.SWITCH, "turn_on", {ATTR_ENTITY_ID: entity_id}, blocking=True
     )
     plug.turn_on.assert_called_once()
     plug.turn_on.reset_mock()
@@ -73,13 +72,13 @@ async def test_plug_led(hass: HomeAssistant) -> None:
     assert led_state.name == f"{state.name} LED"
 
     await hass.services.async_call(
-        SWITCH_DOMAIN, "turn_off", {ATTR_ENTITY_ID: led_entity_id}, blocking=True
+        Platform.SWITCH, "turn_off", {ATTR_ENTITY_ID: led_entity_id}, blocking=True
     )
     plug.set_led.assert_called_once_with(False)
     plug.set_led.reset_mock()
 
     await hass.services.async_call(
-        SWITCH_DOMAIN, "turn_on", {ATTR_ENTITY_ID: led_entity_id}, blocking=True
+        Platform.SWITCH, "turn_on", {ATTR_ENTITY_ID: led_entity_id}, blocking=True
     )
     plug.set_led.assert_called_once_with(True)
     plug.set_led.reset_mock()
@@ -144,13 +143,13 @@ async def test_strip(hass: HomeAssistant) -> None:
         assert state.state == STATE_ON
 
         await hass.services.async_call(
-            SWITCH_DOMAIN, "turn_off", {ATTR_ENTITY_ID: entity_id}, blocking=True
+            Platform.SWITCH, "turn_off", {ATTR_ENTITY_ID: entity_id}, blocking=True
         )
         strip.children[plug_id].turn_off.assert_called_once()
         strip.children[plug_id].turn_off.reset_mock()
 
         await hass.services.async_call(
-            SWITCH_DOMAIN, "turn_on", {ATTR_ENTITY_ID: entity_id}, blocking=True
+            Platform.SWITCH, "turn_on", {ATTR_ENTITY_ID: entity_id}, blocking=True
         )
         strip.children[plug_id].turn_on.assert_called_once()
         strip.children[plug_id].turn_on.reset_mock()
@@ -173,13 +172,13 @@ async def test_strip_led(hass: HomeAssistant) -> None:
     assert led_state.state == STATE_ON
 
     await hass.services.async_call(
-        SWITCH_DOMAIN, "turn_off", {ATTR_ENTITY_ID: led_entity_id}, blocking=True
+        Platform.SWITCH, "turn_off", {ATTR_ENTITY_ID: led_entity_id}, blocking=True
     )
     strip.set_led.assert_called_once_with(False)
     strip.set_led.reset_mock()
 
     await hass.services.async_call(
-        SWITCH_DOMAIN, "turn_on", {ATTR_ENTITY_ID: led_entity_id}, blocking=True
+        Platform.SWITCH, "turn_on", {ATTR_ENTITY_ID: led_entity_id}, blocking=True
     )
     strip.set_led.assert_called_once_with(True)
     strip.set_led.reset_mock()
