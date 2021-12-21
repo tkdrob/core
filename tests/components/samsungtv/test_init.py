@@ -1,10 +1,10 @@
 """Tests for the Samsung TV Integration."""
 from unittest.mock import Mock, patch
 
-from homeassistant.components.media_player.const import DOMAIN, SUPPORT_TURN_ON
+from homeassistant.components.media_player.const import SUPPORT_TURN_ON
 from homeassistant.components.samsungtv.const import (
     CONF_ON_ACTION,
-    DOMAIN as SAMSUNGTV_DOMAIN,
+    DOMAIN,
     METHOD_WEBSOCKET,
 )
 from homeassistant.components.samsungtv.media_player import SUPPORT_SAMSUNGTV
@@ -17,13 +17,14 @@ from homeassistant.const import (
     CONF_METHOD,
     CONF_NAME,
     SERVICE_VOLUME_UP,
+    Platform,
 )
 from homeassistant.core import HomeAssistant
 from homeassistant.setup import async_setup_component
 
-ENTITY_ID = f"{DOMAIN}.fake_name"
+ENTITY_ID = f"{Platform.MEDIA_PLAYER}.fake_name"
 MOCK_CONFIG = {
-    SAMSUNGTV_DOMAIN: [
+    DOMAIN: [
         {
             CONF_HOST: "fake_host",
             CONF_NAME: "fake_name",
@@ -33,7 +34,7 @@ MOCK_CONFIG = {
     ]
 }
 MOCK_CONFIG_WITHOUT_PORT = {
-    SAMSUNGTV_DOMAIN: [
+    DOMAIN: [
         {
             CONF_HOST: "fake_host",
             CONF_NAME: "fake",
@@ -46,7 +47,7 @@ REMOTE_CALL = {
     "name": "HomeAssistant",
     "description": "HomeAssistant",
     "id": "ha.component.samsung",
-    "host": MOCK_CONFIG[SAMSUNGTV_DOMAIN][0][CONF_HOST],
+    "host": MOCK_CONFIG[DOMAIN][0][CONF_HOST],
     "method": "legacy",
     "port": None,
     "timeout": 1,
@@ -60,7 +61,7 @@ async def test_setup(hass: HomeAssistant, remotews: Mock, no_mac_address: Mock):
         return_value="fake_host",
     ):
 
-        await async_setup_component(hass, SAMSUNGTV_DOMAIN, MOCK_CONFIG)
+        await async_setup_component(hass, DOMAIN, MOCK_CONFIG)
         await hass.async_block_till_done()
         state = hass.states.get(ENTITY_ID)
 
@@ -74,7 +75,7 @@ async def test_setup(hass: HomeAssistant, remotews: Mock, no_mac_address: Mock):
 
         # test host and port
         assert await hass.services.async_call(
-            DOMAIN, SERVICE_VOLUME_UP, {ATTR_ENTITY_ID: ENTITY_ID}, True
+            Platform.MEDIA_PLAYER, SERVICE_VOLUME_UP, {ATTR_ENTITY_ID: ENTITY_ID}, True
         )
 
 
@@ -92,10 +93,10 @@ async def test_setup_from_yaml_without_port_device_offline(hass: HomeAssistant):
         "homeassistant.components.samsungtv.config_flow.socket.gethostbyname",
         return_value="fake_host",
     ):
-        await async_setup_component(hass, SAMSUNGTV_DOMAIN, MOCK_CONFIG)
+        await async_setup_component(hass, DOMAIN, MOCK_CONFIG)
         await hass.async_block_till_done()
 
-    config_entries_domain = hass.config_entries.async_entries(SAMSUNGTV_DOMAIN)
+    config_entries_domain = hass.config_entries.async_entries(DOMAIN)
     assert len(config_entries_domain) == 1
     assert config_entries_domain[0].state == ConfigEntryState.SETUP_RETRY
 
@@ -108,10 +109,10 @@ async def test_setup_from_yaml_without_port_device_online(
         "homeassistant.components.samsungtv.config_flow.socket.gethostbyname",
         return_value="fake_host",
     ):
-        await async_setup_component(hass, SAMSUNGTV_DOMAIN, MOCK_CONFIG)
+        await async_setup_component(hass, DOMAIN, MOCK_CONFIG)
         await hass.async_block_till_done()
 
-    config_entries_domain = hass.config_entries.async_entries(SAMSUNGTV_DOMAIN)
+    config_entries_domain = hass.config_entries.async_entries(DOMAIN)
     assert len(config_entries_domain) == 1
     assert config_entries_domain[0].data[CONF_MAC] == "aa:bb:cc:dd:ee:ff"
 
@@ -119,12 +120,12 @@ async def test_setup_from_yaml_without_port_device_online(
 async def test_setup_duplicate_config(hass: HomeAssistant, remote: Mock, caplog):
     """Test duplicate setup of platform."""
     DUPLICATE = {
-        SAMSUNGTV_DOMAIN: [
-            MOCK_CONFIG[SAMSUNGTV_DOMAIN][0],
-            MOCK_CONFIG[SAMSUNGTV_DOMAIN][0],
+        DOMAIN: [
+            MOCK_CONFIG[DOMAIN][0],
+            MOCK_CONFIG[DOMAIN][0],
         ]
     }
-    await async_setup_component(hass, SAMSUNGTV_DOMAIN, DUPLICATE)
+    await async_setup_component(hass, DOMAIN, DUPLICATE)
     await hass.async_block_till_done()
     assert hass.states.get(ENTITY_ID) is None
     assert len(hass.states.async_all("media_player")) == 0
@@ -135,9 +136,9 @@ async def test_setup_duplicate_entries(
     hass: HomeAssistant, remote: Mock, remotews: Mock, no_mac_address: Mock, caplog
 ):
     """Test duplicate setup of platform."""
-    await async_setup_component(hass, SAMSUNGTV_DOMAIN, MOCK_CONFIG)
+    await async_setup_component(hass, DOMAIN, MOCK_CONFIG)
     await hass.async_block_till_done()
     assert hass.states.get(ENTITY_ID)
     assert len(hass.states.async_all("media_player")) == 1
-    await async_setup_component(hass, SAMSUNGTV_DOMAIN, MOCK_CONFIG)
+    await async_setup_component(hass, DOMAIN, MOCK_CONFIG)
     assert len(hass.states.async_all("media_player")) == 1
