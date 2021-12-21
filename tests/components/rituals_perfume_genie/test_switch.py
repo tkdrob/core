@@ -3,7 +3,6 @@ from __future__ import annotations
 
 from homeassistant.components.homeassistant import SERVICE_UPDATE_ENTITY
 from homeassistant.components.rituals_perfume_genie.const import COORDINATORS, DOMAIN
-from homeassistant.components.switch import DOMAIN as SWITCH_DOMAIN
 from homeassistant.const import (
     ATTR_ENTITY_ID,
     ATTR_ICON,
@@ -11,6 +10,7 @@ from homeassistant.const import (
     SERVICE_TURN_ON,
     STATE_OFF,
     STATE_ON,
+    Platform,
 )
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers import entity_registry
@@ -82,7 +82,7 @@ async def test_set_switch_state(hass: HomeAssistant) -> None:
     assert state.state == STATE_ON
 
     await hass.services.async_call(
-        SWITCH_DOMAIN,
+        Platform.SWITCH,
         SERVICE_TURN_OFF,
         {ATTR_ENTITY_ID: "switch.genie"},
         blocking=True,
@@ -93,7 +93,7 @@ async def test_set_switch_state(hass: HomeAssistant) -> None:
     assert state.state == STATE_OFF
 
     await hass.services.async_call(
-        SWITCH_DOMAIN,
+        Platform.SWITCH,
         SERVICE_TURN_ON,
         {ATTR_ENTITY_ID: "switch.genie"},
         blocking=True,

@@ -4,7 +4,6 @@ from __future__ import annotations
 import pytest
 
 from homeassistant.components.homeassistant import SERVICE_UPDATE_ENTITY
-from homeassistant.components.number import DOMAIN as NUMBER_DOMAIN
 from homeassistant.components.number.const import (
     ATTR_MAX,
     ATTR_MIN,
@@ -16,7 +15,7 @@ from homeassistant.components.rituals_perfume_genie.number import (
     MIN_PERFUME_AMOUNT,
     PERFUME_AMOUNT_SUFFIX,
 )
-from homeassistant.const import ATTR_ENTITY_ID, ATTR_ICON
+from homeassistant.const import ATTR_ENTITY_ID, ATTR_ICON, Platform
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers import entity_registry
 from homeassistant.setup import async_setup_component
@@ -62,7 +61,7 @@ async def test_set_number_value(hass: HomeAssistant) -> None:
     assert state.state == "2"
 
     await hass.services.async_call(
-        NUMBER_DOMAIN,
+        Platform.NUMBER,
         SERVICE_SET_VALUE,
         {ATTR_ENTITY_ID: "number.genie_perfume_amount", ATTR_VALUE: 1},
         blocking=True,
@@ -93,7 +92,7 @@ async def test_set_number_value_out_of_range(hass: HomeAssistant):
 
     with pytest.raises(ValueError):
         await hass.services.async_call(
-            NUMBER_DOMAIN,
+            Platform.NUMBER,
             SERVICE_SET_VALUE,
             {ATTR_ENTITY_ID: "number.genie_perfume_amount", ATTR_VALUE: 4},
             blocking=True,
@@ -112,7 +111,7 @@ async def test_set_number_value_out_of_range(hass: HomeAssistant):
 
     with pytest.raises(ValueError):
         await hass.services.async_call(
-            NUMBER_DOMAIN,
+            Platform.NUMBER,
             SERVICE_SET_VALUE,
             {ATTR_ENTITY_ID: "number.genie_perfume_amount", ATTR_VALUE: 0},
             blocking=True,
@@ -143,7 +142,7 @@ async def test_set_number_value_to_float(hass: HomeAssistant):
 
     with pytest.raises(ValueError):
         await hass.services.async_call(
-            NUMBER_DOMAIN,
+            Platform.NUMBER,
             SERVICE_SET_VALUE,
             {ATTR_ENTITY_ID: "number.genie_perfume_amount", ATTR_VALUE: 1.5},
             blocking=True,

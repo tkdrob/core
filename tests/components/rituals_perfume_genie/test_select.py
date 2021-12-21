@@ -3,13 +3,13 @@ import pytest
 
 from homeassistant.components.homeassistant import SERVICE_UPDATE_ENTITY
 from homeassistant.components.rituals_perfume_genie.select import ROOM_SIZE_SUFFIX
-from homeassistant.components.select import DOMAIN as SELECT_DOMAIN
 from homeassistant.components.select.const import ATTR_OPTION, ATTR_OPTIONS
 from homeassistant.const import (
     AREA_SQUARE_METERS,
     ATTR_ENTITY_ID,
     ATTR_ICON,
     SERVICE_SELECT_OPTION,
+    Platform,
 )
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers import entity_registry
@@ -53,7 +53,7 @@ async def test_select_option(hass: HomeAssistant) -> None:
     assert state.state == "60"
 
     await hass.services.async_call(
-        SELECT_DOMAIN,
+        Platform.SELECT,
         SERVICE_SELECT_OPTION,
         {ATTR_ENTITY_ID: "select.genie_room_size", ATTR_OPTION: "30"},
         blocking=True,
@@ -84,7 +84,7 @@ async def test_select_invalid_option(hass: HomeAssistant) -> None:
 
     with pytest.raises(ValueError):
         await hass.services.async_call(
-            SELECT_DOMAIN,
+            Platform.SELECT,
             SERVICE_SELECT_OPTION,
             {ATTR_ENTITY_ID: "select.genie_room_size", ATTR_OPTION: "120"},
             blocking=True,
