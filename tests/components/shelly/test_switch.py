@@ -1,11 +1,11 @@
 """The scene tests for the myq platform."""
-from homeassistant.components.switch import DOMAIN as SWITCH_DOMAIN
 from homeassistant.const import (
     ATTR_ENTITY_ID,
     SERVICE_TURN_OFF,
     SERVICE_TURN_ON,
     STATE_OFF,
     STATE_ON,
+    Platform,
 )
 
 RELAY_BLOCK_ID = 0
@@ -16,12 +16,14 @@ async def test_block_device_services(hass, coap_wrapper):
     assert coap_wrapper
 
     hass.async_create_task(
-        hass.config_entries.async_forward_entry_setup(coap_wrapper.entry, SWITCH_DOMAIN)
+        hass.config_entries.async_forward_entry_setup(
+            coap_wrapper.entry, Platform.SWITCH
+        )
     )
     await hass.async_block_till_done()
 
     await hass.services.async_call(
-        SWITCH_DOMAIN,
+        Platform.SWITCH,
         SERVICE_TURN_ON,
         {ATTR_ENTITY_ID: "switch.test_name_channel_1"},
         blocking=True,
@@ -29,7 +31,7 @@ async def test_block_device_services(hass, coap_wrapper):
     assert hass.states.get("switch.test_name_channel_1").state == STATE_ON
 
     await hass.services.async_call(
-        SWITCH_DOMAIN,
+        Platform.SWITCH,
         SERVICE_TURN_OFF,
         {ATTR_ENTITY_ID: "switch.test_name_channel_1"},
         blocking=True,
@@ -42,7 +44,9 @@ async def test_block_device_update(hass, coap_wrapper, monkeypatch):
     assert coap_wrapper
 
     hass.async_create_task(
-        hass.config_entries.async_forward_entry_setup(coap_wrapper.entry, SWITCH_DOMAIN)
+        hass.config_entries.async_forward_entry_setup(
+            coap_wrapper.entry, Platform.SWITCH
+        )
     )
     await hass.async_block_till_done()
 
@@ -67,7 +71,9 @@ async def test_block_device_no_relay_blocks(hass, coap_wrapper, monkeypatch):
 
     monkeypatch.setattr(coap_wrapper.device.blocks[RELAY_BLOCK_ID], "type", "roller")
     hass.async_create_task(
-        hass.config_entries.async_forward_entry_setup(coap_wrapper.entry, SWITCH_DOMAIN)
+        hass.config_entries.async_forward_entry_setup(
+            coap_wrapper.entry, Platform.SWITCH
+        )
     )
     await hass.async_block_till_done()
     assert hass.states.get("switch.test_name_channel_1") is None
@@ -79,7 +85,9 @@ async def test_block_device_mode_roller(hass, coap_wrapper, monkeypatch):
 
     monkeypatch.setitem(coap_wrapper.device.settings, "mode", "roller")
     hass.async_create_task(
-        hass.config_entries.async_forward_entry_setup(coap_wrapper.entry, SWITCH_DOMAIN)
+        hass.config_entries.async_forward_entry_setup(
+            coap_wrapper.entry, Platform.SWITCH
+        )
     )
     await hass.async_block_till_done()
     assert hass.states.get("switch.test_name_channel_1") is None
@@ -93,7 +101,9 @@ async def test_block_device_app_type_light(hass, coap_wrapper, monkeypatch):
         coap_wrapper.device.settings["relays"][0], "appliance_type", "light"
     )
     hass.async_create_task(
-        hass.config_entries.async_forward_entry_setup(coap_wrapper.entry, SWITCH_DOMAIN)
+        hass.config_entries.async_forward_entry_setup(
+            coap_wrapper.entry, Platform.SWITCH
+        )
     )
     await hass.async_block_till_done()
     assert hass.states.get("switch.test_name_channel_1") is None
@@ -104,12 +114,14 @@ async def test_rpc_device_services(hass, rpc_wrapper, monkeypatch):
     assert rpc_wrapper
 
     hass.async_create_task(
-        hass.config_entries.async_forward_entry_setup(rpc_wrapper.entry, SWITCH_DOMAIN)
+        hass.config_entries.async_forward_entry_setup(
+            rpc_wrapper.entry, Platform.SWITCH
+        )
     )
     await hass.async_block_till_done()
 
     await hass.services.async_call(
-        SWITCH_DOMAIN,
+        Platform.SWITCH,
         SERVICE_TURN_ON,
         {ATTR_ENTITY_ID: "switch.test_switch_0"},
         blocking=True,
@@ -118,7 +130,7 @@ async def test_rpc_device_services(hass, rpc_wrapper, monkeypatch):
 
     monkeypatch.setitem(rpc_wrapper.device.status["switch:0"], "output", False)
     await hass.services.async_call(
-        SWITCH_DOMAIN,
+        Platform.SWITCH,
         SERVICE_TURN_OFF,
         {ATTR_ENTITY_ID: "switch.test_switch_0"},
         blocking=True,
@@ -137,7 +149,9 @@ async def test_rpc_device_switch_type_lights_mode(hass, rpc_wrapper, monkeypatch
         ["lights"],
     )
     hass.async_create_task(
-        hass.config_entries.async_forward_entry_setup(rpc_wrapper.entry, SWITCH_DOMAIN)
+        hass.config_entries.async_forward_entry_setup(
+            rpc_wrapper.entry, Platform.SWITCH
+        )
     )
     await hass.async_block_till_done()
     assert hass.states.get("switch.test_switch_0") is None
