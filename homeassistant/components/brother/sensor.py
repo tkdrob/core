@@ -20,7 +20,7 @@ from homeassistant.helpers.typing import StateType
 from homeassistant.helpers.update_coordinator import CoordinatorEntity
 
 from . import BrotherDataUpdateCoordinator
-from .const import DATA_CONFIG_ENTRY, DOMAIN
+from .const import DOMAIN
 
 ATTR_BELT_UNIT_REMAINING_LIFE = "belt_unit_remaining_life"
 ATTR_BLACK_DRUM_COUNTER = "black_drum_counter"
@@ -87,7 +87,7 @@ async def async_setup_entry(
     hass: HomeAssistant, entry: ConfigEntry, async_add_entities: AddEntitiesCallback
 ) -> None:
     """Add Brother entities from a config_entry."""
-    coordinator = hass.data[DOMAIN][DATA_CONFIG_ENTRY][entry.entry_id]
+    coordinator = hass.data[DOMAIN][entry.entry_id]
 
     sensors = []
 

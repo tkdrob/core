@@ -12,7 +12,7 @@ from homeassistant.const import CONF_HOST, CONF_TYPE, Platform
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.update_coordinator import DataUpdateCoordinator, UpdateFailed
 
-from .const import DATA_CONFIG_ENTRY, DOMAIN, SNMP
+from .const import DOMAIN, SNMP
 from .utils import get_snmp_engine
 
 PLATFORMS = [Platform.SENSOR]
@@ -35,8 +35,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     await coordinator.async_config_entry_first_refresh()
 
     hass.data.setdefault(DOMAIN, {})
-    hass.data[DOMAIN].setdefault(DATA_CONFIG_ENTRY, {})
-    hass.data[DOMAIN][DATA_CONFIG_ENTRY][entry.entry_id] = coordinator
+    hass.data[DOMAIN][entry.entry_id] = coordinator
     hass.data[DOMAIN][SNMP] = snmp_engine
 
     hass.config_entries.async_setup_platforms(entry, PLATFORMS)
@@ -49,10 +48,9 @@ async def async_unload_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     unload_ok = await hass.config_entries.async_unload_platforms(entry, PLATFORMS)
 
     if unload_ok:
-        hass.data[DOMAIN][DATA_CONFIG_ENTRY].pop(entry.entry_id)
-        if not hass.data[DOMAIN][DATA_CONFIG_ENTRY]:
+        hass.data[DOMAIN].pop(entry.entry_id)
+        if len(hass.data[DOMAIN]) == 1:
             hass.data[DOMAIN].pop(SNMP)
-            hass.data[DOMAIN].pop(DATA_CONFIG_ENTRY)
 
     return unload_ok
 
