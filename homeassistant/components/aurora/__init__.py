@@ -20,7 +20,6 @@ from homeassistant.helpers.update_coordinator import (
 
 from .const import (
     ATTRIBUTION,
-    AURORA_API,
     CONF_THRESHOLD,
     COORDINATOR,
     DEFAULT_POLLING_INTERVAL,
@@ -63,7 +62,6 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     hass.data.setdefault(DOMAIN, {})
     hass.data[DOMAIN][entry.entry_id] = {
         COORDINATOR: coordinator,
-        AURORA_API: api,
     }
 
     hass.config_entries.async_setup_platforms(entry, PLATFORMS)
