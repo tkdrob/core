@@ -7,9 +7,8 @@ real HTTP calls are not initiated during testing.
 from pysmartthings import Attribute, Capability
 
 from homeassistant.components.smartthings.const import DOMAIN, SIGNAL_SMARTTHINGS_UPDATE
-from homeassistant.components.switch import DOMAIN as SWITCH_DOMAIN
 from homeassistant.config_entries import ConfigEntryState
-from homeassistant.const import STATE_UNAVAILABLE
+from homeassistant.const import STATE_UNAVAILABLE, Platform
 from homeassistant.helpers import device_registry as dr, entity_registry as er
 from homeassistant.helpers.dispatcher import async_dispatcher_send
 
@@ -23,7 +22,7 @@ async def test_entity_and_device_attributes(hass, device_factory):
     entity_registry = er.async_get(hass)
     device_registry = dr.async_get(hass)
     # Act
-    await setup_platform(hass, SWITCH_DOMAIN, devices=[device])
+    await setup_platform(hass, Platform.SWITCH, devices=[device])
     # Assert
     entry = entity_registry.async_get("switch.switch_1")
     assert entry
@@ -42,7 +41,7 @@ async def test_turn_off(hass, device_factory):
     """Test the switch turns of successfully."""
     # Arrange
     device = device_factory("Switch_1", [Capability.switch], {Attribute.switch: "on"})
-    await setup_platform(hass, SWITCH_DOMAIN, devices=[device])
+    await setup_platform(hass, Platform.SWITCH, devices=[device])
     # Act
     await hass.services.async_call(
         "switch", "turn_off", {"entity_id": "switch.switch_1"}, blocking=True
@@ -61,7 +60,7 @@ async def test_turn_on(hass, device_factory):
         [Capability.switch, Capability.power_meter, Capability.energy_meter],
         {Attribute.switch: "off", Attribute.power: 355, Attribute.energy: 11.422},
     )
-    await setup_platform(hass, SWITCH_DOMAIN, devices=[device])
+    await setup_platform(hass, Platform.SWITCH, devices=[device])
     # Act
     await hass.services.async_call(
         "switch", "turn_on", {"entity_id": "switch.switch_1"}, blocking=True
@@ -76,7 +75,7 @@ async def test_update_from_signal(hass, device_factory):
     """Test the switch updates when receiving a signal."""
     # Arrange
     device = device_factory("Switch_1", [Capability.switch], {Attribute.switch: "off"})
-    await setup_platform(hass, SWITCH_DOMAIN, devices=[device])
+    await setup_platform(hass, Platform.SWITCH, devices=[device])
     await device.switch_on(True)
     # Act
     async_dispatcher_send(hass, SIGNAL_SMARTTHINGS_UPDATE, [device.device_id])
@@ -91,7 +90,7 @@ async def test_unload_config_entry(hass, device_factory):
     """Test the switch is removed when the config entry is unloaded."""
     # Arrange
     device = device_factory("Switch 1", [Capability.switch], {Attribute.switch: "on"})
-    config_entry = await setup_platform(hass, SWITCH_DOMAIN, devices=[device])
+    config_entry = await setup_platform(hass, Platform.SWITCH, devices=[device])
     config_entry.state = ConfigEntryState.LOADED
     # Act
     await hass.config_entries.async_forward_entry_unload(config_entry, "switch")

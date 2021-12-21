@@ -7,10 +7,9 @@ real HTTP calls are not initiated during testing.
 from pysmartthings import Attribute, Capability
 from pysmartthings.device import Status
 
-from homeassistant.components.lock import DOMAIN as LOCK_DOMAIN
 from homeassistant.components.smartthings.const import DOMAIN, SIGNAL_SMARTTHINGS_UPDATE
 from homeassistant.config_entries import ConfigEntryState
-from homeassistant.const import STATE_UNAVAILABLE
+from homeassistant.const import STATE_UNAVAILABLE, Platform
 from homeassistant.helpers import device_registry as dr, entity_registry as er
 from homeassistant.helpers.dispatcher import async_dispatcher_send
 
@@ -24,7 +23,7 @@ async def test_entity_and_device_attributes(hass, device_factory):
     entity_registry = er.async_get(hass)
     device_registry = dr.async_get(hass)
     # Act
-    await setup_platform(hass, LOCK_DOMAIN, devices=[device])
+    await setup_platform(hass, Platform.LOCK, devices=[device])
     # Assert
     entry = entity_registry.async_get("lock.lock_1")
     assert entry
@@ -54,10 +53,10 @@ async def test_lock(hass, device_factory):
             "usedCode": "Code 2",
         },
     )
-    await setup_platform(hass, LOCK_DOMAIN, devices=[device])
+    await setup_platform(hass, Platform.LOCK, devices=[device])
     # Act
     await hass.services.async_call(
-        LOCK_DOMAIN, "lock", {"entity_id": "lock.lock_1"}, blocking=True
+        Platform.LOCK, "lock", {"entity_id": "lock.lock_1"}, blocking=True
     )
     # Assert
     state = hass.states.get("lock.lock_1")
@@ -75,10 +74,10 @@ async def test_unlock(hass, device_factory):
     """Test the lock unlocks successfully."""
     # Arrange
     device = device_factory("Lock_1", [Capability.lock], {Attribute.lock: "locked"})
-    await setup_platform(hass, LOCK_DOMAIN, devices=[device])
+    await setup_platform(hass, Platform.LOCK, devices=[device])
     # Act
     await hass.services.async_call(
-        LOCK_DOMAIN, "unlock", {"entity_id": "lock.lock_1"}, blocking=True
+        Platform.LOCK, "unlock", {"entity_id": "lock.lock_1"}, blocking=True
     )
     # Assert
     state = hass.states.get("lock.lock_1")
@@ -90,7 +89,7 @@ async def test_update_from_signal(hass, device_factory):
     """Test the lock updates when receiving a signal."""
     # Arrange
     device = device_factory("Lock_1", [Capability.lock], {Attribute.lock: "unlocked"})
-    await setup_platform(hass, LOCK_DOMAIN, devices=[device])
+    await setup_platform(hass, Platform.LOCK, devices=[device])
     await device.lock(True)
     # Act
     async_dispatcher_send(hass, SIGNAL_SMARTTHINGS_UPDATE, [device.device_id])
@@ -105,7 +104,7 @@ async def test_unload_config_entry(hass, device_factory):
     """Test the lock is removed when the config entry is unloaded."""
     # Arrange
     device = device_factory("Lock_1", [Capability.lock], {Attribute.lock: "locked"})
-    config_entry = await setup_platform(hass, LOCK_DOMAIN, devices=[device])
+    config_entry = await setup_platform(hass, Platform.LOCK, devices=[device])
     config_entry.state = ConfigEntryState.LOADED
     # Act
     await hass.config_entries.async_forward_entry_unload(config_entry, "lock")

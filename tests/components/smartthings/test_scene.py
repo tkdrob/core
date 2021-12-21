@@ -4,9 +4,13 @@ Test for the SmartThings scene platform.
 The only mocking required is of the underlying SmartThings API object so
 real HTTP calls are not initiated during testing.
 """
-from homeassistant.components.scene import DOMAIN as SCENE_DOMAIN
 from homeassistant.config_entries import ConfigEntryState
-from homeassistant.const import ATTR_ENTITY_ID, SERVICE_TURN_ON, STATE_UNAVAILABLE
+from homeassistant.const import (
+    ATTR_ENTITY_ID,
+    SERVICE_TURN_ON,
+    STATE_UNAVAILABLE,
+    Platform,
+)
 from homeassistant.helpers import entity_registry as er
 
 from .conftest import setup_platform
@@ -17,7 +21,7 @@ async def test_entity_and_device_attributes(hass, scene):
     # Arrange
     entity_registry = er.async_get(hass)
     # Act
-    await setup_platform(hass, SCENE_DOMAIN, scenes=[scene])
+    await setup_platform(hass, Platform.SCENE, scenes=[scene])
     # Assert
     entry = entity_registry.async_get("scene.test_scene")
     assert entry
@@ -26,9 +30,9 @@ async def test_entity_and_device_attributes(hass, scene):
 
 async def test_scene_activate(hass, scene):
     """Test the scene is activated."""
-    await setup_platform(hass, SCENE_DOMAIN, scenes=[scene])
+    await setup_platform(hass, Platform.SCENE, scenes=[scene])
     await hass.services.async_call(
-        SCENE_DOMAIN,
+        Platform.SCENE,
         SERVICE_TURN_ON,
         {ATTR_ENTITY_ID: "scene.test_scene"},
         blocking=True,
@@ -44,9 +48,9 @@ async def test_scene_activate(hass, scene):
 async def test_unload_config_entry(hass, scene):
     """Test the scene is removed when the config entry is unloaded."""
     # Arrange
-    config_entry = await setup_platform(hass, SCENE_DOMAIN, scenes=[scene])
+    config_entry = await setup_platform(hass, Platform.SCENE, scenes=[scene])
     config_entry.state = ConfigEntryState.LOADED
     # Act
-    await hass.config_entries.async_forward_entry_unload(config_entry, SCENE_DOMAIN)
+    await hass.config_entries.async_forward_entry_unload(config_entry, Platform.SCENE)
     # Assert
     assert hass.states.get("scene.test_scene").state == STATE_UNAVAILABLE
