@@ -3,7 +3,6 @@
 import pytest
 
 from homeassistant import setup
-from homeassistant.components.switch import DOMAIN as SWITCH_DOMAIN
 from homeassistant.const import (
     ATTR_ENTITY_ID,
     SERVICE_TURN_OFF,
@@ -11,6 +10,7 @@ from homeassistant.const import (
     STATE_OFF,
     STATE_ON,
     STATE_UNAVAILABLE,
+    Platform,
 )
 from homeassistant.core import CoreState, State
 from homeassistant.setup import async_setup_component
@@ -426,7 +426,7 @@ async def test_on_action(hass, calls):
     assert state.state == STATE_OFF
 
     await hass.services.async_call(
-        SWITCH_DOMAIN,
+        Platform.SWITCH,
         SERVICE_TURN_ON,
         {ATTR_ENTITY_ID: "switch.test_template_switch"},
         blocking=True,
@@ -466,7 +466,7 @@ async def test_on_action_optimistic(hass, calls):
     assert state.state == STATE_OFF
 
     await hass.services.async_call(
-        SWITCH_DOMAIN,
+        Platform.SWITCH,
         SERVICE_TURN_ON,
         {ATTR_ENTITY_ID: "switch.test_template_switch"},
         blocking=True,
@@ -510,7 +510,7 @@ async def test_off_action(hass, calls):
     assert state.state == STATE_ON
 
     await hass.services.async_call(
-        SWITCH_DOMAIN,
+        Platform.SWITCH,
         SERVICE_TURN_OFF,
         {ATTR_ENTITY_ID: "switch.test_template_switch"},
         blocking=True,
@@ -550,7 +550,7 @@ async def test_off_action_optimistic(hass, calls):
     assert state.state == STATE_ON
 
     await hass.services.async_call(
-        SWITCH_DOMAIN,
+        Platform.SWITCH,
         SERVICE_TURN_OFF,
         {ATTR_ENTITY_ID: "switch.test_template_switch"},
         blocking=True,
