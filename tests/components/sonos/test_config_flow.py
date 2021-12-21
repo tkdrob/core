@@ -5,9 +5,8 @@ from unittest.mock import MagicMock, patch
 
 from homeassistant import config_entries, core
 from homeassistant.components import ssdp, zeroconf
-from homeassistant.components.media_player import DOMAIN as MP_DOMAIN
 from homeassistant.components.sonos.const import DATA_SONOS_DISCOVERY_MANAGER, DOMAIN
-from homeassistant.const import CONF_HOSTS
+from homeassistant.const import CONF_HOSTS, Platform
 from homeassistant.setup import async_setup_component
 
 
@@ -61,7 +60,7 @@ async def test_user_form(
 
 async def test_user_form_already_created(hass: core.HomeAssistant):
     """Ensure we abort a flow if the entry is already created from config."""
-    config = {DOMAIN: {MP_DOMAIN: {CONF_HOSTS: "192.168.4.2"}}}
+    config = {DOMAIN: {Platform.MEDIA_PLAYER: {CONF_HOSTS: "192.168.4.2"}}}
     await async_setup_component(hass, DOMAIN, config)
     await hass.async_block_till_done()
 

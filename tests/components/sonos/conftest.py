@@ -4,9 +4,8 @@ from unittest.mock import AsyncMock, MagicMock, Mock, patch
 import pytest
 
 from homeassistant.components import ssdp, zeroconf
-from homeassistant.components.media_player import DOMAIN as MP_DOMAIN
 from homeassistant.components.sonos import DOMAIN
-from homeassistant.const import CONF_HOSTS
+from homeassistant.const import CONF_HOSTS, Platform
 
 from tests.common import MockConfigEntry
 
@@ -149,7 +148,7 @@ def discover_fixture(soco):
 @pytest.fixture(name="config")
 def config_fixture():
     """Create hass config fixture."""
-    return {DOMAIN: {MP_DOMAIN: {CONF_HOSTS: ["192.168.42.1"]}}}
+    return {DOMAIN: {Platform.MEDIA_PLAYER: {CONF_HOSTS: ["192.168.42.1"]}}}
 
 
 @pytest.fixture(name="music_library")
