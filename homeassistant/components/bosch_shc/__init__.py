@@ -47,10 +47,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     if shc_info.updateState.name == "UPDATE_AVAILABLE":
         _LOGGER.warning("Please check for software updates in the Bosch Smart Home App")
 
-    hass.data.setdefault(DOMAIN, {})
-    hass.data[DOMAIN][entry.entry_id] = {
-        DATA_SESSION: session,
-    }
+    hass.data.setdefault(DOMAIN, {})[entry.entry_id] = {DATA_SESSION: session}
 
     device_registry = dr.async_get(hass)
     device_registry.async_get_or_create(
