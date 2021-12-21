@@ -2,12 +2,12 @@
 from unittest.mock import MagicMock
 
 from homeassistant.components import speedtestdotnet
-from homeassistant.components.sensor import DOMAIN as SENSOR_DOMAIN
 from homeassistant.components.speedtestdotnet.const import (
     CONF_MANUAL,
     DEFAULT_NAME,
     SENSOR_TYPES,
 )
+from homeassistant.const import Platform
 from homeassistant.core import HomeAssistant, State
 
 from . import MOCK_RESULTS, MOCK_SERVERS, MOCK_STATES
@@ -28,7 +28,7 @@ async def test_speedtestdotnet_sensors(
     await hass.config_entries.async_setup(entry.entry_id)
     await hass.async_block_till_done()
 
-    assert len(hass.states.async_entity_ids(SENSOR_DOMAIN)) == 3
+    assert len(hass.states.async_entity_ids(Platform.SENSOR)) == 3
 
     for description in SENSOR_TYPES:
         sensor = hass.states.get(f"sensor.{DEFAULT_NAME}_{description.name}")
@@ -53,7 +53,7 @@ async def test_restore_last_state(hass: HomeAssistant, mock_api: MagicMock) -> N
     await hass.config_entries.async_setup(entry.entry_id)
     await hass.async_block_till_done()
 
-    assert len(hass.states.async_entity_ids(SENSOR_DOMAIN)) == 3
+    assert len(hass.states.async_entity_ids(Platform.SENSOR)) == 3
 
     for description in SENSOR_TYPES:
         sensor = hass.states.get(f"sensor.speedtest_{description.name}")
