@@ -4,13 +4,13 @@ from unittest.mock import patch
 
 import pytest
 
-from homeassistant.components.sensor import DOMAIN as SENSOR_DOMAIN
 from homeassistant.components.sonarr.const import DOMAIN
 from homeassistant.const import (
     ATTR_ICON,
     ATTR_UNIT_OF_MEASUREMENT,
     DATA_GIGABYTES,
     STATE_UNAVAILABLE,
+    Platform,
 )
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers import entity_registry as er
@@ -20,7 +20,7 @@ from tests.common import async_fire_time_changed
 from tests.components.sonarr import mock_connection, setup_integration
 from tests.test_util.aiohttp import AiohttpClientMocker
 
-UPCOMING_ENTITY_ID = f"{SENSOR_DOMAIN}.sonarr_upcoming"
+UPCOMING_ENTITY_ID = f"{Platform.SENSOR}.sonarr_upcoming"
 
 
 async def test_sensors(
@@ -41,7 +41,7 @@ async def test_sensors(
 
     for (unique, oid) in sensors.items():
         registry.async_get_or_create(
-            SENSOR_DOMAIN,
+            Platform.SENSOR,
             DOMAIN,
             f"{entry.entry_id}_{unique}",
             suggested_object_id=oid,
