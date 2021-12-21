@@ -3,13 +3,14 @@ from unittest.mock import MagicMock
 
 import pytest
 
-from homeassistant.components.select import ATTR_OPTIONS, DOMAIN, SelectEntity
+from homeassistant.components.select import ATTR_OPTIONS, SelectEntity
 from homeassistant.const import (
     ATTR_ENTITY_ID,
     ATTR_OPTION,
     CONF_PLATFORM,
     SERVICE_SELECT_OPTION,
     STATE_UNKNOWN,
+    Platform,
 )
 from homeassistant.core import HomeAssistant
 from homeassistant.setup import async_setup_component
@@ -59,16 +60,18 @@ async def test_select(hass: HomeAssistant) -> None:
 
 async def test_custom_integration_and_validation(hass, enable_custom_integrations):
     """Test we can only select valid options."""
-    platform = getattr(hass.components, f"test.{DOMAIN}")
+    platform = getattr(hass.components, f"test.{Platform.SELECT}")
     platform.init()
 
-    assert await async_setup_component(hass, DOMAIN, {DOMAIN: {CONF_PLATFORM: "test"}})
+    assert await async_setup_component(
+        hass, Platform.SELECT, {Platform.SELECT: {CONF_PLATFORM: "test"}}
+    )
     await hass.async_block_till_done()
 
     assert hass.states.get("select.select_1").state == "option 1"
 
     await hass.services.async_call(
-        DOMAIN,
+        Platform.SELECT,
         SERVICE_SELECT_OPTION,
         {ATTR_OPTION: "option 2", ATTR_ENTITY_ID: "select.select_1"},
         blocking=True,
@@ -81,7 +84,7 @@ async def test_custom_integration_and_validation(hass, enable_custom_integration
     # test ValueError trigger
     with pytest.raises(ValueError):
         await hass.services.async_call(
-            DOMAIN,
+            Platform.SELECT,
             SERVICE_SELECT_OPTION,
             {ATTR_OPTION: "option invalid", ATTR_ENTITY_ID: "select.select_1"},
             blocking=True,
@@ -93,7 +96,7 @@ async def test_custom_integration_and_validation(hass, enable_custom_integration
 
     with pytest.raises(ValueError):
         await hass.services.async_call(
-            DOMAIN,
+            Platform.SELECT,
             SERVICE_SELECT_OPTION,
             {ATTR_OPTION: "option invalid", ATTR_ENTITY_ID: "select.select_2"},
             blocking=True,
@@ -102,7 +105,7 @@ async def test_custom_integration_and_validation(hass, enable_custom_integration
     assert hass.states.get("select.select_2").state == STATE_UNKNOWN
 
     await hass.services.async_call(
-        DOMAIN,
+        Platform.SELECT,
         SERVICE_SELECT_OPTION,
         {ATTR_OPTION: "option 3", ATTR_ENTITY_ID: "select.select_2"},
         blocking=True,

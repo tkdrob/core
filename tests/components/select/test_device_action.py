@@ -4,8 +4,8 @@ import voluptuous_serialize
 
 from homeassistant.components import automation
 from homeassistant.components.device_automation import DeviceAutomationType
-from homeassistant.components.select import DOMAIN
 from homeassistant.components.select.device_action import async_get_action_capabilities
+from homeassistant.const import Platform
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers import (
     config_validation as cv,
@@ -48,10 +48,12 @@ async def test_get_actions(
         config_entry_id=config_entry.entry_id,
         connections={(device_registry.CONNECTION_NETWORK_MAC, "12:34:56:AB:CD:EF")},
     )
-    entity_reg.async_get_or_create(DOMAIN, "test", "5678", device_id=device_entry.id)
+    entity_reg.async_get_or_create(
+        Platform.SELECT, "test", "5678", device_id=device_entry.id
+    )
     expected_actions = [
         {
-            "domain": DOMAIN,
+            "domain": Platform.SELECT,
             "type": "select_option",
             "device_id": device_entry.id,
             "entity_id": "select.test_5678",
@@ -76,7 +78,7 @@ async def test_action(hass: HomeAssistant) -> None:
                         "event_type": "test_event",
                     },
                     "action": {
-                        "domain": DOMAIN,
+                        "domain": Platform.SELECT,
                         "device_id": "abcdefgh",
                         "entity_id": "select.entity",
                         "type": "select_option",
@@ -87,12 +89,12 @@ async def test_action(hass: HomeAssistant) -> None:
         },
     )
 
-    select_calls = async_mock_service(hass, DOMAIN, "select_option")
+    select_calls = async_mock_service(hass, Platform.SELECT, "select_option")
 
     hass.bus.async_fire("test_event")
     await hass.async_block_till_done()
     assert len(select_calls) == 1
-    assert select_calls[0].domain == DOMAIN
+    assert select_calls[0].domain == Platform.SELECT
     assert select_calls[0].service == "select_option"
     assert select_calls[0].data == {"entity_id": "select.entity", "option": "option1"}
 
@@ -101,7 +103,7 @@ async def test_get_action_capabilities(hass: HomeAssistant) -> None:
     """Test we get the expected capabilities from a select action."""
     config = {
         "platform": "device",
-        "domain": DOMAIN,
+        "domain": Platform.SELECT,
         "type": "select_option",
         "entity_id": "select.test",
         "option": "option1",

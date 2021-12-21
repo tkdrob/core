@@ -6,10 +6,10 @@ import voluptuous_serialize
 
 from homeassistant.components import automation
 from homeassistant.components.device_automation import DeviceAutomationType
-from homeassistant.components.select import DOMAIN
 from homeassistant.components.select.device_trigger import (
     async_get_trigger_capabilities,
 )
+from homeassistant.const import Platform
 from homeassistant.core import HomeAssistant, ServiceCall
 from homeassistant.helpers import config_validation as cv, device_registry
 from homeassistant.helpers.entity_registry import EntityRegistry
@@ -55,14 +55,16 @@ async def test_get_triggers(
         config_entry_id=config_entry.entry_id,
         connections={(device_registry.CONNECTION_NETWORK_MAC, "12:34:56:AB:CD:EF")},
     )
-    entity_reg.async_get_or_create(DOMAIN, "test", "5678", device_id=device_entry.id)
+    entity_reg.async_get_or_create(
+        Platform.SELECT, "test", "5678", device_id=device_entry.id
+    )
     expected_triggers = [
         {
             "platform": "device",
-            "domain": DOMAIN,
+            "domain": Platform.SELECT,
             "type": "current_option_changed",
             "device_id": device_entry.id,
-            "entity_id": f"{DOMAIN}.test_5678",
+            "entity_id": f"{Platform.SELECT}.test_5678",
         }
     ]
     triggers = await async_get_device_automations(
@@ -85,7 +87,7 @@ async def test_if_fires_on_state_change(hass, calls):
                 {
                     "trigger": {
                         "platform": "device",
-                        "domain": DOMAIN,
+                        "domain": Platform.SELECT,
                         "device_id": "",
                         "entity_id": "select.entity",
                         "type": "current_option_changed",
@@ -106,7 +108,7 @@ async def test_if_fires_on_state_change(hass, calls):
                 {
                     "trigger": {
                         "platform": "device",
-                        "domain": DOMAIN,
+                        "domain": Platform.SELECT,
                         "device_id": "",
                         "entity_id": "select.entity",
                         "type": "current_option_changed",
@@ -127,7 +129,7 @@ async def test_if_fires_on_state_change(hass, calls):
                 {
                     "trigger": {
                         "platform": "device",
-                        "domain": DOMAIN,
+                        "domain": Platform.SELECT,
                         "device_id": "",
                         "entity_id": "select.entity",
                         "type": "current_option_changed",
@@ -179,7 +181,7 @@ async def test_get_trigger_capabilities(hass: HomeAssistant) -> None:
     """Test we get the expected capabilities from a select trigger."""
     config = {
         "platform": "device",
-        "domain": DOMAIN,
+        "domain": Platform.SELECT,
         "type": "current_option_changed",
         "entity_id": "select.test",
         "to": "option1",
