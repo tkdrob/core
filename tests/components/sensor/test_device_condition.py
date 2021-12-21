@@ -3,9 +3,9 @@ import pytest
 
 import homeassistant.components.automation as automation
 from homeassistant.components.device_automation import DeviceAutomationType
-from homeassistant.components.sensor import DOMAIN, SensorDeviceClass
+from homeassistant.components.sensor import SensorDeviceClass
 from homeassistant.components.sensor.device_condition import ENTITY_CONDITIONS
-from homeassistant.const import CONF_PLATFORM, PERCENTAGE, STATE_UNKNOWN
+from homeassistant.const import CONF_PLATFORM, PERCENTAGE, STATE_UNKNOWN, Platform
 from homeassistant.helpers import device_registry
 from homeassistant.setup import async_setup_component
 
@@ -41,7 +41,7 @@ def calls(hass):
 
 async def test_get_conditions(hass, device_reg, entity_reg, enable_custom_integrations):
     """Test we get the expected conditions from a sensor."""
-    platform = getattr(hass.components, f"test.{DOMAIN}")
+    platform = getattr(hass.components, f"test.{Platform.SENSOR}")
     platform.init()
 
     config_entry = MockConfigEntry(domain="test", data={})
@@ -52,19 +52,21 @@ async def test_get_conditions(hass, device_reg, entity_reg, enable_custom_integr
     )
     for device_class in SensorDeviceClass:
         entity_reg.async_get_or_create(
-            DOMAIN,
+            Platform.SENSOR,
             "test",
             platform.ENTITIES[device_class].unique_id,
             device_id=device_entry.id,
         )
 
-    assert await async_setup_component(hass, DOMAIN, {DOMAIN: {CONF_PLATFORM: "test"}})
+    assert await async_setup_component(
+        hass, Platform.SENSOR, {Platform.SENSOR: {CONF_PLATFORM: "test"}}
+    )
     await hass.async_block_till_done()
 
     expected_conditions = [
         {
             "condition": "device",
-            "domain": DOMAIN,
+            "domain": Platform.SENSOR,
             "type": condition["type"],
             "device_id": device_entry.id,
             "entity_id": platform.ENTITIES[device_class].entity_id,
@@ -91,7 +93,7 @@ async def test_get_conditions_no_state(hass, device_reg, entity_reg):
     entity_ids = {}
     for device_class in SensorDeviceClass:
         entity_ids[device_class] = entity_reg.async_get_or_create(
-            DOMAIN,
+            Platform.SENSOR,
             "test",
             f"5678_{device_class}",
             device_id=device_entry.id,
@@ -104,7 +106,7 @@ async def test_get_conditions_no_state(hass, device_reg, entity_reg):
     expected_conditions = [
         {
             "condition": "device",
-            "domain": DOMAIN,
+            "domain": Platform.SENSOR,
             "type": condition["type"],
             "device_id": device_entry.id,
             "entity_id": entity_ids[device_class],
@@ -138,7 +140,7 @@ async def test_get_condition_capabilities(
     unit_state,
 ):
     """Test we get the expected capabilities from a sensor condition."""
-    platform = getattr(hass.components, f"test.{DOMAIN}")
+    platform = getattr(hass.components, f"test.{Platform.SENSOR}")
     platform.init()
 
     config_entry = MockConfigEntry(domain="test", data={})
@@ -148,7 +150,7 @@ async def test_get_condition_capabilities(
         connections={(device_registry.CONNECTION_NETWORK_MAC, "12:34:56:AB:CD:EF")},
     )
     entity_id = entity_reg.async_get_or_create(
-        DOMAIN,
+        Platform.SENSOR,
         "test",
         platform.ENTITIES["battery"].unique_id,
         device_id=device_entry.id,
@@ -193,13 +195,15 @@ async def test_get_condition_capabilities_none(
     hass, device_reg, entity_reg, enable_custom_integrations
 ):
     """Test we get the expected capabilities from a sensor condition."""
-    platform = getattr(hass.components, f"test.{DOMAIN}")
+    platform = getattr(hass.components, f"test.{Platform.SENSOR}")
     platform.init()
 
     config_entry = MockConfigEntry(domain="test", data={})
     config_entry.add_to_hass(hass)
 
-    assert await async_setup_component(hass, DOMAIN, {DOMAIN: {CONF_PLATFORM: "test"}})
+    assert await async_setup_component(
+        hass, Platform.SENSOR, {Platform.SENSOR: {CONF_PLATFORM: "test"}}
+    )
     await hass.async_block_till_done()
 
     conditions = [
@@ -231,10 +235,12 @@ async def test_if_state_not_above_below(
     hass, calls, caplog, enable_custom_integrations
 ):
     """Test for bad value conditions."""
-    platform = getattr(hass.components, f"test.{DOMAIN}")
+    platform = getattr(hass.components, f"test.{Platform.SENSOR}")
 
     platform.init()
-    assert await async_setup_component(hass, DOMAIN, {DOMAIN: {CONF_PLATFORM: "test"}})
+    assert await async_setup_component(
+        hass, Platform.SENSOR, {Platform.SENSOR: {CONF_PLATFORM: "test"}}
+    )
     await hass.async_block_till_done()
 
     sensor1 = platform.ENTITIES["battery"]
@@ -249,7 +255,7 @@ async def test_if_state_not_above_below(
                     "condition": [
                         {
                             "condition": "device",
-                            "domain": DOMAIN,
+                            "domain": Platform.SENSOR,
                             "device_id": "",
                             "entity_id": sensor1.entity_id,
                             "type": "is_battery_level",
@@ -265,10 +271,12 @@ async def test_if_state_not_above_below(
 
 async def test_if_state_above(hass, calls, enable_custom_integrations):
     """Test for value conditions."""
-    platform = getattr(hass.components, f"test.{DOMAIN}")
+    platform = getattr(hass.components, f"test.{Platform.SENSOR}")
 
     platform.init()
-    assert await async_setup_component(hass, DOMAIN, {DOMAIN: {CONF_PLATFORM: "test"}})
+    assert await async_setup_component(
+        hass, Platform.SENSOR, {Platform.SENSOR: {CONF_PLATFORM: "test"}}
+    )
     await hass.async_block_till_done()
 
     sensor1 = platform.ENTITIES["battery"]
@@ -283,7 +291,7 @@ async def test_if_state_above(hass, calls, enable_custom_integrations):
                     "condition": [
                         {
                             "condition": "device",
-                            "domain": DOMAIN,
+                            "domain": Platform.SENSOR,
                             "device_id": "",
                             "entity_id": sensor1.entity_id,
                             "type": "is_battery_level",
@@ -323,10 +331,12 @@ async def test_if_state_above(hass, calls, enable_custom_integrations):
 
 async def test_if_state_below(hass, calls, enable_custom_integrations):
     """Test for value conditions."""
-    platform = getattr(hass.components, f"test.{DOMAIN}")
+    platform = getattr(hass.components, f"test.{Platform.SENSOR}")
 
     platform.init()
-    assert await async_setup_component(hass, DOMAIN, {DOMAIN: {CONF_PLATFORM: "test"}})
+    assert await async_setup_component(
+        hass, Platform.SENSOR, {Platform.SENSOR: {CONF_PLATFORM: "test"}}
+    )
     await hass.async_block_till_done()
 
     sensor1 = platform.ENTITIES["battery"]
@@ -341,7 +351,7 @@ async def test_if_state_below(hass, calls, enable_custom_integrations):
                     "condition": [
                         {
                             "condition": "device",
-                            "domain": DOMAIN,
+                            "domain": Platform.SENSOR,
                             "device_id": "",
                             "entity_id": sensor1.entity_id,
                             "type": "is_battery_level",
@@ -381,10 +391,12 @@ async def test_if_state_below(hass, calls, enable_custom_integrations):
 
 async def test_if_state_between(hass, calls, enable_custom_integrations):
     """Test for value conditions."""
-    platform = getattr(hass.components, f"test.{DOMAIN}")
+    platform = getattr(hass.components, f"test.{Platform.SENSOR}")
 
     platform.init()
-    assert await async_setup_component(hass, DOMAIN, {DOMAIN: {CONF_PLATFORM: "test"}})
+    assert await async_setup_component(
+        hass, Platform.SENSOR, {Platform.SENSOR: {CONF_PLATFORM: "test"}}
+    )
     await hass.async_block_till_done()
 
     sensor1 = platform.ENTITIES["battery"]
@@ -399,7 +411,7 @@ async def test_if_state_between(hass, calls, enable_custom_integrations):
                     "condition": [
                         {
                             "condition": "device",
-                            "domain": DOMAIN,
+                            "domain": Platform.SENSOR,
                             "device_id": "",
                             "entity_id": sensor1.entity_id,
                             "type": "is_battery_level",
