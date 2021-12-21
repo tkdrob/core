@@ -3,12 +3,12 @@ from homeassistant.components.sensor import SensorEntity
 from homeassistant.const import PERCENTAGE
 
 from . import AuroraEntity
-from .const import COORDINATOR, DOMAIN
+from .const import DOMAIN
 
 
 async def async_setup_entry(hass, entry, async_add_entries):
     """Set up the sensor platform."""
-    coordinator = hass.data[DOMAIN][entry.entry_id][COORDINATOR]
+    coordinator = hass.data[DOMAIN][entry.entry_id]
 
     entity = AuroraSensor(
         coordinator=coordinator,
