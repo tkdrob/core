@@ -8,13 +8,13 @@ from homeassistant.components.camera import Camera
 from homeassistant.core import callback
 from homeassistant.helpers import aiohttp_client
 
-from .const import DATA_AUGUST, DEFAULT_NAME, DEFAULT_TIMEOUT, DOMAIN
+from .const import DEFAULT_NAME, DEFAULT_TIMEOUT, DOMAIN
 from .entity import AugustEntityMixin
 
 
 async def async_setup_entry(hass, config_entry, async_add_entities):
     """Set up August cameras."""
-    data = hass.data[DOMAIN][config_entry.entry_id][DATA_AUGUST]
+    data = hass.data[DOMAIN][config_entry.entry_id]
     session = aiohttp_client.async_get_clientsession(hass)
     async_add_entities(
         [

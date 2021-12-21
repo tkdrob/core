@@ -18,7 +18,7 @@ from homeassistant.exceptions import (
 )
 
 from .activity import ActivityStream
-from .const import DATA_AUGUST, DOMAIN, MIN_TIME_BETWEEN_DETAIL_UPDATES, PLATFORMS
+from .const import DOMAIN, MIN_TIME_BETWEEN_DETAIL_UPDATES, PLATFORMS
 from .exceptions import CannotConnect, InvalidAuth, RequireValidation
 from .gateway import AugustGateway
 from .subscriber import AugustSubscriberMixin
@@ -50,7 +50,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
 async def async_unload_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     """Unload a config entry."""
 
-    hass.data[DOMAIN][entry.entry_id][DATA_AUGUST].async_stop()
+    hass.data[DOMAIN][entry.entry_id].async_stop()
 
     unload_ok = await hass.config_entries.async_unload_platforms(entry, PLATFORMS)
 
@@ -60,25 +60,22 @@ async def async_unload_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     return unload_ok
 
 
-async def async_setup_august(hass, config_entry, august_gateway):
+async def async_setup_august(hass, entry, august_gateway):
     """Set up the August component."""
 
-    if CONF_PASSWORD in config_entry.data:
+    if CONF_PASSWORD in entry.data:
         # We no longer need to store passwords since we do not
         # support YAML anymore
-        config_data = config_entry.data.copy()
+        config_data = entry.data.copy()
         del config_data[CONF_PASSWORD]
-        hass.config_entries.async_update_entry(config_entry, data=config_data)
+        hass.config_entries.async_update_entry(entry, data=config_data)
 
     await august_gateway.async_authenticate()
 
-    hass.data.setdefault(DOMAIN, {})
-    data = hass.data[DOMAIN][config_entry.entry_id] = {
-        DATA_AUGUST: AugustData(hass, august_gateway)
-    }
-    await data[DATA_AUGUST].async_setup()
+    hass.data.setdefault(DOMAIN, {})[entry.entry_id] = AugustData(hass, august_gateway)
+    await hass.data[DOMAIN][entry.entry_id].async_setup()
 
-    hass.config_entries.async_setup_platforms(config_entry, PLATFORMS)
+    hass.config_entries.async_setup_platforms(entry, PLATFORMS)
 
     return True
 
