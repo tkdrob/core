@@ -5,7 +5,6 @@ from aioswitcher.api import Command, SwitcherBaseResponse
 from aioswitcher.device import DeviceState
 import pytest
 
-from homeassistant.components.switch import DOMAIN as SWITCH_DOMAIN
 from homeassistant.const import (
     ATTR_ENTITY_ID,
     SERVICE_TURN_OFF,
@@ -13,6 +12,7 @@ from homeassistant.const import (
     STATE_OFF,
     STATE_ON,
     STATE_UNAVAILABLE,
+    Platform,
 )
 from homeassistant.util import slugify
 
@@ -27,7 +27,7 @@ async def test_switch(hass, mock_bridge, mock_api, monkeypatch):
     assert mock_bridge
 
     device = DUMMY_WATER_HEATER_DEVICE
-    entity_id = f"{SWITCH_DOMAIN}.{slugify(device.name)}"
+    entity_id = f"{Platform.SWITCH}.{slugify(device.name)}"
 
     # Test initial state - on
     state = hass.states.get(entity_id)
@@ -46,7 +46,7 @@ async def test_switch(hass, mock_bridge, mock_api, monkeypatch):
         "homeassistant.components.switcher_kis.switch.SwitcherApi.control_device",
     ) as mock_control_device:
         await hass.services.async_call(
-            SWITCH_DOMAIN, SERVICE_TURN_ON, {ATTR_ENTITY_ID: entity_id}, blocking=True
+            Platform.SWITCH, SERVICE_TURN_ON, {ATTR_ENTITY_ID: entity_id}, blocking=True
         )
 
         assert mock_api.call_count == 2
@@ -59,7 +59,10 @@ async def test_switch(hass, mock_bridge, mock_api, monkeypatch):
         "homeassistant.components.switcher_kis.switch.SwitcherApi.control_device"
     ) as mock_control_device:
         await hass.services.async_call(
-            SWITCH_DOMAIN, SERVICE_TURN_OFF, {ATTR_ENTITY_ID: entity_id}, blocking=True
+            Platform.SWITCH,
+            SERVICE_TURN_OFF,
+            {ATTR_ENTITY_ID: entity_id},
+            blocking=True,
         )
 
         assert mock_api.call_count == 4
@@ -75,7 +78,7 @@ async def test_switch_control_fail(hass, mock_bridge, mock_api, monkeypatch, cap
     assert mock_bridge
 
     device = DUMMY_PLUG_DEVICE
-    entity_id = f"{SWITCH_DOMAIN}.{slugify(device.name)}"
+    entity_id = f"{Platform.SWITCH}.{slugify(device.name)}"
 
     # Test initial state - off
     monkeypatch.setattr(device, "device_state", DeviceState.OFF)
@@ -91,7 +94,7 @@ async def test_switch_control_fail(hass, mock_bridge, mock_api, monkeypatch, cap
         side_effect=RuntimeError("fake error"),
     ) as mock_control_device:
         await hass.services.async_call(
-            SWITCH_DOMAIN, SERVICE_TURN_ON, {ATTR_ENTITY_ID: entity_id}, blocking=True
+            Platform.SWITCH, SERVICE_TURN_ON, {ATTR_ENTITY_ID: entity_id}, blocking=True
         )
 
         assert mock_api.call_count == 2
@@ -115,7 +118,7 @@ async def test_switch_control_fail(hass, mock_bridge, mock_api, monkeypatch, cap
         return_value=SwitcherBaseResponse(None),
     ) as mock_control_device:
         await hass.services.async_call(
-            SWITCH_DOMAIN, SERVICE_TURN_ON, {ATTR_ENTITY_ID: entity_id}, blocking=True
+            Platform.SWITCH, SERVICE_TURN_ON, {ATTR_ENTITY_ID: entity_id}, blocking=True
         )
 
         assert mock_api.call_count == 4

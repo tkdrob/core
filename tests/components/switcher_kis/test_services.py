@@ -5,7 +5,6 @@ from aioswitcher.api import Command
 from aioswitcher.device import DeviceState
 import pytest
 
-from homeassistant.components.switch import DOMAIN as SWITCH_DOMAIN
 from homeassistant.components.switcher_kis.const import (
     CONF_AUTO_OFF,
     CONF_TIMER_MINUTES,
@@ -13,7 +12,13 @@ from homeassistant.components.switcher_kis.const import (
     SERVICE_SET_AUTO_OFF_NAME,
     SERVICE_TURN_ON_WITH_TIMER_NAME,
 )
-from homeassistant.const import ATTR_ENTITY_ID, STATE_OFF, STATE_ON, STATE_UNAVAILABLE
+from homeassistant.const import (
+    ATTR_ENTITY_ID,
+    STATE_OFF,
+    STATE_ON,
+    STATE_UNAVAILABLE,
+    Platform,
+)
 from homeassistant.helpers.config_validation import time_period_str
 from homeassistant.util import slugify
 
@@ -33,7 +38,7 @@ async def test_turn_on_with_timer_service(hass, mock_bridge, mock_api, monkeypat
     assert mock_bridge
 
     device = DUMMY_WATER_HEATER_DEVICE
-    entity_id = f"{SWITCH_DOMAIN}.{slugify(device.name)}"
+    entity_id = f"{Platform.SWITCH}.{slugify(device.name)}"
 
     # Test initial state - off
     monkeypatch.setattr(device, "device_state", DeviceState.OFF)
@@ -71,7 +76,7 @@ async def test_set_auto_off_service(hass, mock_bridge, mock_api):
     assert mock_bridge
 
     device = DUMMY_WATER_HEATER_DEVICE
-    entity_id = f"{SWITCH_DOMAIN}.{slugify(device.name)}"
+    entity_id = f"{Platform.SWITCH}.{slugify(device.name)}"
 
     with patch(
         "homeassistant.components.switcher_kis.switch.SwitcherApi.set_auto_shutdown"
@@ -96,7 +101,7 @@ async def test_set_auto_off_service_fail(hass, mock_bridge, mock_api, caplog):
     assert mock_bridge
 
     device = DUMMY_WATER_HEATER_DEVICE
-    entity_id = f"{SWITCH_DOMAIN}.{slugify(device.name)}"
+    entity_id = f"{Platform.SWITCH}.{slugify(device.name)}"
 
     with patch(
         "homeassistant.components.switcher_kis.switch.SwitcherApi.set_auto_shutdown",
@@ -128,7 +133,7 @@ async def test_plug_unsupported_services(hass, mock_bridge, mock_api, caplog):
     assert mock_bridge
 
     device = DUMMY_PLUG_DEVICE
-    entity_id = f"{SWITCH_DOMAIN}.{slugify(device.name)}"
+    entity_id = f"{Platform.SWITCH}.{slugify(device.name)}"
 
     # Turn on with timer
     await hass.services.async_call(
