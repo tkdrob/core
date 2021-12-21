@@ -20,7 +20,6 @@ PLATFORMS = [Platform.CLIMATE]
 
 async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     """Set up AirTouch4 from a config entry."""
-    hass.data.setdefault(DOMAIN, {})
     host = entry.data[CONF_HOST]
     airtouch = AirTouch(host)
     await airtouch.UpdateInfo()
@@ -29,8 +28,8 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
         raise ConfigEntryNotReady
     coordinator = AirtouchDataUpdateCoordinator(hass, airtouch)
     await coordinator.async_config_entry_first_refresh()
-    hass.data[DOMAIN][entry.entry_id] = coordinator
 
+    hass.data.setdefault(DOMAIN, {})[entry.entry_id] = coordinator
     hass.config_entries.async_setup_platforms(entry, PLATFORMS)
 
     return True
