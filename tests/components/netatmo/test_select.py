@@ -1,9 +1,13 @@
 """The tests for the Netatmo climate platform."""
 from unittest.mock import patch
 
-from homeassistant.components.select import DOMAIN as SELECT_DOMAIN
 from homeassistant.components.select.const import ATTR_OPTION, ATTR_OPTIONS
-from homeassistant.const import ATTR_ENTITY_ID, CONF_WEBHOOK_ID, SERVICE_SELECT_OPTION
+from homeassistant.const import (
+    ATTR_ENTITY_ID,
+    CONF_WEBHOOK_ID,
+    SERVICE_SELECT_OPTION,
+    Platform,
+)
 
 from .common import selected_platforms, simulate_webhook
 
@@ -41,7 +45,7 @@ async def test_select_schedule_thermostats(hass, config_entry, caplog, netatmo_a
         "pyatmo.climate.AsyncClimate.async_switch_home_schedule"
     ) as mock_switch_home_schedule:
         await hass.services.async_call(
-            SELECT_DOMAIN,
+            Platform.SELECT,
             SERVICE_SELECT_OPTION,
             {
                 ATTR_ENTITY_ID: select_entity,
