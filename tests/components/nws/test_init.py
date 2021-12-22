@@ -1,7 +1,6 @@
 """Tests for init module."""
 from homeassistant.components.nws.const import DOMAIN
-from homeassistant.components.weather import DOMAIN as WEATHER_DOMAIN
-from homeassistant.const import STATE_UNAVAILABLE
+from homeassistant.const import STATE_UNAVAILABLE, Platform
 
 from tests.common import MockConfigEntry
 from tests.components.nws.const import NWS_CONFIG
@@ -18,7 +17,7 @@ async def test_unload_entry(hass, mock_simple_nws):
     await hass.config_entries.async_setup(entry.entry_id)
     await hass.async_block_till_done()
 
-    assert len(hass.states.async_entity_ids(WEATHER_DOMAIN)) == 1
+    assert len(hass.states.async_entity_ids(Platform.WEATHER)) == 1
     assert DOMAIN in hass.data
 
     assert len(hass.data[DOMAIN]) == 1
@@ -26,7 +25,7 @@ async def test_unload_entry(hass, mock_simple_nws):
     assert len(entries) == 1
 
     assert await hass.config_entries.async_unload(entries[0].entry_id)
-    entities = hass.states.async_entity_ids(WEATHER_DOMAIN)
+    entities = hass.states.async_entity_ids(Platform.WEATHER)
     assert len(entities) == 1
     for entity in entities:
         assert hass.states.get(entity).state == STATE_UNAVAILABLE
@@ -34,4 +33,4 @@ async def test_unload_entry(hass, mock_simple_nws):
 
     assert await hass.config_entries.async_remove(entries[0].entry_id)
     await hass.async_block_till_done()
-    assert len(hass.states.async_entity_ids(WEATHER_DOMAIN)) == 0
+    assert len(hass.states.async_entity_ids(Platform.WEATHER)) == 0

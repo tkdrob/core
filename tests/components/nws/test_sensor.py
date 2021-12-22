@@ -2,8 +2,7 @@
 import pytest
 
 from homeassistant.components.nws.const import ATTRIBUTION, DOMAIN, SENSOR_TYPES
-from homeassistant.components.sensor import DOMAIN as SENSOR_DOMAIN
-from homeassistant.const import ATTR_ATTRIBUTION, STATE_UNKNOWN
+from homeassistant.const import ATTR_ATTRIBUTION, STATE_UNKNOWN, Platform
 from homeassistant.util import slugify
 from homeassistant.util.unit_system import IMPERIAL_SYSTEM, METRIC_SYSTEM
 
@@ -37,7 +36,7 @@ async def test_imperial_metric(
 
     for description in SENSOR_TYPES:
         registry.async_get_or_create(
-            SENSOR_DOMAIN,
+            Platform.SENSOR,
             DOMAIN,
             f"35_-75_{description.key}",
             suggested_object_id=f"abc_{description.name}",
@@ -70,7 +69,7 @@ async def test_none_values(hass, mock_simple_nws, no_weather):
 
     for description in SENSOR_TYPES:
         registry.async_get_or_create(
-            SENSOR_DOMAIN,
+            Platform.SENSOR,
             DOMAIN,
             f"35_-75_{description.key}",
             suggested_object_id=f"abc_{description.name}",
