@@ -5,11 +5,11 @@ from pmsensor import co2sensor
 from pmsensor.co2sensor import read_mh_z19_with_temperature
 
 import homeassistant.components.mhz19.sensor as mhz19
-from homeassistant.components.sensor import DOMAIN
 from homeassistant.const import (
     CONCENTRATION_PARTS_PER_MILLION,
     TEMP_CELSIUS,
     TEMP_FAHRENHEIT,
+    Platform,
 )
 from homeassistant.setup import async_setup_component
 
@@ -20,7 +20,7 @@ async def test_setup_missing_config(hass):
     """Test setup with configuration missing required entries."""
     with assert_setup_component(0):
         assert await async_setup_component(
-            hass, DOMAIN, {"sensor": {"platform": "mhz19"}}
+            hass, Platform.SENSOR, {"sensor": {"platform": "mhz19"}}
         )
 
 
