@@ -3,13 +3,13 @@ import pytest
 
 import homeassistant.components.automation as automation
 from homeassistant.components.device_automation import DeviceAutomationType
-from homeassistant.components.media_player import DOMAIN
 from homeassistant.const import (
     STATE_IDLE,
     STATE_OFF,
     STATE_ON,
     STATE_PAUSED,
     STATE_PLAYING,
+    Platform,
 )
 from homeassistant.helpers import device_registry
 from homeassistant.setup import async_setup_component
@@ -51,42 +51,44 @@ async def test_get_conditions(hass, device_reg, entity_reg):
         config_entry_id=config_entry.entry_id,
         connections={(device_registry.CONNECTION_NETWORK_MAC, "12:34:56:AB:CD:EF")},
     )
-    entity_reg.async_get_or_create(DOMAIN, "test", "5678", device_id=device_entry.id)
+    entity_reg.async_get_or_create(
+        Platform.MEDIA_PLAYER, "test", "5678", device_id=device_entry.id
+    )
     expected_conditions = [
         {
             "condition": "device",
-            "domain": DOMAIN,
+            "domain": Platform.MEDIA_PLAYER,
             "type": "is_off",
             "device_id": device_entry.id,
-            "entity_id": f"{DOMAIN}.test_5678",
+            "entity_id": f"{Platform.MEDIA_PLAYER}.test_5678",
         },
         {
             "condition": "device",
-            "domain": DOMAIN,
+            "domain": Platform.MEDIA_PLAYER,
             "type": "is_on",
             "device_id": device_entry.id,
-            "entity_id": f"{DOMAIN}.test_5678",
+            "entity_id": f"{Platform.MEDIA_PLAYER}.test_5678",
         },
         {
             "condition": "device",
-            "domain": DOMAIN,
+            "domain": Platform.MEDIA_PLAYER,
             "type": "is_idle",
             "device_id": device_entry.id,
-            "entity_id": f"{DOMAIN}.test_5678",
+            "entity_id": f"{Platform.MEDIA_PLAYER}.test_5678",
         },
         {
             "condition": "device",
-            "domain": DOMAIN,
+            "domain": Platform.MEDIA_PLAYER,
             "type": "is_paused",
             "device_id": device_entry.id,
-            "entity_id": f"{DOMAIN}.test_5678",
+            "entity_id": f"{Platform.MEDIA_PLAYER}.test_5678",
         },
         {
             "condition": "device",
-            "domain": DOMAIN,
+            "domain": Platform.MEDIA_PLAYER,
             "type": "is_playing",
             "device_id": device_entry.id,
-            "entity_id": f"{DOMAIN}.test_5678",
+            "entity_id": f"{Platform.MEDIA_PLAYER}.test_5678",
         },
     ]
     conditions = await async_get_device_automations(
@@ -109,7 +111,7 @@ async def test_if_state(hass, calls):
                     "condition": [
                         {
                             "condition": "device",
-                            "domain": DOMAIN,
+                            "domain": Platform.MEDIA_PLAYER,
                             "device_id": "",
                             "entity_id": "media_player.entity",
                             "type": "is_on",
@@ -127,7 +129,7 @@ async def test_if_state(hass, calls):
                     "condition": [
                         {
                             "condition": "device",
-                            "domain": DOMAIN,
+                            "domain": Platform.MEDIA_PLAYER,
                             "device_id": "",
                             "entity_id": "media_player.entity",
                             "type": "is_off",
@@ -145,7 +147,7 @@ async def test_if_state(hass, calls):
                     "condition": [
                         {
                             "condition": "device",
-                            "domain": DOMAIN,
+                            "domain": Platform.MEDIA_PLAYER,
                             "device_id": "",
                             "entity_id": "media_player.entity",
                             "type": "is_idle",
@@ -163,7 +165,7 @@ async def test_if_state(hass, calls):
                     "condition": [
                         {
                             "condition": "device",
-                            "domain": DOMAIN,
+                            "domain": Platform.MEDIA_PLAYER,
                             "device_id": "",
                             "entity_id": "media_player.entity",
                             "type": "is_paused",
@@ -181,7 +183,7 @@ async def test_if_state(hass, calls):
                     "condition": [
                         {
                             "condition": "device",
-                            "domain": DOMAIN,
+                            "domain": Platform.MEDIA_PLAYER,
                             "device_id": "",
                             "entity_id": "media_player.entity",
                             "type": "is_playing",

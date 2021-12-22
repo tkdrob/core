@@ -5,13 +5,13 @@ import pytest
 
 import homeassistant.components.automation as automation
 from homeassistant.components.device_automation import DeviceAutomationType
-from homeassistant.components.media_player import DOMAIN
 from homeassistant.const import (
     STATE_IDLE,
     STATE_OFF,
     STATE_ON,
     STATE_PAUSED,
     STATE_PLAYING,
+    Platform,
 )
 from homeassistant.helpers import device_registry
 from homeassistant.setup import async_setup_component
@@ -56,16 +56,18 @@ async def test_get_triggers(hass, device_reg, entity_reg):
         config_entry_id=config_entry.entry_id,
         connections={(device_registry.CONNECTION_NETWORK_MAC, "12:34:56:AB:CD:EF")},
     )
-    entity_reg.async_get_or_create(DOMAIN, "test", "5678", device_id=device_entry.id)
+    entity_reg.async_get_or_create(
+        Platform.MEDIA_PLAYER, "test", "5678", device_id=device_entry.id
+    )
 
     trigger_types = {"turned_on", "turned_off", "idle", "paused", "playing"}
     expected_triggers = [
         {
             "platform": "device",
-            "domain": DOMAIN,
+            "domain": Platform.MEDIA_PLAYER,
             "type": trigger,
             "device_id": device_entry.id,
-            "entity_id": f"{DOMAIN}.test_5678",
+            "entity_id": f"{Platform.MEDIA_PLAYER}.test_5678",
         }
         for trigger in trigger_types
     ]
@@ -83,7 +85,9 @@ async def test_get_trigger_capabilities(hass, device_reg, entity_reg):
         config_entry_id=config_entry.entry_id,
         connections={(device_registry.CONNECTION_NETWORK_MAC, "12:34:56:AB:CD:EF")},
     )
-    entity_reg.async_get_or_create(DOMAIN, "test", "5678", device_id=device_entry.id)
+    entity_reg.async_get_or_create(
+        Platform.MEDIA_PLAYER, "test", "5678", device_id=device_entry.id
+    )
 
     triggers = await async_get_device_automations(
         hass, DeviceAutomationType.TRIGGER, device_entry.id
@@ -119,7 +123,7 @@ async def test_if_fires_on_state_change(hass, calls):
                 {
                     "trigger": {
                         "platform": "device",
-                        "domain": DOMAIN,
+                        "domain": Platform.MEDIA_PLAYER,
                         "device_id": "",
                         "entity_id": "media_player.entity",
                         "type": trigger,
@@ -182,7 +186,7 @@ async def test_if_fires_on_state_change(hass, calls):
 
 async def test_if_fires_on_state_change_with_for(hass, calls):
     """Test for triggers firing with delay."""
-    entity_id = f"{DOMAIN}.entity"
+    entity_id = f"{Platform.MEDIA_PLAYER}.entity"
     hass.states.async_set(entity_id, STATE_OFF)
 
     assert await async_setup_component(
@@ -193,7 +197,7 @@ async def test_if_fires_on_state_change_with_for(hass, calls):
                 {
                     "trigger": {
                         "platform": "device",
-                        "domain": DOMAIN,
+                        "domain": Platform.MEDIA_PLAYER,
                         "device_id": "",
                         "entity_id": entity_id,
                         "type": "turned_on",
