@@ -1,7 +1,6 @@
 """The tests for the Modbus climate component."""
 import pytest
 
-from homeassistant.components.climate import DOMAIN as CLIMATE_DOMAIN
 from homeassistant.components.climate.const import HVAC_MODE_AUTO
 from homeassistant.components.modbus.const import (
     CONF_CLIMATES,
@@ -17,12 +16,13 @@ from homeassistant.const import (
     CONF_NAME,
     CONF_SCAN_INTERVAL,
     CONF_SLAVE,
+    Platform,
 )
 from homeassistant.core import State
 
 from .conftest import TEST_ENTITY_NAME, ReadResult
 
-ENTITY_ID = f"{CLIMATE_DOMAIN}.{TEST_ENTITY_NAME}"
+ENTITY_ID = f"{Platform.CLIMATE}.{TEST_ENTITY_NAME}"
 
 
 @pytest.mark.parametrize(
@@ -55,7 +55,7 @@ ENTITY_ID = f"{CLIMATE_DOMAIN}.{TEST_ENTITY_NAME}"
 )
 async def test_config_climate(hass, mock_modbus):
     """Run configuration test for climate."""
-    assert CLIMATE_DOMAIN in hass.config.components
+    assert Platform.CLIMATE in hass.config.components
 
 
 @pytest.mark.parametrize(
@@ -185,7 +185,7 @@ async def test_service_climate_set_temperature(
     """Test set_temperature."""
     mock_modbus.read_holding_registers.return_value = ReadResult(result)
     await hass.services.async_call(
-        CLIMATE_DOMAIN,
+        Platform.CLIMATE,
         "set_temperature",
         {
             "entity_id": ENTITY_ID,

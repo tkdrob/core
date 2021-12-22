@@ -1,7 +1,6 @@
 """Thetests for the Modbus sensor component."""
 import pytest
 
-from homeassistant.components.binary_sensor import DOMAIN as SENSOR_DOMAIN
 from homeassistant.components.modbus.const import (
     CALL_TYPE_COIL,
     CALL_TYPE_DISCRETE,
@@ -18,12 +17,13 @@ from homeassistant.const import (
     STATE_OFF,
     STATE_ON,
     STATE_UNAVAILABLE,
+    Platform,
 )
 from homeassistant.core import State
 
 from .conftest import TEST_ENTITY_NAME, ReadResult, do_next_cycle
 
-ENTITY_ID = f"{SENSOR_DOMAIN}.{TEST_ENTITY_NAME}"
+ENTITY_ID = f"{Platform.BINARY_SENSOR}.{TEST_ENTITY_NAME}"
 
 
 @pytest.mark.parametrize(
@@ -53,7 +53,7 @@ ENTITY_ID = f"{SENSOR_DOMAIN}.{TEST_ENTITY_NAME}"
 )
 async def test_config_binary_sensor(hass, mock_modbus):
     """Run config test for binary sensor."""
-    assert SENSOR_DOMAIN in hass.config.components
+    assert Platform.BINARY_SENSOR in hass.config.components
 
 
 @pytest.mark.parametrize(

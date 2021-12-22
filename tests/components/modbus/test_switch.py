@@ -19,7 +19,6 @@ from homeassistant.components.modbus.const import (
     MODBUS_DOMAIN,
     TCP,
 )
-from homeassistant.components.switch import DOMAIN as SWITCH_DOMAIN
 from homeassistant.const import (
     CONF_ADDRESS,
     CONF_COMMAND_OFF,
@@ -36,6 +35,7 @@ from homeassistant.const import (
     STATE_OFF,
     STATE_ON,
     STATE_UNAVAILABLE,
+    Platform,
 )
 from homeassistant.core import State
 from homeassistant.setup import async_setup_component
@@ -51,7 +51,7 @@ from .conftest import (
 
 from tests.common import async_fire_time_changed
 
-ENTITY_ID = f"{SWITCH_DOMAIN}.{TEST_ENTITY_NAME}"
+ENTITY_ID = f"{Platform.SWITCH}.{TEST_ENTITY_NAME}"
 ENTITY_ID2 = f"{ENTITY_ID}2"
 
 
@@ -149,7 +149,7 @@ ENTITY_ID2 = f"{ENTITY_ID}2"
 )
 async def test_config_switch(hass, mock_modbus):
     """Run configurationtest for switch."""
-    assert SWITCH_DOMAIN in hass.config.components
+    assert Platform.SWITCH in hass.config.components
 
 
 @pytest.mark.parametrize(

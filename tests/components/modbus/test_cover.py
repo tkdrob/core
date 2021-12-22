@@ -3,7 +3,6 @@
 from pymodbus.exceptions import ModbusException
 import pytest
 
-from homeassistant.components.cover import DOMAIN as COVER_DOMAIN
 from homeassistant.components.modbus.const import (
     CALL_TYPE_COIL,
     CALL_TYPE_REGISTER_HOLDING,
@@ -27,12 +26,13 @@ from homeassistant.const import (
     STATE_OPEN,
     STATE_OPENING,
     STATE_UNAVAILABLE,
+    Platform,
 )
 from homeassistant.core import State
 
 from .conftest import TEST_ENTITY_NAME, ReadResult, do_next_cycle
 
-ENTITY_ID = f"{COVER_DOMAIN}.{TEST_ENTITY_NAME}"
+ENTITY_ID = f"{Platform.COVER}.{TEST_ENTITY_NAME}"
 ENTITY_ID2 = f"{ENTITY_ID}2"
 
 
@@ -64,7 +64,7 @@ ENTITY_ID2 = f"{ENTITY_ID}2"
 )
 async def test_config_cover(hass, mock_modbus):
     """Run configuration test for cover."""
-    assert COVER_DOMAIN in hass.config.components
+    assert Platform.COVER in hass.config.components
 
 
 @pytest.mark.parametrize(

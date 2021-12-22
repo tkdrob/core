@@ -21,7 +21,6 @@ from pymodbus.pdu import ExceptionResponse, IllegalFunctionRequest
 import pytest
 import voluptuous as vol
 
-from homeassistant.components.binary_sensor import DOMAIN as BINARY_SENSOR_DOMAIN
 from homeassistant.components.modbus.const import (
     ATTR_ADDRESS,
     ATTR_HUB,
@@ -64,7 +63,6 @@ from homeassistant.components.modbus.validators import (
     number_validator,
     struct_validator,
 )
-from homeassistant.components.sensor import DOMAIN as SENSOR_DOMAIN
 from homeassistant.const import (
     CONF_ADDRESS,
     CONF_BINARY_SENSORS,
@@ -83,6 +81,7 @@ from homeassistant.const import (
     STATE_ON,
     STATE_UNAVAILABLE,
     STATE_UNKNOWN,
+    Platform,
 )
 from homeassistant.setup import async_setup_component
 import homeassistant.util.dt as dt_util
@@ -566,10 +565,10 @@ async def mock_modbus_read_pymodbus_fixture(
 @pytest.mark.parametrize(
     "do_domain, do_group,do_type,do_scan_interval",
     [
-        [SENSOR_DOMAIN, CONF_SENSORS, CALL_TYPE_REGISTER_HOLDING, 10],
-        [SENSOR_DOMAIN, CONF_SENSORS, CALL_TYPE_REGISTER_INPUT, 10],
-        [BINARY_SENSOR_DOMAIN, CONF_BINARY_SENSORS, CALL_TYPE_DISCRETE, 10],
-        [BINARY_SENSOR_DOMAIN, CONF_BINARY_SENSORS, CALL_TYPE_COIL, 1],
+        [Platform.SENSOR, CONF_SENSORS, CALL_TYPE_REGISTER_HOLDING, 10],
+        [Platform.SENSOR, CONF_SENSORS, CALL_TYPE_REGISTER_INPUT, 10],
+        [Platform.BINARY_SENSOR, CONF_BINARY_SENSORS, CALL_TYPE_DISCRETE, 10],
+        [Platform.BINARY_SENSOR, CONF_BINARY_SENSORS, CALL_TYPE_COIL, 1],
     ],
 )
 @pytest.mark.parametrize(
@@ -597,7 +596,7 @@ async def test_pb_read(
     assert hass.states.get(entity_id).state
 
     # this if is needed to avoid explode the
-    if do_domain == SENSOR_DOMAIN:
+    if do_domain == Platform.SENSOR:
         do_expect = do_expect_value
     else:
         do_expect = do_expect_state
@@ -674,7 +673,7 @@ async def test_delay(hass, mock_pymodbus):
     # We "hijiack" a binary_sensor to make a proper blackbox test.
     set_delay = 15
     set_scan_interval = 5
-    entity_id = f"{BINARY_SENSOR_DOMAIN}.{TEST_ENTITY_NAME}"
+    entity_id = f"{Platform.BINARY_SENSOR}.{TEST_ENTITY_NAME}"
     config = {
         DOMAIN: [
             {
@@ -768,7 +767,7 @@ async def test_stop_restart(hass, caplog, mock_modbus):
     """Run test for service stop."""
 
     caplog.set_level(logging.INFO)
-    entity_id = f"{SENSOR_DOMAIN}.{TEST_ENTITY_NAME}"
+    entity_id = f"{Platform.SENSOR}.{TEST_ENTITY_NAME}"
     assert hass.states.get(entity_id).state == STATE_UNKNOWN
     hass.states.async_set(entity_id, 17)
     await hass.async_block_till_done()

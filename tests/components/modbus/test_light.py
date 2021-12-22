@@ -2,7 +2,6 @@
 from pymodbus.exceptions import ModbusException
 import pytest
 
-from homeassistant.components.light import DOMAIN as LIGHT_DOMAIN
 from homeassistant.components.modbus.const import (
     CALL_TYPE_COIL,
     CALL_TYPE_DISCRETE,
@@ -31,13 +30,14 @@ from homeassistant.const import (
     STATE_OFF,
     STATE_ON,
     STATE_UNAVAILABLE,
+    Platform,
 )
 from homeassistant.core import State
 from homeassistant.setup import async_setup_component
 
 from .conftest import TEST_ENTITY_NAME, TEST_MODBUS_HOST, TEST_PORT_TCP, ReadResult
 
-ENTITY_ID = f"{LIGHT_DOMAIN}.{TEST_ENTITY_NAME}"
+ENTITY_ID = f"{Platform.LIGHT}.{TEST_ENTITY_NAME}"
 ENTITY_ID2 = f"{ENTITY_ID}2"
 
 
@@ -129,7 +129,7 @@ ENTITY_ID2 = f"{ENTITY_ID}2"
 )
 async def test_config_light(hass, mock_modbus):
     """Run configuration test for light."""
-    assert LIGHT_DOMAIN in hass.config.components
+    assert Platform.LIGHT in hass.config.components
 
 
 @pytest.mark.parametrize(
