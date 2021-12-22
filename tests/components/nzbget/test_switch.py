@@ -1,11 +1,11 @@
 """Test the NZBGet switches."""
-from homeassistant.components.switch import DOMAIN as SWITCH_DOMAIN
 from homeassistant.const import (
     ATTR_ENTITY_ID,
     SERVICE_TURN_OFF,
     SERVICE_TURN_ON,
     STATE_OFF,
     STATE_ON,
+    Platform,
 )
 from homeassistant.helpers import entity_registry as er
 
@@ -49,7 +49,7 @@ async def test_download_switch_services(hass, nzbget_api) -> None:
     assert entry
 
     await hass.services.async_call(
-        SWITCH_DOMAIN,
+        Platform.SWITCH,
         SERVICE_TURN_OFF,
         {ATTR_ENTITY_ID: entity_id},
         blocking=True,
@@ -57,7 +57,7 @@ async def test_download_switch_services(hass, nzbget_api) -> None:
     instance.pausedownload.assert_called_once()
 
     await hass.services.async_call(
-        SWITCH_DOMAIN,
+        Platform.SWITCH,
         SERVICE_TURN_ON,
         {ATTR_ENTITY_ID: entity_id},
         blocking=True,
