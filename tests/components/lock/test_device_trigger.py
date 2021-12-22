@@ -5,13 +5,13 @@ import pytest
 
 import homeassistant.components.automation as automation
 from homeassistant.components.device_automation import DeviceAutomationType
-from homeassistant.components.lock import DOMAIN
 from homeassistant.const import (
     STATE_JAMMED,
     STATE_LOCKED,
     STATE_LOCKING,
     STATE_UNLOCKED,
     STATE_UNLOCKING,
+    Platform,
 )
 from homeassistant.helpers import device_registry
 from homeassistant.setup import async_setup_component
@@ -56,42 +56,44 @@ async def test_get_triggers(hass, device_reg, entity_reg):
         config_entry_id=config_entry.entry_id,
         connections={(device_registry.CONNECTION_NETWORK_MAC, "12:34:56:AB:CD:EF")},
     )
-    entity_reg.async_get_or_create(DOMAIN, "test", "5678", device_id=device_entry.id)
+    entity_reg.async_get_or_create(
+        Platform.LOCK, "test", "5678", device_id=device_entry.id
+    )
     expected_triggers = [
         {
             "platform": "device",
-            "domain": DOMAIN,
+            "domain": Platform.LOCK,
             "type": "locked",
             "device_id": device_entry.id,
-            "entity_id": f"{DOMAIN}.test_5678",
+            "entity_id": f"{Platform.LOCK}.test_5678",
         },
         {
             "platform": "device",
-            "domain": DOMAIN,
+            "domain": Platform.LOCK,
             "type": "unlocked",
             "device_id": device_entry.id,
-            "entity_id": f"{DOMAIN}.test_5678",
+            "entity_id": f"{Platform.LOCK}.test_5678",
         },
         {
             "platform": "device",
-            "domain": DOMAIN,
+            "domain": Platform.LOCK,
             "type": "unlocking",
             "device_id": device_entry.id,
-            "entity_id": f"{DOMAIN}.test_5678",
+            "entity_id": f"{Platform.LOCK}.test_5678",
         },
         {
             "platform": "device",
-            "domain": DOMAIN,
+            "domain": Platform.LOCK,
             "type": "locking",
             "device_id": device_entry.id,
-            "entity_id": f"{DOMAIN}.test_5678",
+            "entity_id": f"{Platform.LOCK}.test_5678",
         },
         {
             "platform": "device",
-            "domain": DOMAIN,
+            "domain": Platform.LOCK,
             "type": "jammed",
             "device_id": device_entry.id,
-            "entity_id": f"{DOMAIN}.test_5678",
+            "entity_id": f"{Platform.LOCK}.test_5678",
         },
     ]
     triggers = await async_get_device_automations(
@@ -108,7 +110,9 @@ async def test_get_trigger_capabilities(hass, device_reg, entity_reg):
         config_entry_id=config_entry.entry_id,
         connections={(device_registry.CONNECTION_NETWORK_MAC, "12:34:56:AB:CD:EF")},
     )
-    entity_reg.async_get_or_create(DOMAIN, "test", "5678", device_id=device_entry.id)
+    entity_reg.async_get_or_create(
+        Platform.LOCK, "test", "5678", device_id=device_entry.id
+    )
 
     triggers = await async_get_device_automations(
         hass, DeviceAutomationType.TRIGGER, device_entry.id
@@ -137,7 +141,7 @@ async def test_if_fires_on_state_change(hass, calls):
                 {
                     "trigger": {
                         "platform": "device",
-                        "domain": DOMAIN,
+                        "domain": Platform.LOCK,
                         "device_id": "",
                         "entity_id": "lock.entity",
                         "type": "locked",
@@ -156,7 +160,7 @@ async def test_if_fires_on_state_change(hass, calls):
                 {
                     "trigger": {
                         "platform": "device",
-                        "domain": DOMAIN,
+                        "domain": Platform.LOCK,
                         "device_id": "",
                         "entity_id": "lock.entity",
                         "type": "unlocked",
@@ -195,7 +199,7 @@ async def test_if_fires_on_state_change(hass, calls):
 
 async def test_if_fires_on_state_change_with_for(hass, calls):
     """Test for triggers firing with delay."""
-    entity_id = f"{DOMAIN}.entity"
+    entity_id = f"{Platform.LOCK}.entity"
     hass.states.async_set(entity_id, STATE_UNLOCKED)
 
     assert await async_setup_component(
@@ -206,7 +210,7 @@ async def test_if_fires_on_state_change_with_for(hass, calls):
                 {
                     "trigger": {
                         "platform": "device",
-                        "domain": DOMAIN,
+                        "domain": Platform.LOCK,
                         "device_id": "",
                         "entity_id": entity_id,
                         "type": "locked",
@@ -231,7 +235,7 @@ async def test_if_fires_on_state_change_with_for(hass, calls):
                 {
                     "trigger": {
                         "platform": "device",
-                        "domain": DOMAIN,
+                        "domain": Platform.LOCK,
                         "device_id": "",
                         "entity_id": entity_id,
                         "type": "unlocking",
@@ -256,7 +260,7 @@ async def test_if_fires_on_state_change_with_for(hass, calls):
                 {
                     "trigger": {
                         "platform": "device",
-                        "domain": DOMAIN,
+                        "domain": Platform.LOCK,
                         "device_id": "",
                         "entity_id": entity_id,
                         "type": "jammed",
@@ -281,7 +285,7 @@ async def test_if_fires_on_state_change_with_for(hass, calls):
                 {
                     "trigger": {
                         "platform": "device",
-                        "domain": DOMAIN,
+                        "domain": Platform.LOCK,
                         "device_id": "",
                         "entity_id": entity_id,
                         "type": "locking",

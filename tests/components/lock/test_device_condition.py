@@ -3,13 +3,13 @@ import pytest
 
 import homeassistant.components.automation as automation
 from homeassistant.components.device_automation import DeviceAutomationType
-from homeassistant.components.lock import DOMAIN
 from homeassistant.const import (
     STATE_JAMMED,
     STATE_LOCKED,
     STATE_LOCKING,
     STATE_UNLOCKED,
     STATE_UNLOCKING,
+    Platform,
 )
 from homeassistant.helpers import device_registry
 from homeassistant.setup import async_setup_component
@@ -51,42 +51,44 @@ async def test_get_conditions(hass, device_reg, entity_reg):
         config_entry_id=config_entry.entry_id,
         connections={(device_registry.CONNECTION_NETWORK_MAC, "12:34:56:AB:CD:EF")},
     )
-    entity_reg.async_get_or_create(DOMAIN, "test", "5678", device_id=device_entry.id)
+    entity_reg.async_get_or_create(
+        Platform.LOCK, "test", "5678", device_id=device_entry.id
+    )
     expected_conditions = [
         {
             "condition": "device",
-            "domain": DOMAIN,
+            "domain": Platform.LOCK,
             "type": "is_locked",
             "device_id": device_entry.id,
-            "entity_id": f"{DOMAIN}.test_5678",
+            "entity_id": f"{Platform.LOCK}.test_5678",
         },
         {
             "condition": "device",
-            "domain": DOMAIN,
+            "domain": Platform.LOCK,
             "type": "is_unlocked",
             "device_id": device_entry.id,
-            "entity_id": f"{DOMAIN}.test_5678",
+            "entity_id": f"{Platform.LOCK}.test_5678",
         },
         {
             "condition": "device",
-            "domain": DOMAIN,
+            "domain": Platform.LOCK,
             "type": "is_unlocking",
             "device_id": device_entry.id,
-            "entity_id": f"{DOMAIN}.test_5678",
+            "entity_id": f"{Platform.LOCK}.test_5678",
         },
         {
             "condition": "device",
-            "domain": DOMAIN,
+            "domain": Platform.LOCK,
             "type": "is_locking",
             "device_id": device_entry.id,
-            "entity_id": f"{DOMAIN}.test_5678",
+            "entity_id": f"{Platform.LOCK}.test_5678",
         },
         {
             "condition": "device",
-            "domain": DOMAIN,
+            "domain": Platform.LOCK,
             "type": "is_jammed",
             "device_id": device_entry.id,
-            "entity_id": f"{DOMAIN}.test_5678",
+            "entity_id": f"{Platform.LOCK}.test_5678",
         },
     ]
     conditions = await async_get_device_automations(
@@ -109,7 +111,7 @@ async def test_if_state(hass, calls):
                     "condition": [
                         {
                             "condition": "device",
-                            "domain": DOMAIN,
+                            "domain": Platform.LOCK,
                             "device_id": "",
                             "entity_id": "lock.entity",
                             "type": "is_locked",
@@ -127,7 +129,7 @@ async def test_if_state(hass, calls):
                     "condition": [
                         {
                             "condition": "device",
-                            "domain": DOMAIN,
+                            "domain": Platform.LOCK,
                             "device_id": "",
                             "entity_id": "lock.entity",
                             "type": "is_unlocked",
@@ -145,7 +147,7 @@ async def test_if_state(hass, calls):
                     "condition": [
                         {
                             "condition": "device",
-                            "domain": DOMAIN,
+                            "domain": Platform.LOCK,
                             "device_id": "",
                             "entity_id": "lock.entity",
                             "type": "is_unlocking",
@@ -163,7 +165,7 @@ async def test_if_state(hass, calls):
                     "condition": [
                         {
                             "condition": "device",
-                            "domain": DOMAIN,
+                            "domain": Platform.LOCK,
                             "device_id": "",
                             "entity_id": "lock.entity",
                             "type": "is_locking",
@@ -181,7 +183,7 @@ async def test_if_state(hass, calls):
                     "condition": [
                         {
                             "condition": "device",
-                            "domain": DOMAIN,
+                            "domain": Platform.LOCK,
                             "device_id": "",
                             "entity_id": "lock.entity",
                             "type": "is_jammed",

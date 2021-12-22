@@ -3,7 +3,8 @@ import pytest
 
 import homeassistant.components.automation as automation
 from homeassistant.components.device_automation import DeviceAutomationType
-from homeassistant.components.lock import DOMAIN, SUPPORT_OPEN
+from homeassistant.components.lock import SUPPORT_OPEN
+from homeassistant.const import Platform
 from homeassistant.helpers import device_registry
 from homeassistant.setup import async_setup_component
 
@@ -56,7 +57,7 @@ async def test_get_actions(
         connections={(device_registry.CONNECTION_NETWORK_MAC, "12:34:56:AB:CD:EF")},
     )
     entity_reg.async_get_or_create(
-        DOMAIN,
+        Platform.LOCK,
         "test",
         "5678",
         device_id=device_entry.id,
@@ -64,25 +65,27 @@ async def test_get_actions(
     )
     if set_state:
         hass.states.async_set(
-            f"{DOMAIN}.test_5678", "attributes", {"supported_features": features_state}
+            f"{Platform.LOCK}.test_5678",
+            "attributes",
+            {"supported_features": features_state},
         )
     expected_actions = []
     basic_action_types = ["lock", "unlock"]
     expected_actions += [
         {
-            "domain": DOMAIN,
+            "domain": Platform.LOCK,
             "type": action,
             "device_id": device_entry.id,
-            "entity_id": f"{DOMAIN}.test_5678",
+            "entity_id": f"{Platform.LOCK}.test_5678",
         }
         for action in basic_action_types
     ]
     expected_actions += [
         {
-            "domain": DOMAIN,
+            "domain": Platform.LOCK,
             "type": action,
             "device_id": device_entry.id,
-            "entity_id": f"{DOMAIN}.test_5678",
+            "entity_id": f"{Platform.LOCK}.test_5678",
         }
         for action in expected_action_types
     ]
@@ -102,7 +105,7 @@ async def test_action(hass):
                 {
                     "trigger": {"platform": "event", "event_type": "test_event_lock"},
                     "action": {
-                        "domain": DOMAIN,
+                        "domain": Platform.LOCK,
                         "device_id": "abcdefgh",
                         "entity_id": "lock.entity",
                         "type": "lock",
@@ -111,7 +114,7 @@ async def test_action(hass):
                 {
                     "trigger": {"platform": "event", "event_type": "test_event_unlock"},
                     "action": {
-                        "domain": DOMAIN,
+                        "domain": Platform.LOCK,
                         "device_id": "abcdefgh",
                         "entity_id": "lock.entity",
                         "type": "unlock",
@@ -120,7 +123,7 @@ async def test_action(hass):
                 {
                     "trigger": {"platform": "event", "event_type": "test_event_open"},
                     "action": {
-                        "domain": DOMAIN,
+                        "domain": Platform.LOCK,
                         "device_id": "abcdefgh",
                         "entity_id": "lock.entity",
                         "type": "open",
