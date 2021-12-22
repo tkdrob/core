@@ -4,7 +4,8 @@ import voluptuous_serialize
 
 import homeassistant.components.automation as automation
 from homeassistant.components.device_automation import DeviceAutomationType
-from homeassistant.components.number import DOMAIN, device_action
+from homeassistant.components.number import device_action
+from homeassistant.const import Platform
 from homeassistant.helpers import config_validation as cv, device_registry
 from homeassistant.setup import async_setup_component
 
@@ -39,11 +40,13 @@ async def test_get_actions(hass, device_reg, entity_reg):
         config_entry_id=config_entry.entry_id,
         connections={(device_registry.CONNECTION_NETWORK_MAC, "12:34:56:AB:CD:EF")},
     )
-    entity_reg.async_get_or_create(DOMAIN, "test", "5678", device_id=device_entry.id)
+    entity_reg.async_get_or_create(
+        Platform.NUMBER, "test", "5678", device_id=device_entry.id
+    )
     hass.states.async_set("number.test_5678", 0.5, {"min_value": 0.0, "max_value": 1.0})
     expected_actions = [
         {
-            "domain": DOMAIN,
+            "domain": Platform.NUMBER,
             "type": "set_value",
             "device_id": device_entry.id,
             "entity_id": "number.test_5678",
@@ -63,10 +66,12 @@ async def test_get_action_no_state(hass, device_reg, entity_reg):
         config_entry_id=config_entry.entry_id,
         connections={(device_registry.CONNECTION_NETWORK_MAC, "12:34:56:AB:CD:EF")},
     )
-    entity_reg.async_get_or_create(DOMAIN, "test", "5678", device_id=device_entry.id)
+    entity_reg.async_get_or_create(
+        Platform.NUMBER, "test", "5678", device_id=device_entry.id
+    )
     expected_actions = [
         {
-            "domain": DOMAIN,
+            "domain": Platform.NUMBER,
             "type": "set_value",
             "device_id": device_entry.id,
             "entity_id": "number.test_5678",
@@ -93,7 +98,7 @@ async def test_action(hass):
                         "event_type": "test_event_set_value",
                     },
                     "action": {
-                        "domain": DOMAIN,
+                        "domain": Platform.NUMBER,
                         "device_id": "abcdefgh",
                         "entity_id": "number.entity",
                         "type": "set_value",
@@ -104,7 +109,7 @@ async def test_action(hass):
         },
     )
 
-    calls = async_mock_service(hass, DOMAIN, "set_value")
+    calls = async_mock_service(hass, Platform.NUMBER, "set_value")
 
     assert len(calls) == 0
 
@@ -119,7 +124,7 @@ async def test_capabilities(hass):
     capabilities = await device_action.async_get_action_capabilities(
         hass,
         {
-            "domain": DOMAIN,
+            "domain": Platform.NUMBER,
             "device_id": "abcdefgh",
             "entity_id": "number.entity",
             "type": "set_value",
