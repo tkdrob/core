@@ -3,7 +3,6 @@ from unittest.mock import patch
 
 from aiomodernforms import ModernFormsConnectionError
 
-from homeassistant.components.switch import DOMAIN as SWITCH_DOMAIN
 from homeassistant.const import (
     ATTR_ENTITY_ID,
     ATTR_ICON,
@@ -11,6 +10,7 @@ from homeassistant.const import (
     SERVICE_TURN_ON,
     STATE_OFF,
     STATE_UNAVAILABLE,
+    Platform,
 )
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers import entity_registry as er
@@ -55,7 +55,7 @@ async def test_switch_change_state(
     # Away Mode
     with patch("aiomodernforms.ModernFormsDevice.away") as away_mock:
         await hass.services.async_call(
-            SWITCH_DOMAIN,
+            Platform.SWITCH,
             SERVICE_TURN_ON,
             {ATTR_ENTITY_ID: "switch.modernformsfan_away_mode"},
             blocking=True,
@@ -65,7 +65,7 @@ async def test_switch_change_state(
 
     with patch("aiomodernforms.ModernFormsDevice.away") as away_mock:
         await hass.services.async_call(
-            SWITCH_DOMAIN,
+            Platform.SWITCH,
             SERVICE_TURN_OFF,
             {ATTR_ENTITY_ID: "switch.modernformsfan_away_mode"},
             blocking=True,
@@ -78,7 +78,7 @@ async def test_switch_change_state(
         "aiomodernforms.ModernFormsDevice.adaptive_learning"
     ) as adaptive_learning_mock:
         await hass.services.async_call(
-            SWITCH_DOMAIN,
+            Platform.SWITCH,
             SERVICE_TURN_ON,
             {ATTR_ENTITY_ID: "switch.modernformsfan_adaptive_learning"},
             blocking=True,
@@ -90,7 +90,7 @@ async def test_switch_change_state(
         "aiomodernforms.ModernFormsDevice.adaptive_learning"
     ) as adaptive_learning_mock:
         await hass.services.async_call(
-            SWITCH_DOMAIN,
+            Platform.SWITCH,
             SERVICE_TURN_OFF,
             {ATTR_ENTITY_ID: "switch.modernformsfan_adaptive_learning"},
             blocking=True,
@@ -110,7 +110,7 @@ async def test_switch_error(
 
     with patch("homeassistant.components.modern_forms.ModernFormsDevice.update"):
         await hass.services.async_call(
-            SWITCH_DOMAIN,
+            Platform.SWITCH,
             SERVICE_TURN_ON,
             {ATTR_ENTITY_ID: "switch.modernformsfan_away_mode"},
             blocking=True,
@@ -133,7 +133,7 @@ async def test_switch_connection_error(
         side_effect=ModernFormsConnectionError,
     ):
         await hass.services.async_call(
-            SWITCH_DOMAIN,
+            Platform.SWITCH,
             SERVICE_TURN_ON,
             {ATTR_ENTITY_ID: "switch.modernformsfan_away_mode"},
             blocking=True,

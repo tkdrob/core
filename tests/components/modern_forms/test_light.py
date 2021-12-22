@@ -3,7 +3,7 @@ from unittest.mock import patch
 
 from aiomodernforms import ModernFormsConnectionError
 
-from homeassistant.components.light import ATTR_BRIGHTNESS, DOMAIN as LIGHT_DOMAIN
+from homeassistant.components.light import ATTR_BRIGHTNESS
 from homeassistant.components.modern_forms.const import (
     ATTR_SLEEP_TIME,
     DOMAIN,
@@ -17,6 +17,7 @@ from homeassistant.const import (
     SERVICE_TURN_ON,
     STATE_ON,
     STATE_UNAVAILABLE,
+    Platform,
 )
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers import entity_registry as er
@@ -52,7 +53,7 @@ async def test_change_state(
 
     with patch("aiomodernforms.ModernFormsDevice.light") as light_mock:
         await hass.services.async_call(
-            LIGHT_DOMAIN,
+            Platform.LIGHT,
             SERVICE_TURN_OFF,
             {ATTR_ENTITY_ID: "light.modernformsfan_light"},
             blocking=True,
@@ -64,7 +65,7 @@ async def test_change_state(
 
     with patch("aiomodernforms.ModernFormsDevice.light") as light_mock:
         await hass.services.async_call(
-            LIGHT_DOMAIN,
+            Platform.LIGHT,
             SERVICE_TURN_ON,
             {ATTR_ENTITY_ID: "light.modernformsfan_light", ATTR_BRIGHTNESS: 255},
             blocking=True,
@@ -112,7 +113,7 @@ async def test_light_error(
 
     with patch("homeassistant.components.modern_forms.ModernFormsDevice.update"):
         await hass.services.async_call(
-            LIGHT_DOMAIN,
+            Platform.LIGHT,
             SERVICE_TURN_OFF,
             {ATTR_ENTITY_ID: "light.modernformsfan_light"},
             blocking=True,
@@ -134,7 +135,7 @@ async def test_light_connection_error(
         side_effect=ModernFormsConnectionError,
     ):
         await hass.services.async_call(
-            LIGHT_DOMAIN,
+            Platform.LIGHT,
             SERVICE_TURN_OFF,
             {ATTR_ENTITY_ID: "light.modernformsfan_light"},
             blocking=True,

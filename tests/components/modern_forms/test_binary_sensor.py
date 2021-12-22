@@ -1,7 +1,6 @@
 """Tests for the Modern Forms sensor platform."""
-from homeassistant.components.binary_sensor import DOMAIN as BINARY_SENSOR_DOMAIN
 from homeassistant.components.modern_forms.const import DOMAIN
-from homeassistant.const import ATTR_ICON
+from homeassistant.const import ATTR_ICON, Platform
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers import entity_registry as er
 
@@ -17,14 +16,14 @@ async def test_binary_sensors(
     registry = er.async_get(hass)
 
     registry.async_get_or_create(
-        BINARY_SENSOR_DOMAIN,
+        Platform.BINARY_SENSOR,
         DOMAIN,
         "AA:BB:CC:DD:EE:FF_light_sleep_timer_active",
         suggested_object_id="modernformsfan_light_sleep_timer_active",
         disabled_by=None,
     )
     registry.async_get_or_create(
-        BINARY_SENSOR_DOMAIN,
+        Platform.BINARY_SENSOR,
         DOMAIN,
         "AA:BB:CC:DD:EE:FF_fan_sleep_timer_active",
         suggested_object_id="modernformsfan_fan_sleep_timer_active",
