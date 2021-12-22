@@ -2,7 +2,7 @@
 
 from homeassistant import config_entries
 from homeassistant.components.met import DOMAIN
-from homeassistant.components.weather import DOMAIN as WEATHER_DOMAIN
+from homeassistant.const import Platform
 from homeassistant.helpers import entity_registry as er
 
 
@@ -47,7 +47,7 @@ async def test_not_tracking_home(hass, mock_weather):
     # Pre-create registry entry for disabled by default hourly weather
     registry = er.async_get(hass)
     registry.async_get_or_create(
-        WEATHER_DOMAIN,
+        Platform.WEATHER,
         DOMAIN,
         "10-20-hourly",
         suggested_object_id="somewhere_hourly",
