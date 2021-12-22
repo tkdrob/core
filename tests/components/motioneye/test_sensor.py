@@ -10,8 +10,8 @@ from homeassistant.components.motioneye.const import (
     DEFAULT_SCAN_INTERVAL,
     TYPE_MOTIONEYE_ACTION_SENSOR,
 )
-from homeassistant.components.sensor import DOMAIN as SENSOR_DOMAIN
 from homeassistant.config_entries import RELOAD_AFTER_UPDATE_DELAY
+from homeassistant.const import Platform
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers import device_registry as dr, entity_registry as er
 import homeassistant.util.dt as dt_util
@@ -32,7 +32,7 @@ async def test_sensor_actions(hass: HomeAssistant) -> None:
     """Test the actions sensor."""
     register_test_entity(
         hass,
-        SENSOR_DOMAIN,
+        Platform.SENSOR,
         TEST_CAMERA_ID,
         TYPE_MOTIONEYE_ACTION_SENSOR,
         TEST_SENSOR_ACTION_ENTITY_ID,
@@ -75,7 +75,7 @@ async def test_sensor_device_info(hass: HomeAssistant) -> None:
     # Enable the action sensor (it is disabled by default).
     register_test_entity(
         hass,
-        SENSOR_DOMAIN,
+        Platform.SENSOR,
         TEST_CAMERA_ID,
         TYPE_MOTIONEYE_ACTION_SENSOR,
         TEST_SENSOR_ACTION_ENTITY_ID,
