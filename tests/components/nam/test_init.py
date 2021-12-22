@@ -3,10 +3,9 @@ from unittest.mock import patch
 
 from nettigo_air_monitor import ApiError, AuthFailed
 
-from homeassistant.components.air_quality import DOMAIN as AIR_QUALITY_PLATFORM
 from homeassistant.components.nam.const import DOMAIN
 from homeassistant.config_entries import ConfigEntryState
-from homeassistant.const import STATE_UNAVAILABLE
+from homeassistant.const import STATE_UNAVAILABLE, Platform
 from homeassistant.helpers import entity_registry as er
 
 from tests.common import MockConfigEntry
@@ -78,7 +77,7 @@ async def test_remove_air_quality_entities(hass):
     registry = er.async_get(hass)
 
     registry.async_get_or_create(
-        AIR_QUALITY_PLATFORM,
+        Platform.AIR_QUALITY,
         DOMAIN,
         "aa:bb:cc:dd:ee:ff-sds011",
         suggested_object_id="nettigo_air_monitor_sds011",
@@ -86,7 +85,7 @@ async def test_remove_air_quality_entities(hass):
     )
 
     registry.async_get_or_create(
-        AIR_QUALITY_PLATFORM,
+        Platform.AIR_QUALITY,
         DOMAIN,
         "aa:bb:cc:dd:ee:ff-sps30",
         suggested_object_id="nettigo_air_monitor_sps30",

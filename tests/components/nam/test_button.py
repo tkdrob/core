@@ -1,8 +1,13 @@
 """Test button of Nettigo Air Monitor integration."""
 from unittest.mock import patch
 
-from homeassistant.components.button import DOMAIN as BUTTON_DOMAIN, ButtonDeviceClass
-from homeassistant.const import ATTR_DEVICE_CLASS, ATTR_ENTITY_ID, STATE_UNKNOWN
+from homeassistant.components.button import ButtonDeviceClass
+from homeassistant.const import (
+    ATTR_DEVICE_CLASS,
+    ATTR_ENTITY_ID,
+    STATE_UNKNOWN,
+    Platform,
+)
 from homeassistant.helpers import entity_registry as er
 from homeassistant.util import dt as dt_util
 
@@ -34,7 +39,7 @@ async def test_button_press(hass):
         "homeassistant.components.nam.NettigoAirMonitor.async_restart"
     ) as mock_restart, patch("homeassistant.core.dt_util.utcnow", return_value=now):
         await hass.services.async_call(
-            BUTTON_DOMAIN,
+            Platform.BUTTON,
             "press",
             {ATTR_ENTITY_ID: "button.nettigo_air_monitor_restart"},
             blocking=True,
