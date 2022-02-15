@@ -1,0 +1,23 @@
+{
+    "config": {
+      "step": {
+        "user": {
+          "title": "Twitch",
+          "description": "Documentation: https://www.home-assistant.io/integrations/twitch",
+          "data": {
+            "api_token": "[%key:common::config_flow::data::api_token%]"
+          }
+        }
+      },
+      "error": {
+        "cannot_connect": "[%key:common::config_flow::error::cannot_connect%]",
+        "invalid_auth": "[%key:common::config_flow::error::invalid_auth%]",
+        "unknown": "[%key:common::config_flow::error::unknown%]"
+      },
+      "abort": {
+        "already_configured": "[%key:common::config_flow::abort::already_configured_device%]",
+        "reauth_successful": "[%key:common::config_flow::abort::reauth_successful%]"
+      }
+    }
+  }
+  

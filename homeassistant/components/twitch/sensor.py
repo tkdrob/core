@@ -1,34 +1,44 @@
 """Support for the Twitch stream status."""
-import logging
+from __future__ import annotations
 
-from requests.exceptions import HTTPError
-from twitch import TwitchClient
+from re import sub
+
+from aiohttp.client_exceptions import ClientConnectorError
+from twitchio import ChannelInfo, Client, PartialUser, errors
 import voluptuous as vol
 
-from homeassistant.components.sensor import PLATFORM_SCHEMA
+import logging
+
+from homeassistant.components.sensor import (
+    DOMAIN as SENSOR_DOMAIN,
+    PLATFORM_SCHEMA,
+    SensorEntity,
+)
+from homeassistant.config_entries import SOURCE_IMPORT, ConfigEntry
 from homeassistant.const import CONF_CLIENT_ID, CONF_TOKEN
+from homeassistant.core import HomeAssistant
 import homeassistant.helpers.config_validation as cv
-from homeassistant.helpers.entity import Entity
+from homeassistant.helpers.entity_platform import AddEntitiesCallback
+from homeassistant.helpers.typing import ConfigType, DiscoveryInfoType
 
-_LOGGER = logging.getLogger(__name__)
+from . import TwitchEntity
+from .const import (
+    ATTR_FOLLOWERS,
+    ATTR_FOLLOWING,
+    ATTR_FOLLOWING_SINCE,
+    ATTR_GAME,
+    ATTR_SUBSCRIBED,
+    ATTR_SUBSCRIBED_SINCE,
+    ATTR_SUBSCRIPTION_GIFTED,
+    ATTR_TITLE,
+    ATTR_VIEWS,
+    CONF_CHANNELS,
+    DOMAIN,
+    STATE_OFFLINE,
+    STATE_STREAMING,
+)
 
-ATTR_GAME = "game"
-ATTR_TITLE = "title"
-ATTR_SUBSCRIPTION = "subscribed"
-ATTR_SUBSCRIPTION_SINCE = "subscribed_since"
-ATTR_SUBSCRIPTION_GIFTED = "subscription_is_gifted"
-ATTR_FOLLOW = "following"
-ATTR_FOLLOW_SINCE = "following_since"
-ATTR_FOLLOWING = "followers"
-ATTR_VIEWS = "views"
-
-CONF_CHANNELS = "channels"
-
-ICON = "mdi:twitch"
-
-STATE_OFFLINE = "offline"
-STATE_STREAMING = "streaming"
-
+# Deprecated in Home Assistant 2022.2
 PLATFORM_SCHEMA = PLATFORM_SCHEMA.extend(
     {
         vol.Required(CONF_CLIENT_ID): cv.string,
@@ -37,117 +47,90 @@ PLATFORM_SCHEMA = PLATFORM_SCHEMA.extend(
     }
 )
 
-
-def setup_platform(hass, config, add_entities, discovery_info=None):
-    """Set up the Twitch platform."""
-    channels = config[CONF_CHANNELS]
-    client_id = config[CONF_CLIENT_ID]
-    oauth_token = config.get(CONF_TOKEN)
-    client = TwitchClient(client_id, oauth_token)
-
-    try:
-        client.ingests.get_server_list()
-    except HTTPError:
-        _LOGGER.error("Client ID or OAuth token is not valid")
-        return
-
-    channel_ids = client.users.translate_usernames_to_ids(channels)
-
-    add_entities([TwitchSensor(channel_id, client) for channel_id in channel_ids], True)
+_LOGGER = logging.getLogger(__name__)
 
 
-class TwitchSensor(Entity):
+async def async_setup_platform(
+    hass: HomeAssistant,
+    config: ConfigType,
+    add_entities: AddEntitiesCallback,
+    discovery_info: DiscoveryInfoType | None = None,
+) -> None:
+    """Set up the Twitch sensor from yaml."""
+    hass.async_create_task(
+        hass.config_entries.flow.async_init(
+            SENSOR_DOMAIN, context={"source": SOURCE_IMPORT}, data=config
+        )
+    )
+
+
+async def async_setup_entry(
+    hass: HomeAssistant,
+    entry: ConfigEntry,
+    async_add_entities: AddEntitiesCallback,
+) -> None:
+    """Set up Twitch sensors."""
+    api: Client = hass.data[DOMAIN][entry.entry_id]
+    channels = [
+        await api.fetch_channel(user)
+        for user in entry.options[CONF_CHANNELS]
+        if entry.options[CONF_CHANNELS][user]["enabled"]
+    ]
+    home_user = [channel.user for channel in channels if channel.user.id == api.user_id]
+    async_add_entities(
+        [TwitchSensor(x, api, home_user[0], entry.entry_id) for x in channels], True
+    )
+
+
+class TwitchSensor(TwitchEntity, SensorEntity):
     """Representation of an Twitch channel."""
 
-    def __init__(self, channel, client):
+    _attr_icon = "mdi:twitch"
+
+    def __init__(
+        self, channel: ChannelInfo, api: Client, home_user: PartialUser, entry_id: str
+    ) -> None:
         """Initialize the sensor."""
-        self._client = client
+        super().__init__(entry_id)
+        self._api = api
         self._channel = channel
-        self._oauth_enabled = client._oauth_token is not None
-        self._state = None
-        self._preview = None
-        self._game = None
-        self._title = None
-        self._subscription = None
-        self._follow = None
-        self._statistics = None
+        self._home_user = home_user
+        self._attr_name = channel.user.name.lower()
+        self._attr_unique_id = f"{self.name}_{entry_id}"
 
-    @property
-    def name(self):
-        """Return the name of the sensor."""
-        return self._channel.display_name
-
-    @property
-    def state(self):
-        """Return the state of the sensor."""
-        return self._state
-
-    @property
-    def entity_picture(self):
-        """Return preview of current game."""
-        return self._preview
-
-    @property
-    def device_state_attributes(self):
-        """Return the state attributes."""
-        attr = dict(self._statistics)
-
-        if self._oauth_enabled:
-            attr.update(self._subscription)
-            attr.update(self._follow)
-
-        if self._state == STATE_STREAMING:
-            attr.update({ATTR_GAME: self._game, ATTR_TITLE: self._title})
-        return attr
-
-    @property
-    def unique_id(self):
-        """Return unique ID for this sensor."""
-        return self._channel.id
-
-    @property
-    def icon(self):
-        """Icon to use in the frontend, if any."""
-        return ICON
-
-    def update(self):
-        """Update device state."""
-
-        channel = self._client.channels.get_by_id(self._channel.id)
-
-        self._statistics = {
-            ATTR_FOLLOWING: channel.followers,
-            ATTR_VIEWS: channel.views,
-        }
-        if self._oauth_enabled:
-            user = self._client.users.get()
-
-            try:
-                sub = self._client.users.check_subscribed_to_channel(
-                    user.id, self._channel.id
-                )
-                self._subscription = {
-                    ATTR_SUBSCRIPTION: True,
-                    ATTR_SUBSCRIPTION_SINCE: sub.created_at,
-                    ATTR_SUBSCRIPTION_GIFTED: sub.is_gift,
-                }
-            except HTTPError:
-                self._subscription = {ATTR_SUBSCRIPTION: False}
-
-            try:
-                follow = self._client.users.check_follows_channel(
-                    user.id, self._channel.id
-                )
-                self._follow = {ATTR_FOLLOW: True, ATTR_FOLLOW_SINCE: follow.created_at}
-            except HTTPError:
-                self._follow = {ATTR_FOLLOW: False}
-
-        stream = self._client.streams.get_stream_by_user(self._channel.id)
-        if stream:
-            self._game = stream.channel.get("game")
-            self._title = stream.channel.get("status")
-            self._preview = stream.preview.get("medium")
-            self._state = STATE_STREAMING
-        else:
-            self._preview = self._channel.logo
-            self._state = STATE_OFFLINE
+    async def async_update(self) -> None:
+        """Update sensor state."""
+        attrs = {}
+        try:
+            if user := (await self._api.fetch_users(ids=[self._channel.user.id]))[0]:
+                attrs[ATTR_VIEWS] = (user.view_count[0],)
+                self._attr_entity_picture = user.profile_image
+            if followers := await user.fetch_followers(full_body=True):
+                attrs[ATTR_FOLLOWERS] = followers["total"]
+            streams = await self._api.fetch_streams(user_ids=[self._channel.user.id])
+            stream = streams[0] if streams else []
+            self._attr_native_value = STATE_STREAMING if stream else STATE_OFFLINE
+            if stream:
+                attrs[ATTR_GAME] = stream.game_name
+                attrs[ATTR_TITLE] = stream.title
+                thumb = sub("{width}x{height}", "300x300", stream.thumbnail_url)
+                self._attr_entity_picture = thumb
+            if self._channel.user.id != self._api.user_id:
+                attrs[ATTR_FOLLOWING] = False
+                if follows := await self._home_user.fetch_follow(self._channel.user):
+                    # TODO utc timezone disclose difference
+                    attrs[ATTR_FOLLOWING] = True
+                    attrs[ATTR_FOLLOWING_SINCE] = follows.followed_at
+                    if subscription := await self._home_user.fetch_subscriptions(
+                        userids=[self._channel.user.id]
+                    ):
+                        attrs[ATTR_SUBSCRIBED_SINCE] = subscription.created_at
+                        attrs[ATTR_SUBSCRIPTION_GIFTED] = subscription.is_gift
+                    attrs[ATTR_SUBSCRIBED] = subscription != []
+        except (errors.HTTPException, ClientConnectorError):
+            self._attr_available = False
+            return
+        except IndexError:
+            pass
+        self._attr_available = True
+        self._attr_extra_state_attributes = attrs

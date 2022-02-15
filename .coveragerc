@@ -967,6 +967,8 @@ omit =
     homeassistant/components/twentemilieu/sensor.py
     homeassistant/components/twilio_call/notify.py
     homeassistant/components/twilio_sms/notify.py
+    homeassistant/components/twitch/__init__.py
+    homeassistant/components/twitch/sensor.py
     homeassistant/components/twitter/notify.py
     homeassistant/components/ubus/device_tracker.py
     homeassistant/components/ue_smart_radio/media_player.py
