@@ -175,6 +175,8 @@ class SlackNotificationService(BaseNotificationService):
         if not self._hass.config.is_allowed_path(path):
             _LOGGER.error("Path does not exist or is not allowed: %s", path)
             return
+        if message in ("command_photo", "command_photo_delete"):
+            return await self._async_set_photo(message != "command_photo", file=path)
 
         parsed_url = urlparse(path)
         filename = os.path.basename(parsed_url.path)
@@ -209,6 +211,8 @@ class SlackNotificationService(BaseNotificationService):
         if not self._hass.config.is_allowed_external_url(url):
             _LOGGER.error("URL is not allowed: %s", url)
             return
+        if message in ("command_photo", "command_photo_delete"):
+            return await self._async_set_photo("command_photo" != message, file=url)
 
         filename = _async_get_filename_from_url(url)
         session = aiohttp_client.async_get_clientsession(self._hass)
@@ -282,10 +286,25 @@ class SlackNotificationService(BaseNotificationService):
             elif isinstance(result, ClientError):
                 _LOGGER.error("Error while sending message to %s: %r", target, result)
 
+    async def _async_set_photo(self, delete: bool, file: str = "") -> None:
+        if delete:
+            task = self._client.users_deletePhoto()
+        with open(file, "rb") as f:
+            image = f.read()
+        task = self._client.users_setPhoto(image=image)
+        result = await asyncio.gather(task, return_exceptions=True)
+        if isinstance(result, SlackApiError):
+            _LOGGER.error(
+                "There was a Slack API error while setting photo: %r",
+                result,
+            )
+        elif isinstance(result, ClientError):
+            _LOGGER.error("Error while setting photo: %r", result)
+        return
+
     async def async_send_message(self, message: str, **kwargs: Any) -> None:
         """Send a message to Slack."""
         data = kwargs.get(ATTR_DATA) or {}
-
         try:
             DATA_SCHEMA(data)
         except vol.Invalid as err:
@@ -297,8 +316,25 @@ class SlackNotificationService(BaseNotificationService):
             kwargs.get(ATTR_TARGET, [self._default_channel])
         )
 
+        if message in ("command_status", "command_dnd"):
+            if message == "command_status":
+                title = title if title == "away" else "auto"
+                task = self._client.users_setPresence(presence=title)
+            else:
+                task = self._client.dnd_setSnooze(num_minutes=title or 0)
+
+            result = await asyncio.gather(task, return_exceptions=True)
+            if isinstance(result, SlackApiError):
+                _LOGGER.error(
+                    "There was a Slack API error while setting status: %r",
+                    result,
+                )
+            elif isinstance(result, ClientError):
+                _LOGGER.error("Error while setting status: %r", result)
+            return
+
         # Message Type 1: A text-only message
-        if ATTR_FILE not in data:
+        if ATTR_FILE not in data and "command_photo" not in message:
             if ATTR_BLOCKS_TEMPLATE in data:
                 value = cv.template_complex(data[ATTR_BLOCKS_TEMPLATE])
                 template.attach(self._hass, value)
