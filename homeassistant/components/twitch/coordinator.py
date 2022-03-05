@@ -48,10 +48,8 @@ class TwitchDataUpdateCoordinator(DataUpdateCoordinator):
         """Get the latest data from Twitch."""
         data = self.client.get_users(user_ids=self.channels)
         self.users = {chan["id"]: chan for chan in data["data"]}
-        self.streams = {
-            stream["user_id"]: stream
-            for stream in (self.client.get_streams(user_id=self.channels))["data"]
-        }
+        data = self.client.get_streams(user_id=self.channels)
+        self.streams = {stream["user_id"]: stream for stream in data["data"]}
         data = [
             (
                 self.client.get_users_follows(
