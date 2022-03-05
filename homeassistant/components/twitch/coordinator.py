@@ -2,7 +2,6 @@
 from __future__ import annotations
 
 from datetime import timedelta
-import functools as ft
 
 from twitchAPI.twitch import Twitch, TwitchAuthorizationException
 
@@ -19,7 +18,7 @@ class TwitchDataUpdateCoordinator(DataUpdateCoordinator):
         self,
         hass: HomeAssistant,
         client: Twitch,
-        user,
+        user: int | None,
         channels: list,
     ) -> None:
         """Initialize the coordinator."""
@@ -32,7 +31,7 @@ class TwitchDataUpdateCoordinator(DataUpdateCoordinator):
         self.client = client
         self.users: dict[str, dict[str, str]] = {}
         self.user = user
-        self.channels = [channel["id"] for channel in channels]
+        self.channels = [chan["id"] for chan in channels]
         self.streams: dict[str, dict[str, str]] = {}
         self.follows: dict[str, dict[str, str]] = {}
         self.followers: dict[str, int] = {}
@@ -41,56 +40,41 @@ class TwitchDataUpdateCoordinator(DataUpdateCoordinator):
     async def _async_update_data(self) -> None:
         """Get the latest data from Twitch."""
         try:
-            data = await self.hass.async_add_executor_job(
-                ft.partial(self.client.get_users, user_ids=self.channels)
-            )
-            self.users = {channel["id"]: channel for channel in data["data"]}
-            self.streams = {
-                stream["user_id"]: stream
-                for stream in (
-                    await self.hass.async_add_executor_job(
-                        ft.partial(self.client.get_streams, user_id=self.channels)
-                    )
-                )["data"]
-            }
-            data = [
-                (
-                    await self.hass.async_add_executor_job(
-                        ft.partial(
-                            self.client.get_users_follows,
-                            from_id=self.user,
-                            to_id=channel,
-                        )
-                    )
-                )["data"]
-                for channel in self.channels
-                if channel != self.user
-            ]
-            self.follows = {
-                channel[0]["to_id"]: channel[0] for channel in data if len(channel)
-            }
-            self.followers = {
-                channel: (
-                    await self.hass.async_add_executor_job(
-                        ft.partial(self.client.get_users_follows, to_id=channel)
-                    )
-                )["total"]
-                for channel in self.channels
-            }
-            if self.user:
-                self.subs = {
-                    channel: (
-                        await self.hass.async_add_executor_job(
-                            ft.partial(
-                                self.client.check_user_subscription,
-                                user_id=self.user,
-                                broadcaster_id=channel,
-                            )
-                        )
-                    )
-                    for channel in self.channels
-                    if channel != self.user
-                }
-
+            await self.hass.async_add_executor_job(self._update)
         except TwitchAuthorizationException:
             LOGGER.error("Invalid client ID or client secret")
+
+    def _update(self) -> None:
+        """Get the latest data from Twitch."""
+        data = self.client.get_users(user_ids=self.channels)
+        self.users = {chan["id"]: chan for chan in data["data"]}
+        self.streams = {
+            stream["user_id"]: stream
+            for stream in (self.client.get_streams(user_id=self.channels))["data"]
+        }
+        data = [
+            (
+                self.client.get_users_follows(
+                    from_id=self.user,
+                    to_id=chan,
+                )
+            )["data"]
+            for chan in self.channels
+            if chan != self.user
+        ]
+        self.follows = {chan[0]["to_id"]: chan[0] for chan in data if len(chan)}
+        self.followers = {
+            chan: (self.client.get_users_follows(to_id=chan))["total"]
+            for chan in self.channels
+        }
+        if self.user:
+            self.subs = {
+                chan: (
+                    self.client.check_user_subscription(
+                        user_id=self.user,
+                        broadcaster_id=chan,
+                    )
+                )
+                for chan in self.channels
+                if chan != self.user
+            }
