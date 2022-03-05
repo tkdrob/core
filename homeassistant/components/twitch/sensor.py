@@ -145,25 +145,24 @@ class TwitchSensor(CoordinatorEntity, SensorEntity):
     def extra_state_attributes(self) -> dict[str, StateType]:
         """Return attributes for the sensor."""
         attrs: dict[str, StateType] = {}
-        if self.coordinator.followers:
-            if self.unique_id in self.coordinator.followers:
-                attrs[ATTR_FOLLOWERS] = self.coordinator.followers[self.unique_id]
-            if self.unique_id in self.coordinator.users:
-                attrs[ATTR_VIEWS] = self.coordinator.users[self.unique_id]["view_count"]
-            attrs[ATTR_FOLLOWING] = False
-            if self.unique_id in self.coordinator.follows and self.coordinator.user:
-                attrs[ATTR_FOLLOWING] = True
-                attrs[ATTR_FOLLOWING_SINCE] = self.coordinator.follows[self.unique_id][
-                    "followed_at"
-                ]
-            if self.unique_id in self.coordinator.subs:
-                attrs[ATTR_SUBSCRIBED] = "data" in self.coordinator.subs[self.unique_id]
-                if "data" in self.coordinator.subs[self.unique_id]:
-                    attrs[ATTR_SUBSCRIPTION_GIFTED] = self.coordinator.subs[
-                        self.unique_id
-                    ]["data"][0]["is_gift"]
-                LOGGER.debug(self.coordinator.subs[self.unique_id])
-            if self.unique_id in self.coordinator.streams:
-                attrs[ATTR_GAME] = self.coordinator.streams[self.unique_id]["game_name"]
-                attrs[ATTR_TITLE] = self.coordinator.streams[self.unique_id]["title"]
+        if self.unique_id in self.coordinator.followers:
+            attrs[ATTR_FOLLOWERS] = self.coordinator.followers[self.unique_id]
+        if self.unique_id in self.coordinator.users:
+            attrs[ATTR_VIEWS] = self.coordinator.users[self.unique_id]["view_count"]
+        attrs[ATTR_FOLLOWING] = False
+        if self.unique_id in self.coordinator.follows and self.coordinator.user:
+            attrs[ATTR_FOLLOWING] = True
+            attrs[ATTR_FOLLOWING_SINCE] = self.coordinator.follows[self.unique_id][
+                "followed_at"
+            ]
+        if self.unique_id in self.coordinator.subs:
+            attrs[ATTR_SUBSCRIBED] = "data" in self.coordinator.subs[self.unique_id]
+            if "data" in self.coordinator.subs[self.unique_id]:
+                attrs[ATTR_SUBSCRIPTION_GIFTED] = self.coordinator.subs[self.unique_id][
+                    "data"
+                ][0]["is_gift"]
+            LOGGER.debug(self.coordinator.subs[self.unique_id])
+        if self.unique_id in self.coordinator.streams:
+            attrs[ATTR_GAME] = self.coordinator.streams[self.unique_id]["game_name"]
+            attrs[ATTR_TITLE] = self.coordinator.streams[self.unique_id]["title"]
         return attrs
