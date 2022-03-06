@@ -18,6 +18,7 @@ from . import (
     CONF_ADS_VAR,
     STATE_KEY_STATE,
     AdsEntity,
+    AdsHub,
 )
 
 DEFAULT_NAME = "ADS sensor"
@@ -63,14 +64,14 @@ def setup_platform(
 class AdsSensor(AdsEntity, SensorEntity):
     """Representation of an ADS sensor entity."""
 
-    def __init__(self, ads_hub, ads_var, ads_type, name, unit_of_measurement, factor):
+    def __init__(self, ads_hub: AdsHub, ads_var: str, ads_type: str, name: str, unit_of_measurement: str, factor: int) -> None:
         """Initialize AdsSensor entity."""
         super().__init__(ads_hub, name, ads_var)
         self._attr_native_unit_of_measurement = unit_of_measurement
         self._ads_type = ads_type
         self._factor = factor
 
-    async def async_added_to_hass(self):
+    async def async_added_to_hass(self) -> None:
         """Register device notification."""
         await self.async_initialize_device(
             self._ads_var,

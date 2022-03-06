@@ -16,7 +16,7 @@ import homeassistant.helpers.config_validation as cv
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 from homeassistant.helpers.typing import ConfigType, DiscoveryInfoType
 
-from . import CONF_ADS_VAR, DATA_ADS, STATE_KEY_STATE, AdsEntity
+from . import CONF_ADS_VAR, DATA_ADS, STATE_KEY_STATE, AdsEntity, AdsHub
 
 DEFAULT_NAME = "ADS binary sensor"
 PLATFORM_SCHEMA = PLATFORM_SCHEMA.extend(
@@ -35,7 +35,7 @@ def setup_platform(
     discovery_info: DiscoveryInfoType | None = None,
 ) -> None:
     """Set up the Binary Sensor platform for ADS."""
-    ads_hub = hass.data.get(DATA_ADS)
+    ads_hub = hass.data[DATA_ADS]
 
     ads_var = config[CONF_ADS_VAR]
     name = config[CONF_NAME]
@@ -48,12 +48,12 @@ def setup_platform(
 class AdsBinarySensor(AdsEntity, BinarySensorEntity):
     """Representation of ADS binary sensors."""
 
-    def __init__(self, ads_hub, name, ads_var, device_class):
+    def __init__(self, ads_hub: AdsHub, name: str, ads_var: str, device_class: str | None) -> None:
         """Initialize ADS binary sensor."""
         super().__init__(ads_hub, name, ads_var)
         self._attr_device_class = device_class or BinarySensorDeviceClass.MOVING
 
-    async def async_added_to_hass(self):
+    async def async_added_to_hass(self) -> None:
         """Register device notification."""
         await self.async_initialize_device(self._ads_var, pyads.PLCTYPE_BOOL)
 

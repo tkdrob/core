@@ -1,5 +1,6 @@
 """Support for ADS covers."""
 from __future__ import annotations
+from typing import Any, cast
 
 import pyads
 import voluptuous as vol
@@ -27,6 +28,7 @@ from . import (
     STATE_KEY_POSITION,
     STATE_KEY_STATE,
     AdsEntity,
+    AdsHub,
 )
 
 DEFAULT_NAME = "ADS Cover"
@@ -88,18 +90,20 @@ def setup_platform(
 class AdsCover(AdsEntity, CoverEntity):
     """Representation of ADS cover."""
 
+    _ads_hub: AdsHub
+
     def __init__(
         self,
-        ads_hub,
-        ads_var_is_closed,
-        ads_var_position,
-        ads_var_pos_set,
-        ads_var_open,
-        ads_var_close,
-        ads_var_stop,
-        name,
-        device_class,
-    ):
+        ads_hub: AdsHub,
+        ads_var_is_closed: str | None,
+        ads_var_position: str | None,
+        ads_var_pos_set: str | None,
+        ads_var_open: str | None,
+        ads_var_close: str | None,
+        ads_var_stop: str | None,
+        name: str,
+        device_class: str | None,
+    ) -> None:
         """Initialize AdsCover entity."""
         super().__init__(ads_hub, name, ads_var_is_closed)
         if self._attr_unique_id is None:
@@ -123,7 +127,7 @@ class AdsCover(AdsEntity, CoverEntity):
         if ads_var_pos_set is not None:
             self._attr_supported_features |= SUPPORT_SET_POSITION
 
-    async def async_added_to_hass(self):
+    async def async_added_to_hass(self) -> None:
         """Register device notification."""
         if self._ads_var is not None:
             await self.async_initialize_device(self._ads_var, pyads.PLCTYPE_BOOL)
@@ -134,7 +138,7 @@ class AdsCover(AdsEntity, CoverEntity):
             )
 
     @property
-    def is_closed(self):
+    def is_closed(self) -> bool | None:
         """Return if the cover is closed."""
         if self._ads_var is not None:
             return self._state_dict[STATE_KEY_STATE]
@@ -143,16 +147,16 @@ class AdsCover(AdsEntity, CoverEntity):
         return None
 
     @property
-    def current_cover_position(self):
+    def current_cover_position(self) -> int:
         """Return current position of cover."""
-        return self._state_dict[STATE_KEY_POSITION]
+        return cast(int, self._state_dict[STATE_KEY_POSITION])
 
-    def stop_cover(self, **kwargs):
+    def stop_cover(self, **kwargs: Any) -> None:
         """Fire the stop action."""
         if self._ads_var_stop:
             self._ads_hub.write_by_name(self._ads_var_stop, True, pyads.PLCTYPE_BOOL)
 
-    def set_cover_position(self, **kwargs):
+    def set_cover_position(self, **kwargs: Any) -> None:
         """Set cover position."""
         position = kwargs[ATTR_POSITION]
         if self._ads_var_pos_set is not None:
@@ -160,14 +164,14 @@ class AdsCover(AdsEntity, CoverEntity):
                 self._ads_var_pos_set, position, pyads.PLCTYPE_BYTE
             )
 
-    def open_cover(self, **kwargs):
+    def open_cover(self, **kwargs: Any) -> None:
         """Move the cover up."""
         if self._ads_var_open is not None:
             self._ads_hub.write_by_name(self._ads_var_open, True, pyads.PLCTYPE_BOOL)
         elif self._ads_var_pos_set is not None:
             self.set_cover_position(position=100)
 
-    def close_cover(self, **kwargs):
+    def close_cover(self, **kwargs: Any) -> None:
         """Move the cover down."""
         if self._ads_var_close is not None:
             self._ads_hub.write_by_name(self._ads_var_close, True, pyads.PLCTYPE_BOOL)

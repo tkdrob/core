@@ -5,9 +5,11 @@ import ctypes
 import logging
 import struct
 import threading
+from typing import Any, Callable
 
 import async_timeout
 import pyads
+from pyads.constants import PLCDataType
 import voluptuous as vol
 
 from homeassistant.const import (
@@ -143,17 +145,17 @@ NotificationItem = namedtuple(
 class AdsHub:
     """Representation of an ADS connection."""
 
-    def __init__(self, ads_client):
+    def __init__(self, ads_client: pyads.Connection) -> None:
         """Initialize the ADS hub."""
         self._client = ads_client
         self._client.open()
 
         # All ADS devices are registered here
-        self._devices = []
-        self._notification_items = {}
+        self._devices: list = []
+        self._notification_items: dict[int, NotificationItem] = {}
         self._lock = threading.Lock()
 
-    def shutdown(self, *args, **kwargs):
+    def shutdown(self, *args: Any, **kwargs: Any) -> None:
         """Shutdown ADS connection."""
 
         _LOGGER.debug("Shutting down ADS")
@@ -174,11 +176,11 @@ class AdsHub:
         except pyads.ADSError as err:
             _LOGGER.error(err)
 
-    def register_device(self, device):
+    def register_device(self, device) -> None:
         """Register a new device."""
         self._devices.append(device)
 
-    def write_by_name(self, name, value, plc_datatype):
+    def write_by_name(self, name: str, value: Any, plc_datatype: PLCDataType) -> Any:
         """Write a value to the device."""
 
         with self._lock:
@@ -187,7 +189,7 @@ class AdsHub:
             except pyads.ADSError as err:
                 _LOGGER.error("Error writing %s: %s", name, err)
 
-    def read_by_name(self, name, plc_datatype):
+    def read_by_name(self, name: str, plc_datatype: PLCDataType) -> Any:
         """Read a value from the device."""
 
         with self._lock:
@@ -196,7 +198,7 @@ class AdsHub:
             except pyads.ADSError as err:
                 _LOGGER.error("Error reading %s: %s", name, err)
 
-    def add_device_notification(self, name, plc_datatype, callback):
+    def add_device_notification(self, name: str, plc_datatype: PLCDataType, callback: Callable) -> None:
         """Add a notification to the ADS devices."""
 
         attr = pyads.NotificationAttrib(ctypes.sizeof(plc_datatype))
@@ -218,7 +220,7 @@ class AdsHub:
                     "Added device notification %d for variable %s", hnotify, name
                 )
 
-    def _device_notification_callback(self, notification, name):
+    def _device_notification_callback(self, notification, name: str) -> None:
         """Handle device notifications."""
         contents = notification.contents
 
@@ -264,9 +266,9 @@ class AdsEntity(Entity):
 
     _attr_should_poll = False
 
-    def __init__(self, ads_hub, name, ads_var):
+    def __init__(self, ads_hub: AdsHub, name: str, ads_var: str | None) -> None:
         """Initialize ADS binary sensor."""
-        self._state_dict = {}
+        self._state_dict: dict[str, int | bool | None] = {}
         self._state_dict[STATE_KEY_STATE] = None
         self._ads_hub = ads_hub
         self._ads_var = ads_var
@@ -275,8 +277,8 @@ class AdsEntity(Entity):
         self._attr_name = name
 
     async def async_initialize_device(
-        self, ads_var, plctype, state_key=STATE_KEY_STATE, factor=None
-    ):
+        self, ads_var: str, plctype: PLCDataType, state_key: str = STATE_KEY_STATE, factor: int | None = None
+    ) -> None:
         """Register device notification."""
 
         def update(name, value):

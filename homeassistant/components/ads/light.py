@@ -1,5 +1,6 @@
 """Support for ADS light sources."""
 from __future__ import annotations
+from typing import Any
 
 import pyads
 import voluptuous as vol
@@ -23,6 +24,7 @@ from . import (
     STATE_KEY_BRIGHTNESS,
     STATE_KEY_STATE,
     AdsEntity,
+    AdsHub,
 )
 
 DEFAULT_NAME = "ADS Light"
@@ -54,7 +56,9 @@ def setup_platform(
 class AdsLight(AdsEntity, LightEntity):
     """Representation of ADS light."""
 
-    def __init__(self, ads_hub, ads_var_enable, ads_var_brightness, name):
+    _ads_hub: AdsHub
+
+    def __init__(self, ads_hub: AdsHub, ads_var_enable: str, ads_var_brightness: str, name: str) -> None:
         """Initialize AdsLight entity."""
         super().__init__(ads_hub, name, ads_var_enable)
         self._state_dict[STATE_KEY_BRIGHTNESS] = None
@@ -62,7 +66,7 @@ class AdsLight(AdsEntity, LightEntity):
         if ads_var_brightness is not None:
             self._attr_supported_features = SUPPORT_BRIGHTNESS
 
-    async def async_added_to_hass(self):
+    async def async_added_to_hass(self) -> None:
         """Register device notification."""
         await self.async_initialize_device(self._ads_var, pyads.PLCTYPE_BOOL)
 
@@ -83,7 +87,7 @@ class AdsLight(AdsEntity, LightEntity):
         """Return True if the entity is on."""
         return self._state_dict[STATE_KEY_STATE]
 
-    def turn_on(self, **kwargs):
+    def turn_on(self, **kwargs: Any) -> None:
         """Turn the light on or set a specific dimmer value."""
         brightness = kwargs.get(ATTR_BRIGHTNESS)
         self._ads_hub.write_by_name(self._ads_var, True, pyads.PLCTYPE_BOOL)
@@ -93,6 +97,6 @@ class AdsLight(AdsEntity, LightEntity):
                 self._ads_var_brightness, brightness, pyads.PLCTYPE_UINT
             )
 
-    def turn_off(self, **kwargs):
+    def turn_off(self, **kwargs: Any) -> None:
         """Turn the light off."""
         self._ads_hub.write_by_name(self._ads_var, False, pyads.PLCTYPE_BOOL)
