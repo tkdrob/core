@@ -1,12 +1,12 @@
 """Constants for the Goal Zero Yeti integration."""
-from datetime import timedelta
+import logging
+from typing import Final
 
-ATTRIBUTION = "Data provided by Goal Zero"
 ATTR_DEFAULT_ENABLED = "default_enabled"
 
-DATA_KEY_COORDINATOR = "coordinator"
-DOMAIN = "goalzero"
 DEFAULT_NAME = "Yeti"
-DATA_KEY_API = "api"
+DOMAIN: Final = "goalzero"
+
+LOGGER = logging.getLogger(__package__)
+
 MANUFACTURER = "Goal Zero"
-MIN_TIME_BETWEEN_UPDATES = timedelta(seconds=30)
