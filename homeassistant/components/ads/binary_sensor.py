@@ -1,6 +1,8 @@
 """Support for ADS binary sensors."""
 from __future__ import annotations
 
+from typing import cast
+
 import pyads
 import voluptuous as vol
 
@@ -48,16 +50,18 @@ def setup_platform(
 class AdsBinarySensor(AdsEntity, BinarySensorEntity):
     """Representation of ADS binary sensors."""
 
-    def __init__(self, ads_hub: AdsHub, name: str, ads_var: str, device_class: str | None) -> None:
+    def __init__(
+        self, ads_hub: AdsHub, name: str, ads_var: str, device_class: str | None
+    ) -> None:
         """Initialize ADS binary sensor."""
         super().__init__(ads_hub, name, ads_var)
         self._attr_device_class = device_class or BinarySensorDeviceClass.MOVING
 
     async def async_added_to_hass(self) -> None:
         """Register device notification."""
-        await self.async_initialize_device(self._ads_var, pyads.PLCTYPE_BOOL)
+        await self.async_initialize_device(cast(str, self._ads_var), pyads.PLCTYPE_BOOL)
 
     @property
     def is_on(self) -> bool:
         """Return True if the entity is on."""
-        return self._state_dict[STATE_KEY_STATE]
+        return cast(bool, self._state_dict[STATE_KEY_STATE])

@@ -1,11 +1,14 @@
 """Support for Automation Device Specification (ADS)."""
+from __future__ import annotations
+
 import asyncio
 from collections import namedtuple
+from collections.abc import Callable
 import ctypes
 import logging
 import struct
 import threading
-from typing import Any, Callable
+from typing import Any
 
 import async_timeout
 import pyads
@@ -21,7 +24,7 @@ from homeassistant.const import (
 from homeassistant.core import HomeAssistant, ServiceCall
 import homeassistant.helpers.config_validation as cv
 from homeassistant.helpers.entity import Entity
-from homeassistant.helpers.typing import ConfigType
+from homeassistant.helpers.typing import ConfigType, StateType
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -176,7 +179,7 @@ class AdsHub:
         except pyads.ADSError as err:
             _LOGGER.error(err)
 
-    def register_device(self, device) -> None:
+    def register_device(self, device: Any) -> None:
         """Register a new device."""
         self._devices.append(device)
 
@@ -198,7 +201,9 @@ class AdsHub:
             except pyads.ADSError as err:
                 _LOGGER.error("Error reading %s: %s", name, err)
 
-    def add_device_notification(self, name: str, plc_datatype: PLCDataType, callback: Callable) -> None:
+    def add_device_notification(
+        self, name: str, plc_datatype: PLCDataType, callback: Callable
+    ) -> None:
         """Add a notification to the ADS devices."""
 
         attr = pyads.NotificationAttrib(ctypes.sizeof(plc_datatype))
@@ -220,7 +225,7 @@ class AdsHub:
                     "Added device notification %d for variable %s", hnotify, name
                 )
 
-    def _device_notification_callback(self, notification, name: str) -> None:
+    def _device_notification_callback(self, notification: Any, name: str) -> None:
         """Handle device notifications."""
         contents = notification.contents
 
@@ -242,6 +247,7 @@ class AdsHub:
             return
 
         # Parse data to desired datatype
+        value: bool | bytearray = False
         if notification_item.plc_datatype == pyads.PLCTYPE_BOOL:
             value = bool(struct.unpack("<?", bytearray(data))[0])
         elif notification_item.plc_datatype == pyads.PLCTYPE_INT:
@@ -268,24 +274,28 @@ class AdsEntity(Entity):
 
     def __init__(self, ads_hub: AdsHub, name: str, ads_var: str | None) -> None:
         """Initialize ADS binary sensor."""
-        self._state_dict: dict[str, int | bool | None] = {}
+        self._state_dict: dict[str, StateType | bool] = {}
         self._state_dict[STATE_KEY_STATE] = None
         self._ads_hub = ads_hub
         self._ads_var = ads_var
-        self._event = None
+        self._event = asyncio.Event()
         self._attr_unique_id = ads_var
         self._attr_name = name
 
     async def async_initialize_device(
-        self, ads_var: str, plctype: PLCDataType, state_key: str = STATE_KEY_STATE, factor: int | None = None
+        self,
+        ads_var: str,
+        plctype: PLCDataType,
+        state_key: str = STATE_KEY_STATE,
+        factor: int | None = None,
     ) -> None:
         """Register device notification."""
 
-        def update(name, value):
+        def update(name: str, value: StateType) -> None:
             """Handle device notifications."""
             _LOGGER.debug("Variable %s changed its value to %d", name, value)
 
-            if factor is None:
+            if factor is None or not isinstance(value, int):
                 self._state_dict[state_key] = value
             else:
                 self._state_dict[state_key] = value / factor
@@ -293,11 +303,9 @@ class AdsEntity(Entity):
             asyncio.run_coroutine_threadsafe(async_event_set(), self.hass.loop)
             self.schedule_update_ha_state()
 
-        async def async_event_set():
+        async def async_event_set() -> None:
             """Set event in async context."""
             self._event.set()
-
-        self._event = asyncio.Event()
 
         await self.hass.async_add_executor_job(
             self._ads_hub.add_device_notification, ads_var, plctype, update

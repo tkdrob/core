@@ -1,6 +1,7 @@
 """Support for ADS switch platform."""
 from __future__ import annotations
-from typing import Any
+
+from typing import Any, cast
 
 import pyads
 import voluptuous as vol
@@ -31,7 +32,7 @@ def setup_platform(
     discovery_info: DiscoveryInfoType | None = None,
 ) -> None:
     """Set up switch platform for ADS."""
-    ads_hub = hass.data.get(DATA_ADS)
+    ads_hub = hass.data[DATA_ADS]
 
     name = config[CONF_NAME]
     ads_var = config[CONF_ADS_VAR]
@@ -46,17 +47,17 @@ class AdsSwitch(AdsEntity, SwitchEntity):
 
     async def async_added_to_hass(self) -> None:
         """Register device notification."""
-        await self.async_initialize_device(self._ads_var, pyads.PLCTYPE_BOOL)
+        await self.async_initialize_device(cast(str, self._ads_var), pyads.PLCTYPE_BOOL)
 
     @property
     def is_on(self) -> bool:
         """Return True if the entity is on."""
-        return self._state_dict[STATE_KEY_STATE]
+        return cast(bool, self._state_dict[STATE_KEY_STATE])
 
     def turn_on(self, **kwargs: Any) -> None:
         """Turn the switch on."""
-        self._ads_hub.write_by_name(self._ads_var, True, pyads.PLCTYPE_BOOL)
+        self._ads_hub.write_by_name(cast(str, self._ads_var), True, pyads.PLCTYPE_BOOL)
 
     def turn_off(self, **kwargs: Any) -> None:
         """Turn the switch off."""
-        self._ads_hub.write_by_name(self._ads_var, False, pyads.PLCTYPE_BOOL)
+        self._ads_hub.write_by_name(cast(str, self._ads_var), False, pyads.PLCTYPE_BOOL)

@@ -1,5 +1,6 @@
 """Support for ADS covers."""
 from __future__ import annotations
+
 from typing import Any, cast
 
 import pyads
@@ -141,7 +142,7 @@ class AdsCover(AdsEntity, CoverEntity):
     def is_closed(self) -> bool | None:
         """Return if the cover is closed."""
         if self._ads_var is not None:
-            return self._state_dict[STATE_KEY_STATE]
+            return cast(bool, self._state_dict[STATE_KEY_STATE])
         if self._ads_var_position is not None:
             return self._state_dict[STATE_KEY_POSITION] == 0
         return None

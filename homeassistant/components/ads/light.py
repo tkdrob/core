@@ -1,6 +1,7 @@
 """Support for ADS light sources."""
 from __future__ import annotations
-from typing import Any
+
+from typing import Any, cast
 
 import pyads
 import voluptuous as vol
@@ -44,7 +45,7 @@ def setup_platform(
     discovery_info: DiscoveryInfoType | None = None,
 ) -> None:
     """Set up the light platform for ADS."""
-    ads_hub = hass.data.get(DATA_ADS)
+    ads_hub = hass.data[DATA_ADS]
 
     ads_var_enable = config[CONF_ADS_VAR]
     ads_var_brightness = config.get(CONF_ADS_VAR_BRIGHTNESS)
@@ -58,7 +59,13 @@ class AdsLight(AdsEntity, LightEntity):
 
     _ads_hub: AdsHub
 
-    def __init__(self, ads_hub: AdsHub, ads_var_enable: str, ads_var_brightness: str, name: str) -> None:
+    def __init__(
+        self,
+        ads_hub: AdsHub,
+        ads_var_enable: str,
+        ads_var_brightness: str | None,
+        name: str,
+    ) -> None:
         """Initialize AdsLight entity."""
         super().__init__(ads_hub, name, ads_var_enable)
         self._state_dict[STATE_KEY_BRIGHTNESS] = None
@@ -68,7 +75,7 @@ class AdsLight(AdsEntity, LightEntity):
 
     async def async_added_to_hass(self) -> None:
         """Register device notification."""
-        await self.async_initialize_device(self._ads_var, pyads.PLCTYPE_BOOL)
+        await self.async_initialize_device(cast(str, self._ads_var), pyads.PLCTYPE_BOOL)
 
         if self._ads_var_brightness is not None:
             await self.async_initialize_device(
@@ -80,17 +87,17 @@ class AdsLight(AdsEntity, LightEntity):
     @property
     def brightness(self) -> int | None:
         """Return the brightness of the light (0..255)."""
-        return self._state_dict[STATE_KEY_BRIGHTNESS]
+        return cast(int, self._state_dict[STATE_KEY_BRIGHTNESS])
 
     @property
     def is_on(self) -> bool:
         """Return True if the entity is on."""
-        return self._state_dict[STATE_KEY_STATE]
+        return cast(bool, self._state_dict[STATE_KEY_STATE])
 
     def turn_on(self, **kwargs: Any) -> None:
         """Turn the light on or set a specific dimmer value."""
         brightness = kwargs.get(ATTR_BRIGHTNESS)
-        self._ads_hub.write_by_name(self._ads_var, True, pyads.PLCTYPE_BOOL)
+        self._ads_hub.write_by_name(cast(str, self._ads_var), True, pyads.PLCTYPE_BOOL)
 
         if self._ads_var_brightness is not None and brightness is not None:
             self._ads_hub.write_by_name(
@@ -99,4 +106,4 @@ class AdsLight(AdsEntity, LightEntity):
 
     def turn_off(self, **kwargs: Any) -> None:
         """Turn the light off."""
-        self._ads_hub.write_by_name(self._ads_var, False, pyads.PLCTYPE_BOOL)
+        self._ads_hub.write_by_name(cast(str, self._ads_var), False, pyads.PLCTYPE_BOOL)
