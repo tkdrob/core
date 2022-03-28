@@ -1,6 +1,7 @@
 """Support for Neato botvac connected vacuum cleaners."""
 from datetime import timedelta
 import logging
+from typing import cast
 
 from pybotvac import Account
 from urllib3.response import HTTPResponse
@@ -32,8 +33,7 @@ class NeatoHub:
 
     def download_map(self, url: str) -> HTTPResponse:
         """Download a new map image."""
-        map_image_data = self.my_neato.get_map_image(url)
-        return map_image_data
+        return cast(HTTPResponse, self.my_neato.get_map_image(url))
 
     async def async_update_entry_unique_id(self, entry: ConfigEntry) -> str:
         """Update entry for unique_id."""
