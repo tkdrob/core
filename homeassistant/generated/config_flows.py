@@ -79,6 +79,7 @@ FLOWS = {
         "dlna_dms",
         "dnsip",
         "doorbird",
+        "dremel_3d_printer",
         "dsmr",
         "dunehd",
         "dynalite",
