@@ -54,6 +54,13 @@ SENSOR_TYPES: tuple[SkybellSensorEntityDescription, ...] = (
         value_fn=lambda device: device.latest("motion").get(CONST.CREATED_AT),
     ),
     SkybellSensorEntityDescription(
+        key="last_demand_event",
+        name="Last Demand Event",
+        icon="mdi:clock",
+        device_class=SensorDeviceClass.TIMESTAMP,
+        value_fn=lambda device: device.latest("demand").get(CONST.CREATED_AT),
+    ),
+    SkybellSensorEntityDescription(
         key=CONST.ATTR_LAST_CHECK_IN,
         name="Last Check in",
         icon="mdi:clock",
