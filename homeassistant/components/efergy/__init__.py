@@ -51,6 +51,7 @@ class EfergyEntity(Entity):
     """Representation of a Efergy entity."""
 
     _attr_attribution = "Data provided by Efergy"
+    _attr_has_entity_name = True
 
     def __init__(self, api: Efergy, server_unique_id: str) -> None:
         """Initialize an Efergy entity."""
