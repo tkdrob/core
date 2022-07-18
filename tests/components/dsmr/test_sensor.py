@@ -79,11 +79,11 @@ async def test_default_setup(hass, dsmr_connection_fixture):
 
     entry = registry.async_get("sensor.power_consumption")
     assert entry
-    assert entry.unique_id == "1234_Power_Consumption"
+    assert entry.unique_id == "1234_current_electricity_usage"
 
     entry = registry.async_get("sensor.gas_consumption")
     assert entry
-    assert entry.unique_id == "5678_Gas_Consumption"
+    assert entry.unique_id == "5678_gas_meter_reading"
 
     telegram_callback = connection_factory.call_args_list[0][0][2]
 
@@ -157,7 +157,7 @@ async def test_setup_only_energy(hass, dsmr_connection_fixture):
 
     entry = registry.async_get("sensor.power_consumption")
     assert entry
-    assert entry.unique_id == "1234_Power_Consumption"
+    assert entry.unique_id == "1234_current_electricity_usage"
 
     entry = registry.async_get("sensor.gas_consumption")
     assert not entry
@@ -393,7 +393,7 @@ async def test_belgian_meter(hass, dsmr_connection_fixture):
     (connection_factory, transport, protocol) = dsmr_connection_fixture
 
     from dsmr_parser.obis_references import (
-        BELGIUM_HOURLY_GAS_METER_READING,
+        BELGIUM_5MIN_GAS_METER_READING,
         ELECTRICITY_ACTIVE_TARIFF,
     )
     from dsmr_parser.objects import CosemObject, MBusObject
@@ -411,7 +411,7 @@ async def test_belgian_meter(hass, dsmr_connection_fixture):
     }
 
     telegram = {
-        BELGIUM_HOURLY_GAS_METER_READING: MBusObject(
+        BELGIUM_5MIN_GAS_METER_READING: MBusObject(
             [
                 {"value": datetime.datetime.fromtimestamp(1551642213)},
                 {"value": Decimal(745.695), "unit": "m3"},

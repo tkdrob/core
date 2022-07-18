@@ -18,6 +18,7 @@ from homeassistant.const import (
 )
 import homeassistant.core as ha
 from homeassistant.core import HomeAssistant
+from homeassistant.helpers.discovery import async_load_platform
 from homeassistant.helpers.typing import ConfigType
 import homeassistant.util.dt as dt_util
 
@@ -71,9 +72,7 @@ async def async_setup(hass: HomeAssistant, config: ConfigType) -> bool:
 
     # Set up demo platforms
     for platform in COMPONENTS_WITH_DEMO_PLATFORM:
-        hass.async_create_task(
-            hass.helpers.discovery.async_load_platform(platform, DOMAIN, {}, config)
-        )
+        hass.async_create_task(async_load_platform(hass, platform, DOMAIN, {}, config))
 
     config.setdefault(ha.DOMAIN, {})
     config.setdefault(DOMAIN, {})
@@ -260,10 +259,9 @@ async def _insert_statistics(hass):
 async def async_setup_entry(hass: HomeAssistant, config_entry: ConfigEntry) -> bool:
     """Set the config entry up."""
     # Set up demo platforms with config entry
-    for platform in COMPONENTS_WITH_CONFIG_ENTRY_DEMO_PLATFORM:
-        hass.async_create_task(
-            hass.config_entries.async_forward_entry_setup(config_entry, platform)
-        )
+    await hass.config_entries.async_forward_entry_setups(
+        config_entry, COMPONENTS_WITH_CONFIG_ENTRY_DEMO_PLATFORM
+    )
     if "recorder" in hass.config.components:
         await _insert_statistics(hass)
     return True
