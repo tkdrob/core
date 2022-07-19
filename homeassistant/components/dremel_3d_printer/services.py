@@ -10,16 +10,13 @@ from homeassistant.core import HomeAssistant, ServiceCall
 from homeassistant.helpers import config_validation as cv, device_registry
 
 from .const import (
-    _LOGGER,
     ATTR_DEVICE_ID,
     ATTR_FILEPATH,
     ATTR_URL,
     DOMAIN,
     EVENT_DATA_NEW_PRINT_STATS,
-    SERVICE_PAUSE_JOB,
+    LOGGER,
     SERVICE_PRINT_JOB,
-    SERVICE_RESUME_JOB,
-    SERVICE_STOP_JOB,
 )
 
 SERVICE_PRINT_JOB_SCHEMA = vol.Schema(
@@ -40,10 +37,10 @@ SERVICE_COMMON_JOB_SCHEMA = vol.Schema(
 def file_exists(hass: HomeAssistant, filepath: str) -> bool:
     """Check if a file exists on disk and is in authorized path."""
     if not hass.config.is_allowed_path(filepath):
-        _LOGGER.warning("Path not allowed: %s", filepath)
+        LOGGER.warning("Path not allowed: %s", filepath)
         return False
     if not os.path.isfile(filepath):
-        _LOGGER.warning("Not a file: %s", filepath)
+        LOGGER.warning("Not a file: %s", filepath)
         return False
     return True
 
@@ -86,32 +83,8 @@ async def async_setup_services(hass: HomeAssistant) -> None:
                 result,
             )
         except Exception as exc:  # pylint: disable=broad-except
-            _LOGGER.error(str(exc))
-
-    async def pause_job(service: ServiceCall) -> None:
-        """Service to pause a printing job."""
-        api = get_api(service)
-        await hass.async_add_executor_job(api.pause_print)
-
-    async def resume_job(service: ServiceCall) -> None:
-        """Service to resume a printing job."""
-        api = get_api(service)
-        await hass.async_add_executor_job(api.resume_print)
-
-    async def stop_job(service: ServiceCall) -> None:
-        """Service to stop a printing job."""
-        api = get_api(service)
-        await hass.async_add_executor_job(api.stop_print)
+            LOGGER.error(str(exc))
 
     hass.services.async_register(
         DOMAIN, SERVICE_PRINT_JOB, print_job, schema=SERVICE_PRINT_JOB_SCHEMA
-    )
-    hass.services.async_register(
-        DOMAIN, SERVICE_PAUSE_JOB, pause_job, schema=SERVICE_COMMON_JOB_SCHEMA
-    )
-    hass.services.async_register(
-        DOMAIN, SERVICE_RESUME_JOB, resume_job, schema=SERVICE_COMMON_JOB_SCHEMA
-    )
-    hass.services.async_register(
-        DOMAIN, SERVICE_STOP_JOB, stop_job, schema=SERVICE_COMMON_JOB_SCHEMA
     )

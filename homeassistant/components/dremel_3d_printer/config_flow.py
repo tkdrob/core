@@ -40,7 +40,6 @@ class Dremel3DPrinterConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                 data_schema=_schema_with_defaults(),
             )
 
-        api = None
         try:
             api = await self.hass.async_add_executor_job(
                 Dremel3DPrinter, user_input[CONF_HOST]
@@ -56,8 +55,6 @@ class Dremel3DPrinterConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                 errors=errors,
                 data_schema=_schema_with_defaults(host=user_input[CONF_HOST]),
             )
-
-        assert api is not None
 
         await self.async_set_unique_id(api.get_serial_number())
         self._abort_if_unique_id_configured()

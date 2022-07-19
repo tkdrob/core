@@ -22,39 +22,3 @@ print_job:
         device:
           integration: dremel_3d_printer
           manufacturer: Dremel
-pause_job:
-  name: Pause Job
-  description: Pauses an ongoing 3D print.
-  fields:
-    device_id:
-      name: Device
-      description: Device of the printer to pause the job.
-      required: true
-      selector:
-        device:
-          integration: dremel_3d_printer
-          manufacturer: Dremel
-resume_job:
-  name: Resume Job
-  description: Resume a 3D Job that was paused.
-  fields:
-    device_id:
-      name: Device
-      description: Device of the printer to resume the job.
-      required: true
-      selector:
-        device:
-          integration: dremel_3d_printer
-          manufacturer: Dremel
-stop_job:
-  name: Stop Job
-  description: Stops an ongoing 3D print.
-  fields:
-    device_id:
-      name: Device
-      description: Device of the printer to stop the job.
-      required: true
-      selector:
-        device:
-          integration: dremel_3d_printer
-          manufacturer: Dremel
