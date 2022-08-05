@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 from homeassistant.components.binary_sensor import (
+    BinarySensorDeviceClass,
     BinarySensorEntity,
     BinarySensorEntityDescription,
 )
@@ -14,8 +15,7 @@ from .entity import SlackEntity
 
 BINARY_SENSOR_TYPES: tuple[BinarySensorEntityDescription, ...] = (
     BinarySensorEntityDescription(
-        key="huddled",
-        name="Huddled",
+        key="huddle", name="Huddle", device_class=BinarySensorDeviceClass.CONNECTIVITY
     ),
 )
 
