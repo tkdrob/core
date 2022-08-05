@@ -1,0 +1,26 @@
+set_status:
+  name: Set Status
+  description: Set a status.
+  fields:
+    device_id:
+      name: Device
+      description: Name of Slack instance to choose from
+      selector:
+        device:
+          integration: slack
+    status_text:
+      name: Status text
+      description: Text part of status
+      selector:
+        text:
+    status_emoji:
+      name: Status emoji
+      description: Emoji to be used
+      example: ":house_with_garden:"
+      selector:
+        text:
+    status_expiration:
+      name: Status expiration
+      description: When status should end
+      selector:
+        datetime:
