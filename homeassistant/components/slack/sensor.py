@@ -14,10 +14,11 @@ from homeassistant.components.sensor import (
 )
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant
+from homeassistant.helpers.entity import EntityCategory
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 from homeassistant.helpers.typing import StateType
 
-from .const import ATTR_STATUS_EXPIRATION, ATTR_STATUS_TEXT, DOMAIN
+from .const import ATTR_LAST_ACTIVITY, ATTR_STATUS_EXPIRATION, ATTR_STATUS_TEXT, DOMAIN
 from .coordinator import SlackDataUpdateCoordinator
 from .entity import SlackEntity
 
@@ -53,6 +54,15 @@ SENSOR_TYPES: tuple[SlackSensorEntityDescription, ...] = (
         device_class=SensorDeviceClass.TIMESTAMP,
         value_fn=lambda coordinator: coordinator.profile[ATTR_STATUS_EXPIRATION],
         entity_picture_fn=lambda _: None,
+    ),
+    SlackSensorEntityDescription(
+        key=ATTR_LAST_ACTIVITY,
+        name="Last activity",
+        device_class=SensorDeviceClass.TIMESTAMP,
+        value_fn=lambda coordinator: coordinator.presence[ATTR_LAST_ACTIVITY],
+        entity_picture_fn=lambda _: None,
+        entity_category=EntityCategory.DIAGNOSTIC,
+        entity_registry_enabled_default=False,
     ),
 )
 

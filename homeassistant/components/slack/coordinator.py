@@ -3,6 +3,7 @@ from __future__ import annotations
 
 import asyncio
 from datetime import datetime, timedelta
+from typing import cast
 
 from slack import WebClient
 from slack.errors import SlackApiError
@@ -13,6 +14,7 @@ from homeassistant.helpers.update_coordinator import DataUpdateCoordinator, Upda
 import homeassistant.util.dt as dt_util
 
 from .const import (
+    ATTR_LAST_ACTIVITY,
     ATTR_SNOOZE,
     ATTR_STATUS_EXPIRATION,
     ATTR_URL,
@@ -41,12 +43,12 @@ class SlackDataUpdateCoordinator(DataUpdateCoordinator):
         self._data = data
         self.dnd_end: datetime | None = None
         self.profile: dict[str, str] = {}
-        self.presence = False
+        self.presence: dict[str, str | int | bool | datetime] = {}
 
     async def _async_update_data(self) -> None:
         """Fetch data from API endpoint."""
         try:
-            _time, _profile, presence = await asyncio.gather(
+            [_time, _profile, _presence] = await asyncio.gather(
                 *[
                     self.client.dnd_info(),
                     self.client.users_profile_get(),
@@ -61,12 +63,15 @@ class SlackDataUpdateCoordinator(DataUpdateCoordinator):
             if _time.get(ATTR_SNOOZE)
             else None
         )
-        self.presence = presence["presence"] == "active"
         if (expire := _profile[ATTR_STATUS_EXPIRATION]) and expire > 0:
             _profile[ATTR_STATUS_EXPIRATION] = dt_util.utc_from_timestamp(expire)
         else:
             _profile[ATTR_STATUS_EXPIRATION] = None
         self.profile = _profile
+        self.presence = _presence.data
+        self.presence[ATTR_LAST_ACTIVITY] = dt_util.utc_from_timestamp(
+            cast(int, self.presence[ATTR_LAST_ACTIVITY])
+        )
 
     @property
     def url(self) -> str:

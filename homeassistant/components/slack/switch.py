@@ -43,4 +43,4 @@ class SlackSwitchEntity(SlackEntity, SwitchEntity):
     @property
     def is_on(self) -> bool:
         """Return true if user is active."""
-        return self.coordinator.presence
+        return self.coordinator.presence["presence"] == "active"

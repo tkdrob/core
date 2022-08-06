@@ -5,6 +5,7 @@ from typing import Final
 ATTR_BLOCKS = "blocks"
 ATTR_BLOCKS_TEMPLATE = "blocks_template"
 ATTR_FILE = "file"
+ATTR_LAST_ACTIVITY = "last_activity"
 ATTR_PASSWORD = "password"
 ATTR_PATH = "path"
 ATTR_SNOOZE = "snooze_remaining"
