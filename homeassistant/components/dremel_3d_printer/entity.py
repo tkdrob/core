@@ -25,18 +25,10 @@ class Dremel3DPrinterEntity(CoordinatorEntity[Dremel3DPrinterDataUpdateCoordinat
         self._attr_unique_id = f"{coordinator.config_entry.entry_id}_{description.key}"
 
     @property
-    def available(self) -> bool:
-        """Return if entity is available."""
-        return (
-            self.coordinator.last_update_success
-            and not self.coordinator.printer_offline
-        )
-
-    @property
     def device_info(self) -> DeviceInfo:
         """Return device information about this Dremel printer."""
         return DeviceInfo(
-            # connections={(dr.CONNECTION_NETWORK_MAC, mac)},
+            # connections={(dr.CONNECTION_NETWORK_MAC, mac)}, TODO can we get the MAC address?
             identifiers={(DOMAIN, self.coordinator.config_entry.entry_id)},
             manufacturer=self.coordinator.api.get_manufacturer(),
             model=self.coordinator.api.get_model(),

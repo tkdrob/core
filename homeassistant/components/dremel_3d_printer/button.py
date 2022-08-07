@@ -34,7 +34,7 @@ async def async_setup_entry(
     """Set up Dremel 3D Printer control buttons."""
     coordinator = hass.data[DOMAIN][config_entry.entry_id]
 
-    # async_add_entities(Dremel3DPrinterButton(coordinator, description) for description in BUTTON_TYPES)
+    # async_add_entities(Dremel3DPrinterButton(coordinator, description) for description in BUTTON_TYPES) TODO
 
     async_add_entities(
         [

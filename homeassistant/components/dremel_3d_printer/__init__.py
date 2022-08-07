@@ -25,14 +25,14 @@ async def async_setup_entry(hass: HomeAssistant, config_entry: ConfigEntry) -> b
             Dremel3DPrinter, config_entry.data[CONF_HOST]
         )
 
-    except (ConnectTimeout, HTTPError) as exc:
+    except (ConnectTimeout, HTTPError) as ex:
         raise ConfigEntryNotReady(
-            f"Unable to connect to Dremel 3D Printer: {exc}"
-        ) from exc
-    except Exception as exc:
+            f"Unable to connect to Dremel 3D Printer: {ex}"
+        ) from ex
+    except Exception as ex:
         raise ConfigEntryNotReady(
-            f"Unknown error connecting to Dremel 3D Printer: {exc}"
-        ) from exc
+            f"Unknown error connecting to Dremel 3D Printer: {ex}"
+        ) from ex
 
     coordinator = Dremel3DPrinterDataUpdateCoordinator(hass, api)
     await coordinator.async_config_entry_first_refresh()
@@ -40,7 +40,7 @@ async def async_setup_entry(hass: HomeAssistant, config_entry: ConfigEntry) -> b
     platforms = deepcopy(PLATFORMS)
     if api.get_model() != "3D45":
         platforms.remove(Platform.CAMERA)
-    hass.config_entries.async_setup_platforms(config_entry, platforms)
+    await hass.config_entries.async_forward_entry_setups(config_entry, platforms)
     await async_setup_services(hass)
     return True
 

@@ -8,8 +8,10 @@ LOGGER = logging.getLogger(__package__)
 DOMAIN = "dremel_3d_printer"
 
 SERVICE_PRINT_JOB = "print_job"
+ATTR_EXTRUDER = "extruder"
 ATTR_FILEPATH = "file_path"
 ATTR_URL = "url"
 ATTR_DEVICE_ID = "device_id"
+ATTR_PLATFORM = "platform"
 
 EVENT_DATA_NEW_PRINT_STATS = "dremel_3d_printer_new_print_stats"

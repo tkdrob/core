@@ -16,7 +16,7 @@ from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 
-from .const import DOMAIN
+from .const import DOMAIN, LOGGER
 from .entity import Dremel3DPrinterEntity
 
 
@@ -73,8 +73,3 @@ class Dremel3DPrinterBinarySensor(Dremel3DPrinterEntity, BinarySensorEntity):
     def is_on(self) -> bool:
         """Return true if door is open."""
         return self.entity_description.value_fn(self._api)
-
-    @property
-    def extra_state_attributes(self) -> dict[str, Any]:
-        """Return job related attributes for this status sensor."""
-        return cast(dict, self._api.get_printer_info())
