@@ -123,13 +123,12 @@ async def async_setup_entry(
 
     coordinator = hass.data[DOMAIN][entry.entry_id]
 
-    sensors = []
-    for description in SENSOR_TYPES:
-        # When we use the nearest method, we are not sure which sensors are available
-        if coordinator.data.get(description.key):
-            sensors.append(AirlySensor(coordinator, name, description))
-
-    async_add_entities(sensors, False)
+    # When we use the nearest method, we are not sure which sensors are available
+    async_add_entities(
+        AirlySensor(coordinator, name, description)
+        for description in SENSOR_TYPES
+        if coordinator.data.get(description.key)
+    )
 
 
 class AirlySensor(CoordinatorEntity[AirlyDataUpdateCoordinator], SensorEntity):
