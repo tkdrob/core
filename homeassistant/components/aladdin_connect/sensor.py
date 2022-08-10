@@ -66,15 +66,13 @@ async def async_setup_entry(
 
     acc: AladdinConnectClient = hass.data[DOMAIN][entry.entry_id]
 
-    entities = []
     doors = await acc.get_doors()
 
-    for door in doors:
-        entities.extend(
-            [AladdinConnectSensor(acc, door, description) for description in SENSORS]
-        )
-
-        async_add_entities(entities)
+    async_add_entities(
+        AladdinConnectSensor(acc, door, description)
+        for description in SENSORS
+        for door in doors
+    )
 
 
 class AladdinConnectSensor(SensorEntity):
