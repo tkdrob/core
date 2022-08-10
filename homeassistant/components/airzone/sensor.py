@@ -69,32 +69,29 @@ async def async_setup_entry(
     """Add Airzone sensors from a config_entry."""
     coordinator = hass.data[DOMAIN][entry.entry_id]
 
-    sensors: list[AirzoneSensor] = []
+    sensors: list[AirzoneSensor] = [
+        AirzoneWebServerSensor(
+            coordinator,
+            description,
+            entry,
+        )
+        for description in WEBSERVER_SENSOR_TYPES
+        if AZD_WEBSERVER in coordinator.data
+        if description.key in coordinator.data[AZD_WEBSERVER]
+    ]
 
-    if AZD_WEBSERVER in coordinator.data:
-        ws_data = coordinator.data[AZD_WEBSERVER]
-        for description in WEBSERVER_SENSOR_TYPES:
-            if description.key in ws_data:
-                sensors.append(
-                    AirzoneWebServerSensor(
-                        coordinator,
-                        description,
-                        entry,
-                    )
-                )
-
-    for system_zone_id, zone_data in coordinator.data[AZD_ZONES].items():
-        for description in ZONE_SENSOR_TYPES:
-            if description.key in zone_data:
-                sensors.append(
-                    AirzoneZoneSensor(
-                        coordinator,
-                        description,
-                        entry,
-                        system_zone_id,
-                        zone_data,
-                    )
-                )
+    sensors.extend(
+        AirzoneZoneSensor(
+            coordinator,
+            description,
+            entry,
+            system_zone_id,
+            zone_data,
+        )
+        for system_zone_id, zone_data in coordinator.data[AZD_ZONES].items()
+        for description in ZONE_SENSOR_TYPES
+        if description.key in zone_data
+    )
 
     async_add_entities(sensors)
 
