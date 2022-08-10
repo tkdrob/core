@@ -78,14 +78,15 @@ async def async_setup_entry(
     domain_data = hass.data[DOMAIN][config_entry.entry_id]
     weather_coordinator = domain_data[ENTRY_WEATHER_COORDINATOR]
 
-    entities = []
-    for mode in FORECAST_MODES:
-        name = f"{domain_data[ENTRY_NAME]} {mode}"
-        unique_id = f"{config_entry.unique_id} {mode}"
-        entities.append(AemetWeather(name, unique_id, weather_coordinator, mode))
-
-    if entities:
-        async_add_entities(entities, False)
+    async_add_entities(
+        AemetWeather(
+            f"{domain_data[ENTRY_NAME]} {mode}",
+            f"{config_entry.unique_id} {mode}",
+            weather_coordinator,
+            mode,
+        )
+        for mode in FORECAST_MODES
+    )
 
 
 class AemetWeather(CoordinatorEntity[WeatherUpdateCoordinator], WeatherEntity):
