@@ -126,12 +126,10 @@ async def async_setup_entry(
     """Set up the Aussie Broadband sensor platform from a config entry."""
 
     async_add_entities(
-        [
-            AussieBroadandSensorEntity(service, description)
-            for service in hass.data[DOMAIN][entry.entry_id]["services"]
-            for description in SENSOR_DESCRIPTIONS
-            if description.key in service["coordinator"].data
-        ]
+        AussieBroadandSensorEntity(service, description)
+        for service in hass.data[DOMAIN][entry.entry_id]["services"]
+        for description in SENSOR_DESCRIPTIONS
+        if description.key in service["coordinator"].data
     )
 
 
