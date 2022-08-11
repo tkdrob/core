@@ -45,11 +45,9 @@ async def async_setup_entry(
             entities.append(AwairSensor(result.device, coordinator, SENSOR_TYPE_SCORE))
             device_sensors = result.air_data.sensors.keys()
             entities.extend(
-                [
-                    AwairSensor(result.device, coordinator, description)
-                    for description in (*SENSOR_TYPES, *SENSOR_TYPES_DUST)
-                    if description.key in device_sensors
-                ]
+                AwairSensor(result.device, coordinator, description)
+                for description in (*SENSOR_TYPES, *SENSOR_TYPES_DUST)
+                if description.key in device_sensors
             )
 
             # The "DUST" sensor for Awair is a combo pm2.5/pm10 sensor only
@@ -58,13 +56,11 @@ async def async_setup_entry(
             # report identical values, and we let users decide how they want to use
             # that data - because we can't really tell what kind of particles the
             # "DUST" sensor actually detected. However, it's still useful data.
-            if API_DUST in device_sensors:
-                entities.extend(
-                    [
-                        AwairSensor(result.device, coordinator, description)
-                        for description in SENSOR_TYPES_DUST
-                    ]
-                )
+            entities.extend(
+                AwairSensor(result.device, coordinator, description)
+                for description in SENSOR_TYPES_DUST
+                if API_DUST in device_sensors
+            )
 
     async_add_entities(entities)
 
