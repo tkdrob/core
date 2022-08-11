@@ -160,20 +160,13 @@ async def async_setup_entry(
 ) -> None:
     """Set up the sensors."""
     router: AsusWrtRouter = hass.data[DOMAIN][entry.entry_id][DATA_ASUSWRT]
-    entities = []
 
-    for sensor_data in router.sensors_coordinator.values():
-        coordinator = sensor_data[KEY_COORDINATOR]
-        sensors = sensor_data[KEY_SENSORS]
-        entities.extend(
-            [
-                AsusWrtSensor(coordinator, router, sensor_descr)
-                for sensor_descr in CONNECTION_SENSORS
-                if sensor_descr.key in sensors
-            ]
-        )
-
-    async_add_entities(entities, True)
+    async_add_entities(
+        AsusWrtSensor(sensor_data[KEY_COORDINATOR], router, sensor_descr)
+        for sensor_data in router.sensors_coordinator.values()
+        for sensor_descr in CONNECTION_SENSORS
+        if sensor_descr.key in sensor_data[KEY_SENSORS]
+    )
 
 
 class AsusWrtSensor(CoordinatorEntity, SensorEntity):
