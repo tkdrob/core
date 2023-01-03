@@ -53,6 +53,7 @@ FILE_URL_SCHEMA = vol.Schema(
         vol.Required(ATTR_URL): cv.url,
         vol.Inclusive(ATTR_USERNAME, "credentials"): cv.string,
         vol.Inclusive(ATTR_PASSWORD, "credentials"): cv.string,
+        vol.Optional("read_first"): cv.boolean,
     }
 )
 
@@ -189,6 +190,7 @@ class SlackNotificationService(BaseNotificationService):
         *,
         username: str | None = None,
         password: str | None = None,
+        read_first: bool = False,
     ) -> None:
         """Upload a remote file (with message) to Slack.
 
@@ -224,7 +226,11 @@ class SlackNotificationService(BaseNotificationService):
         }
 
         data = FormData(form_data, charset="utf-8")
-        data.add_field("file", resp.content, filename=filename)
+        data.add_field(
+            "file",
+            await resp.content.read() if read_first else resp.content,
+            filename=filename,
+        )
 
         try:
             await session.post("https://slack.com/api/files.upload", data=data)
@@ -316,6 +322,7 @@ class SlackNotificationService(BaseNotificationService):
                 title,
                 username=data[ATTR_FILE].get(ATTR_USERNAME),
                 password=data[ATTR_FILE].get(ATTR_PASSWORD),
+                read_first=data[ATTR_FILE].get("read_first"),
             )
 
         # Message Type 3: A message that uploads a local file

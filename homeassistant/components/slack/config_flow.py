@@ -26,6 +26,7 @@ CONFIG_SCHEMA = vol.Schema(
 )
 
 
+@config_entries.HANDLERS.register(DOMAIN)
 class SlackFlowHandler(config_entries.ConfigFlow, domain=DOMAIN):
     """Handle a config flow for Slack."""
 

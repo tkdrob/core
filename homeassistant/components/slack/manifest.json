@@ -7,5 +7,6 @@
   "codeowners": ["@bachya", "@tkdrob"],
   "iot_class": "cloud_push",
   "loggers": ["slack"],
-  "integration_type": "service"
+  "integration_type": "service",
+  "version": "1.0.0"
 }
