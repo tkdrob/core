@@ -12,7 +12,7 @@ from gspread.utils import ValueInputOption
 import voluptuous as vol
 
 from homeassistant.config_entries import ConfigEntry, ConfigEntryState
-from homeassistant.const import CONF_ACCESS_TOKEN, CONF_TOKEN
+from homeassistant.const import CONF_ACCESS_TOKEN, CONF_TOKEN, Platform
 from homeassistant.core import HomeAssistant, ServiceCall
 from homeassistant.exceptions import (
     ConfigEntryAuthFailed,
@@ -47,6 +47,8 @@ SHEET_SERVICE_SCHEMA = vol.All(
     },
 )
 
+PLATFORMS = [Platform.SENSOR]
+
 
 async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     """Set up Google Sheets from a config entry."""
@@ -71,6 +73,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     if not async_entry_has_scopes(entry):
         raise ConfigEntryAuthFailed("Required scopes are not present, reauth required")
     hass.data.setdefault(DOMAIN, {})[entry.entry_id] = session
+    await hass.config_entries.async_forward_entry_setups(entry, PLATFORMS)
 
     await async_setup_service(hass)
 
@@ -97,7 +100,8 @@ def async_entry_has_scopes(entry: ConfigEntry) -> bool:
 
 async def async_unload_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     """Unload a config entry."""
-    hass.data[DOMAIN].pop(entry.entry_id)
+    if unload_ok := await hass.config_entries.async_unload_platforms(entry, PLATFORMS):
+        hass.data[DOMAIN].pop(entry.entry_id)
     loaded_entries = [
         entry
         for entry in hass.config_entries.async_entries(DOMAIN)
@@ -107,7 +111,7 @@ async def async_unload_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
         for service_name in hass.services.async_services()[DOMAIN]:
             hass.services.async_remove(DOMAIN, service_name)
 
-    return True
+    return unload_ok
 
 
 async def async_reload_entry(hass: HomeAssistant, entry: ConfigEntry) -> None:

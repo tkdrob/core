@@ -12,6 +12,7 @@ DATA = "data"
 DATA_CONFIG_ENTRY: Final = "config_entry"
 DEFAULT_NAME = "Google Sheets"
 DOCUMENT_ID = "document_id"
+MANUFACTURER = "Google, Inc."
 WORKSHEET = "worksheet"
 
 SERVICE_APPEND_SHEET = "append_sheet"
