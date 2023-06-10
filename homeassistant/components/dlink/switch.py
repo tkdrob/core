@@ -92,28 +92,6 @@ class SmartPlugSwitch(DLinkEntity, SwitchEntity):
     """Representation of a D-Link Smart Plug switch."""
 
     @property
-    def extra_state_attributes(self) -> dict[str, Any]:
-        """Return the state attributes of the device."""
-        try:
-            temperature = self.hass.config.units.temperature(
-                int(self.data.temperature), UnitOfTemperature.CELSIUS
-            )
-        except ValueError:
-            temperature = None
-
-        try:
-            total_consumption = float(self.data.total_consumption)
-        except ValueError:
-            total_consumption = None
-
-        attrs = {
-            ATTR_TOTAL_CONSUMPTION: total_consumption,
-            ATTR_TEMPERATURE: temperature,
-        }
-
-        return attrs
-
-    @property
     def is_on(self) -> bool:
         """Return true if switch is on."""
         return self.data.state == "ON"
