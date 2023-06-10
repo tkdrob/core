@@ -11,7 +11,7 @@ from homeassistant.exceptions import ConfigEntryNotReady
 from .const import CONF_USE_LEGACY_PROTOCOL, DOMAIN
 from .data import SmartPlugData
 
-PLATFORMS = [Platform.SWITCH]
+PLATFORMS = [Platform.SWITCH, Platform.SENSOR]
 
 
 async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
