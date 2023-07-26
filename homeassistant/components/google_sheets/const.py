@@ -1,13 +1,12 @@
 """Constants for Google Sheets integration."""
 from __future__ import annotations
 
+from enum import StrEnum
 from typing import Final
-
-from homeassistant.backports.enum import StrEnum
 
 DOMAIN = "google_sheets"
 
-CONF_SHEETS_ACCESS = "sheets_access"
+CONF_SHEETS_ACCESS: Final = "sheets_access"
 DATA = "data"
 DATA_CONFIG_ENTRY: Final = "config_entry"
 DEFAULT_NAME = "Google Sheets"
