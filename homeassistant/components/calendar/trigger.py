@@ -83,7 +83,7 @@ class Timespan:
         return Timespan(self.end, max(self.end, now) + interval)
 
     def __str__(self) -> str:
-        """Return a string representing the half open interval timespan."""
+        """Return a string representing the half open interval time span."""
         return f"[{self.start}, {self.end})"
 
 
