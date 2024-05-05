@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 from astroid import nodes
+from astroid.nodes.node_classes import Assign
 from pylint.checkers import BaseChecker
 from pylint.lint import PyLinter
 
@@ -50,6 +51,40 @@ class HassEnforceCoordinatorModule(BaseChecker):
                 return
 
 
+class UpdateIntervalChecker(BaseChecker):
+    """Checker for coordinators update_interval usage."""
+
+    name = "hass_enforce_update_coordinator_attributes"
+    priority = -1
+    msgs = {
+        "W7462": (
+            "Do not define 'update_interval' in a subclass of 'DataUpdateCoordinator'. Use '_update_interval' instead",
+            "hass-enforce-update-coordinator-attributes",
+            "Used when an update coordinator uses the public update_interal",
+        ),
+    }
+    options = ()
+
+    def visit_classdef(self, node: nodes.ClassDef) -> None:
+        """Check if update coordinator sets update_interval during construction."""
+
+        if all(a.name != "DataUpdateCoordinator" for a in node.ancestors()):
+            return
+        for attr in node.body:
+            if (
+                not isinstance(attr, Assign)
+                or attr.targets[0].as_string() != "update_interval"
+                or any(
+                    msg.obj == node.name and msg.line == node.lineno
+                    for msg in self.linter.reporter.messages
+                )
+            ):
+                continue
+            self.add_message("hass-enforce-update-coordinator-attributes", node=node)
+            return
+
+
 def register(linter: PyLinter) -> None:
     """Register the checker."""
     linter.register_checker(HassEnforceCoordinatorModule(linter))
+    linter.register_checker(UpdateIntervalChecker(linter))
