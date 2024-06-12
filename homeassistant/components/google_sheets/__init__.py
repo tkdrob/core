@@ -12,7 +12,7 @@ from gspread.exceptions import APIError
 from gspread.utils import ValueInputOption
 import voluptuous as vol
 
-from homeassistant.config_entries import ConfigEntry, ConfigEntryState
+from homeassistant.config_entries import ConfigEntry
 from homeassistant.const import CONF_ACCESS_TOKEN, CONF_TOKEN
 from homeassistant.core import HomeAssistant, ServiceCall
 from homeassistant.exceptions import (
@@ -26,6 +26,7 @@ from homeassistant.helpers.config_entry_oauth2_flow import (
 )
 import homeassistant.helpers.config_validation as cv
 from homeassistant.helpers.selector import ConfigEntrySelector
+from homeassistant.helpers.typing import ConfigType
 
 from .const import DEFAULT_ACCESS, DOMAIN
 
@@ -46,14 +47,20 @@ SHEET_SERVICE_SCHEMA = vol.All(
 )
 
 
+async def async_setup(hass: HomeAssistant, config: ConfigType) -> bool:
+    """Set up services for Google Sheets."""
+    await async_setup_service(hass)
+    return True
+
+
 async def async_setup_entry(
     hass: HomeAssistant, entry: GoogleSheetsConfigEntry
 ) -> bool:
     """Set up Google Sheets from a config entry."""
     implementation = await async_get_config_entry_implementation(hass, entry)
-    session = OAuth2Session(hass, entry, implementation)
+    entry.runtime_data = OAuth2Session(hass, entry, implementation)
     try:
-        await session.async_ensure_token_valid()
+        await entry.runtime_data.async_ensure_token_valid()
     except aiohttp.ClientResponseError as err:
         if 400 <= err.status < 500:
             raise ConfigEntryAuthFailed(
@@ -65,9 +72,6 @@ async def async_setup_entry(
 
     if not async_entry_has_scopes(hass, entry):
         raise ConfigEntryAuthFailed("Required scopes are not present, reauth required")
-    entry.runtime_data = session
-
-    await async_setup_service(hass)
 
     return True
 
@@ -81,15 +85,6 @@ async def async_unload_entry(
     hass: HomeAssistant, entry: GoogleSheetsConfigEntry
 ) -> bool:
     """Unload a config entry."""
-    loaded_entries = [
-        entry
-        for entry in hass.config_entries.async_entries(DOMAIN)
-        if entry.state == ConfigEntryState.LOADED
-    ]
-    if len(loaded_entries) == 1:
-        for service_name in hass.services.async_services_for_domain(DOMAIN):
-            hass.services.async_remove(DOMAIN, service_name)
-
     return True
 
 

@@ -17,7 +17,7 @@ from homeassistant.components.application_credentials import (
 from homeassistant.components.google_sheets import DOMAIN
 from homeassistant.config_entries import ConfigEntryState
 from homeassistant.core import HomeAssistant
-from homeassistant.exceptions import HomeAssistantError, ServiceNotFound
+from homeassistant.exceptions import HomeAssistantError
 from homeassistant.setup import async_setup_component
 
 from tests.common import MockConfigEntry
@@ -93,9 +93,7 @@ async def test_setup_success(
     await hass.config_entries.async_unload(entries[0].entry_id)
     await hass.async_block_till_done()
 
-    assert not hass.data.get(DOMAIN)
     assert entries[0].state is ConfigEntryState.NOT_LOADED
-    assert not hass.services.async_services().get(DOMAIN, {})
 
 
 @pytest.mark.parametrize(
@@ -311,7 +309,7 @@ async def test_append_sheet_invalid_config_entry(
     await hass.async_block_till_done()
     assert config_entry.state is ConfigEntryState.NOT_LOADED
 
-    with pytest.raises(ServiceNotFound):
+    with pytest.raises(ValueError, match="Invalid config entry"):
         await hass.services.async_call(
             DOMAIN,
             "append_sheet",
