@@ -1571,6 +1571,8 @@ build.json @home-assistant/supervisor
 /tests/components/wake_on_lan/ @ntilley905
 /homeassistant/components/wake_word/ @home-assistant/core @synesthesiam
 /tests/components/wake_word/ @home-assistant/core @synesthesiam
+/homeassistant/components/wakefern/ @tkdrob
+/tests/components/wakefern/ @tkdrob
 /homeassistant/components/wallbox/ @hesselonline
 /tests/components/wallbox/ @hesselonline
 /homeassistant/components/waqi/ @joostlek

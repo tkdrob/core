@@ -1,0 +1,53 @@
+# serializer version: 1
+# name: test_numbers[number.front_door_motion_sensitivity]
+  StateSnapshot({
+    'attributes': ReadOnlyDict({
+      'attribution': 'Data provided by Skybell.com',
+      'friendly_name': 'Front door Motion sensitivity',
+      'max': 100,
+      'min': 0,
+      'mode': <NumberMode.SLIDER: 'slider'>,
+      'step': 1.0,
+      'unit_of_measurement': '%',
+    }),
+    'context': <ANY>,
+    'entity_id': 'number.front_door_motion_sensitivity',
+    'last_changed': <ANY>,
+    'last_reported': <ANY>,
+    'last_updated': <ANY>,
+    'state': '69.7',
+  })
+# ---
+# name: test_numbers[number.front_door_motion_sensitivity].1
+  tuple(
+    dict({
+      'motion_sensitivity': 500,
+    }),
+  )
+# ---
+# name: test_numbers[number.front_door_pir_sensitivity]
+  StateSnapshot({
+    'attributes': ReadOnlyDict({
+      'attribution': 'Data provided by Skybell.com',
+      'friendly_name': 'Front door PIR sensitivity',
+      'max': 100,
+      'min': 0,
+      'mode': <NumberMode.SLIDER: 'slider'>,
+      'step': 1.0,
+      'unit_of_measurement': '%',
+    }),
+    'context': <ANY>,
+    'entity_id': 'number.front_door_pir_sensitivity',
+    'last_changed': <ANY>,
+    'last_reported': <ANY>,
+    'last_updated': <ANY>,
+    'state': '69.6',
+  })
+# ---
+# name: test_numbers[number.front_door_pir_sensitivity].1
+  tuple(
+    dict({
+      'pir_sensitivity': 500,
+    }),
+  )
+# ---

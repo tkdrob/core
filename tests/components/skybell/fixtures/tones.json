@@ -1,0 +1,14 @@
+{
+  "error": false,
+  "message": "Currently featured tones",
+  "data": [
+    {
+      "url": "https://dlc.skybell.network/tones/doorbell/1950s_mechanical_doorbell.wav",
+      "size": 270900,
+      "modified": "2023-05-22T18:12:48.000Z",
+      "file": "1950s_mechanical_doorbell.wav",
+      "name": "1950s mechanical doorbell",
+      "classicDingDong": false
+    }
+  ]
+}

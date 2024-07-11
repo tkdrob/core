@@ -1,0 +1,229 @@
+# serializer version: 1
+# name: test_selects[select.front_door_button_tone-1950s mechanical doorbell]
+  StateSnapshot({
+    'attributes': ReadOnlyDict({
+      'attribution': 'Data provided by Skybell.com',
+      'friendly_name': 'Front door Button tone',
+      'options': list([
+        '1950s mechanical doorbell',
+        'Default tone',
+      ]),
+    }),
+    'context': <ANY>,
+    'entity_id': 'select.front_door_button_tone',
+    'last_changed': <ANY>,
+    'last_reported': <ANY>,
+    'last_updated': <ANY>,
+    'state': 'Default tone',
+  })
+# ---
+# name: test_selects[select.front_door_button_tone-1950s mechanical doorbell].1
+  list([
+    tuple(
+      'https://api.skybell.network/api/v5/devices/12345679-1234-1234-1234-123456789012/tone',
+    ),
+    dict({
+      'json': dict({
+        'tone_file': '1950s_mechanical_doorbell.wav',
+        'tone_type': 'button',
+      }),
+      'method': <HTTPMethod.POST: 'POST'>,
+    }),
+  ])
+# ---
+# name: test_selects[select.front_door_image_quality-medium]
+  StateSnapshot({
+    'attributes': ReadOnlyDict({
+      'attribution': 'Data provided by Skybell.com',
+      'friendly_name': 'Front door Image quality',
+      'options': list([
+        'low',
+        'medium',
+        'high',
+        'highest',
+      ]),
+    }),
+    'context': <ANY>,
+    'entity_id': 'select.front_door_image_quality',
+    'last_changed': <ANY>,
+    'last_reported': <ANY>,
+    'last_updated': <ANY>,
+    'state': 'low',
+  })
+# ---
+# name: test_selects[select.front_door_image_quality-medium].1
+  list([
+    tuple(
+      'https://api.skybell.network/api/v5/devices/12345679-1234-1234-1234-123456789012/settings',
+    ),
+    dict({
+      'json': dict({
+        'image_quality': <ImageQuality.medium: 1>,
+      }),
+      'method': <HTTPMethod.POST: 'POST'>,
+    }),
+  ])
+# ---
+# name: test_selects[select.front_door_live_volume-high]
+  StateSnapshot({
+    'attributes': ReadOnlyDict({
+      'attribution': 'Data provided by Skybell.com',
+      'friendly_name': 'Front door Live volume',
+      'options': list([
+        'low',
+        'medium',
+        'high',
+      ]),
+    }),
+    'context': <ANY>,
+    'entity_id': 'select.front_door_live_volume',
+    'last_changed': <ANY>,
+    'last_reported': <ANY>,
+    'last_updated': <ANY>,
+    'state': 'low',
+  })
+# ---
+# name: test_selects[select.front_door_live_volume-high].1
+  list([
+    tuple(
+      'https://api.skybell.network/api/v5/devices/12345679-1234-1234-1234-123456789012/settings',
+    ),
+    dict({
+      'json': dict({
+        'speaker_volume': <Volume.high: 2>,
+      }),
+      'method': <HTTPMethod.POST: 'POST'>,
+    }),
+  ])
+# ---
+# name: test_selects[select.front_door_motion_chime_volume-off]
+  StateSnapshot({
+    'attributes': ReadOnlyDict({
+      'attribution': 'Data provided by Skybell.com',
+      'friendly_name': 'Front door Motion chime volume',
+      'options': list([
+        'low',
+        'medium',
+        'high',
+        'off',
+      ]),
+    }),
+    'context': <ANY>,
+    'entity_id': 'select.front_door_motion_chime_volume',
+    'last_changed': <ANY>,
+    'last_reported': <ANY>,
+    'last_updated': <ANY>,
+    'state': 'off',
+  })
+# ---
+# name: test_selects[select.front_door_motion_chime_volume-off].1
+  list([
+    tuple(
+      'https://api.skybell.network/api/v5/devices/12345679-1234-1234-1234-123456789012/settings',
+    ),
+    dict({
+      'json': dict({
+        'motion_chime': False,
+      }),
+      'method': <HTTPMethod.POST: 'POST'>,
+    }),
+  ])
+# ---
+# name: test_selects[select.front_door_motion_tone-1950s mechanical doorbell]
+  StateSnapshot({
+    'attributes': ReadOnlyDict({
+      'attribution': 'Data provided by Skybell.com',
+      'friendly_name': 'Front door Motion tone',
+      'options': list([
+        '1950s mechanical doorbell',
+        'Default tone',
+      ]),
+    }),
+    'context': <ANY>,
+    'entity_id': 'select.front_door_motion_tone',
+    'last_changed': <ANY>,
+    'last_reported': <ANY>,
+    'last_updated': <ANY>,
+    'state': 'Default tone',
+  })
+# ---
+# name: test_selects[select.front_door_motion_tone-1950s mechanical doorbell].1
+  list([
+    tuple(
+      'https://api.skybell.network/api/v5/devices/12345679-1234-1234-1234-123456789012/tone',
+    ),
+    dict({
+      'json': dict({
+        'tone_file': '1950s_mechanical_doorbell.wav',
+        'tone_type': 'motion',
+      }),
+      'method': <HTTPMethod.POST: 'POST'>,
+    }),
+  ])
+# ---
+# name: test_selects[select.front_door_outdoor_chime_volume-high]
+  StateSnapshot({
+    'attributes': ReadOnlyDict({
+      'attribution': 'Data provided by Skybell.com',
+      'friendly_name': 'Front door Outdoor chime volume',
+      'options': list([
+        'low',
+        'medium',
+        'high',
+        'off',
+      ]),
+    }),
+    'context': <ANY>,
+    'entity_id': 'select.front_door_outdoor_chime_volume',
+    'last_changed': <ANY>,
+    'last_reported': <ANY>,
+    'last_updated': <ANY>,
+    'state': 'medium',
+  })
+# ---
+# name: test_selects[select.front_door_outdoor_chime_volume-high].1
+  list([
+    tuple(
+      'https://api.skybell.network/api/v5/devices/12345679-1234-1234-1234-123456789012/settings',
+    ),
+    dict({
+      'json': dict({
+        'outdoor_chime': True,
+        'outdoor_chime_volume': <Volume.high: 2>,
+      }),
+      'method': <HTTPMethod.POST: 'POST'>,
+    }),
+  ])
+# ---
+# name: test_selects[select.front_door_test_tone-1950s mechanical doorbell]
+  StateSnapshot({
+    'attributes': ReadOnlyDict({
+      'assumed_state': True,
+      'attribution': 'Data provided by Skybell.com',
+      'friendly_name': 'Front door Test tone',
+      'options': list([
+        '1950s mechanical doorbell',
+      ]),
+    }),
+    'context': <ANY>,
+    'entity_id': 'select.front_door_test_tone',
+    'last_changed': <ANY>,
+    'last_reported': <ANY>,
+    'last_updated': <ANY>,
+    'state': 'unknown',
+  })
+# ---
+# name: test_selects[select.front_door_test_tone-1950s mechanical doorbell].1
+  list([
+    tuple(
+      'https://api.skybell.network/api/v5/devices/12345679-1234-1234-1234-123456789012/tone',
+    ),
+    dict({
+      'json': dict({
+        'tone_file': '1950s_mechanical_doorbell.wav',
+        'tone_type': 'test',
+      }),
+      'method': <HTTPMethod.POST: 'POST'>,
+    }),
+  ])
+# ---

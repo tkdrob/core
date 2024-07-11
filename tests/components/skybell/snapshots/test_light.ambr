@@ -1,0 +1,56 @@
+# serializer version: 1
+# name: test_light[light.front_door_led_color]
+  StateSnapshot({
+    'attributes': ReadOnlyDict({
+      'attribution': 'Data provided by Skybell.com',
+      'brightness': 204,
+      'color_mode': <ColorMode.RGB: 'rgb'>,
+      'friendly_name': 'Front door LED color',
+      'hs_color': tuple(
+        245.081,
+        97.255,
+      ),
+      'rgb_color': tuple(
+        28,
+        7,
+        255,
+      ),
+      'supported_color_modes': list([
+        <ColorMode.RGB: 'rgb'>,
+      ]),
+      'supported_features': <LightEntityFeature: 0>,
+      'xy_color': tuple(
+        0.141,
+        0.043,
+      ),
+    }),
+    'context': <ANY>,
+    'entity_id': 'light.front_door_led_color',
+    'last_changed': <ANY>,
+    'last_reported': <ANY>,
+    'last_updated': <ANY>,
+    'state': 'on',
+  })
+# ---
+# name: test_light[light.front_door_led_color_off]
+  list([
+    tuple(
+      dict({
+        'led_color': '#000000',
+      }),
+    ),
+    dict({
+    }),
+  ])
+# ---
+# name: test_light[light.front_door_led_color_on]
+  list([
+    tuple(
+      dict({
+        'led_color': '#050A6B',
+      }),
+    ),
+    dict({
+    }),
+  ])
+# ---

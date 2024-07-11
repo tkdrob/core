@@ -29,6 +29,17 @@
     "binary_sensor": {
       "button": {
         "name": "Button"
+      },
+      "motion": {
+        "name": "Motion"
+      }
+    },
+    "button": {
+      "play_tone": {
+        "name": "Play tone"
+      },
+      "reboot": {
+        "name": "Reboot"
       }
     },
     "camera": {
@@ -37,6 +48,65 @@
       },
       "camera": {
         "name": "[%key:component::camera::title%]"
+      }
+    },
+    "light": {
+      "led_color": {
+        "name": "LED color"
+      }
+    },
+    "number": {
+      "motion_sensitivity": {
+        "name": "Motion sensitivity"
+      },
+      "pir_sensitivity": {
+        "name": "PIR sensitivity"
+      }
+    },
+    "select": {
+      "button_tone": {
+        "name": "Button tone"
+      },
+      "image_quality": {
+        "name": "Image quality",
+        "state": {
+          "low": "[%key:component::skybell::entity::select::outdoor_chime_volume::state::low%]",
+          "medium": "[%key:component::skybell::entity::select::outdoor_chime_volume::state::medium%]",
+          "high": "[%key:component::skybell::entity::select::outdoor_chime_volume::state::high%]",
+          "highest": "Highest"
+        }
+      },
+      "live_volume": {
+        "name": "Live volume",
+        "state": {
+          "low": "[%key:component::skybell::entity::select::outdoor_chime_volume::state::low%]",
+          "medium": "[%key:component::skybell::entity::select::outdoor_chime_volume::state::medium%]",
+          "high": "[%key:component::skybell::entity::select::outdoor_chime_volume::state::high%]"
+        }
+      },
+      "motion_chime_volume": {
+        "name": "Motion chime volume",
+        "state": {
+          "low": "[%key:component::skybell::entity::select::outdoor_chime_volume::state::low%]",
+          "medium": "[%key:component::skybell::entity::select::outdoor_chime_volume::state::medium%]",
+          "high": "[%key:component::skybell::entity::select::outdoor_chime_volume::state::high%]",
+          "off": "[%key:common::state::off%]"
+        }
+      },
+      "motion_tone": {
+        "name": "Motion tone"
+      },
+      "outdoor_chime_volume": {
+        "name": "Outdoor chime volume",
+        "state": {
+          "low": "Low",
+          "medium": "Medium",
+          "high": "High",
+          "off": "[%key:common::state::off%]"
+        }
+      },
+      "test_tone": {
+        "name": "Test tone"
       }
     },
     "sensor": {
@@ -74,6 +144,30 @@
       },
       "motion_sensor": {
         "name": "Motion sensor"
+      }
+    }
+  },
+  "issues": {
+    "deprecated_skybell_sensor": {
+      "title": "Deprecated Skybell sensor entity",
+      "fix_flow": {
+        "step": {
+          "confirm": {
+            "description": "Number and select entities have been added to the Skybell integration.\nWe have created a new number entity.\n\nWhen you are ready to have the deprecated `{entity}` entity removed, disable the entity and restart Home Assistant.",
+            "title": "Deprecated Skybell sensor entity"
+          }
+        }
+      }
+    },
+    "deprecated_sensor_automation": {
+      "title": "Deprecated Skybell sensor entity detected in `{info}`",
+      "fix_flow": {
+        "step": {
+          "confirm": {
+            "description": "We detected that entity `{entity}` is being used in `{info}`\n\nWe have created a new number/select entity and you should migrate `{info}` to use this new entity.\n\nWhen you are done migrating `{info}` and are ready to have the deprecated sensor entity removed, disable the entity and restart Home Assistant.",
+            "title": "Disable the Skybell `{entity}` entity in `{info}`"
+          }
+        }
       }
     }
   }

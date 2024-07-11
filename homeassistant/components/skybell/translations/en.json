@@ -1,0 +1,174 @@
+{
+    "config": {
+        "abort": {
+            "already_configured": "Account is already configured",
+            "reauth_successful": "Re-authentication was successful"
+        },
+        "error": {
+            "cannot_connect": "Failed to connect",
+            "invalid_auth": "Invalid authentication",
+            "unknown": "Unexpected error"
+        },
+        "step": {
+            "reauth_confirm": {
+                "data": {
+                    "password": "Password"
+                },
+                "description": "Please update your password for {email}",
+                "title": "Authentication expired for {name}"
+            },
+            "user": {
+                "data": {
+                    "email": "Email",
+                    "password": "Password"
+                }
+            }
+        }
+    },
+    "entity": {
+        "binary_sensor": {
+            "button": {
+                "name": "Button"
+            },
+            "motion": {
+                "name": "Motion"
+            }
+        },
+        "button": {
+            "play_tone": {
+                "name": "Play tone"
+            },
+            "reboot": {
+                "name": "Reboot"
+            }
+        },
+        "camera": {
+            "activity": {
+                "name": "Last activity"
+            },
+            "camera": {
+                "name": "Camera"
+            }
+        },
+        "light": {
+            "led_color": {
+                "name": "LED color"
+            }
+        },
+        "number": {
+            "motion_sensitivity": {
+                "name": "Motion sensitivity"
+            },
+            "pir_sensitivity": {
+                "name": "PIR sensitivity"
+            }
+        },
+        "select": {
+            "button_tone": {
+                "name": "Button tone"
+            },
+            "image_quality": {
+                "name": "Image quality",
+                "state": {
+                    "high": "High",
+                    "highest": "Highest",
+                    "low": "Low",
+                    "medium": "Medium"
+                }
+            },
+            "live_volume": {
+                "name": "Live volume",
+                "state": {
+                    "high": "High",
+                    "low": "Low",
+                    "medium": "Medium"
+                }
+            },
+            "motion_chime_volume": {
+                "name": "Motion chime volume",
+                "state": {
+                    "high": "High",
+                    "low": "Low",
+                    "medium": "Medium",
+                    "off": "Off"
+                }
+            },
+            "motion_tone": {
+                "name": "Motion tone"
+            },
+            "outdoor_chime_volume": {
+                "name": "Outdoor chime volume",
+                "state": {
+                    "high": "High",
+                    "low": "Low",
+                    "medium": "Medium",
+                    "off": "Off"
+                }
+            },
+            "test_tone": {
+                "name": "Test tone"
+            }
+        },
+        "sensor": {
+            "chime_level": {
+                "name": "Chime level"
+            },
+            "last_button_event": {
+                "name": "Last button event"
+            },
+            "last_check_in": {
+                "name": "Last check in"
+            },
+            "last_motion_event": {
+                "name": "Last motion event"
+            },
+            "motion_threshold": {
+                "name": "Motion threshold"
+            },
+            "video_profile": {
+                "name": "Video profile"
+            },
+            "wifi_ssid": {
+                "name": "Wi-Fi SSID"
+            },
+            "wifi_status": {
+                "name": "Wi-Fi status"
+            }
+        },
+        "switch": {
+            "do_not_disturb": {
+                "name": "Do not disturb"
+            },
+            "do_not_ring": {
+                "name": "Do not ring"
+            },
+            "motion_sensor": {
+                "name": "Motion sensor"
+            }
+        }
+    },
+    "issues": {
+        "deprecated_sensor_automation": {
+            "fix_flow": {
+                "step": {
+                    "confirm": {
+                        "description": "We detected that entity `{entity}` is being used in `{info}`\n\nWe have created a new number/select entity and you should migrate `{info}` to use this new entity.\n\nWhen you are done migrating `{info}` and are ready to have the deprecated sensor entity removed, disable the entity and restart Home Assistant.",
+                        "title": "Disable the Skybell `{entity}` entity in `{info}`"
+                    }
+                }
+            },
+            "title": "Deprecated Skybell sensor entity detected in `{info}`"
+        },
+        "deprecated_skybell_sensor": {
+            "fix_flow": {
+                "step": {
+                    "confirm": {
+                        "description": "Number and select entities have been added to the Skybell integration.\nWe have created a new number entity.\n\nWhen you are ready to have the deprecated `{entity}` entity removed, disable the entity and restart Home Assistant.",
+                        "title": "Deprecated Skybell sensor entity"
+                    }
+                }
+            },
+            "title": "Deprecated Skybell sensor entity"
+        }
+    }
+}

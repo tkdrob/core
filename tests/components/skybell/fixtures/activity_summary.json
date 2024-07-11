@@ -1,0 +1,16 @@
+{
+  "error": false,
+  "status": 200,
+  "message": "OK",
+  "data": [
+    { "activity_day": "2024-02-27", "event_count": "3" },
+    { "activity_day": "2024-02-26", "event_count": "13" },
+    { "activity_day": "2024-02-25", "event_count": "8" },
+    { "activity_day": "2024-02-24", "event_count": "2" },
+    { "activity_day": "2024-02-23", "event_count": "3" },
+    { "activity_day": "2024-02-22", "event_count": "2" },
+    { "activity_day": "2024-02-21", "event_count": "5" },
+    { "activity_day": "2024-02-20", "event_count": "10" },
+    { "activity_day": "2024-02-19", "event_count": "4" }
+  ]
+}

@@ -1,0 +1,25 @@
+{
+  "error": false,
+  "message": "OK",
+  "data": [
+    {
+      "share_id": "12345670-1234-1234-1234-123456789012",
+      "client_id": "12345671-1234-1234-1234-123456789012",
+      "shared_device_id": "12345679-1234-1234-1234-123456789012",
+      "sharing_account_id": "12345678-1234-1234-1234-123456789012",
+      "shared_to_account_id": "12345688-1234-1234-1234-123456789012",
+      "invited_email": "rosiehillis@juno.com",
+      "readOnly": true,
+      "accepted": true,
+      "invite_sent": "2024-01-14T22:07:41.294Z",
+      "invite_token": "invite",
+      "shared_user_device_settings": {
+        "button_pressed": true,
+        "motion_detection": false
+      },
+      "created_at": "2024-01-14T22:05:39.381Z",
+      "updated_at": "2024-01-14T22:10:38.185Z",
+      "device_name": "Front Door"
+    }
+  ]
+}

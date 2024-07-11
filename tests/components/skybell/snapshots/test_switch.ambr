@@ -1,0 +1,78 @@
+# serializer version: 1
+# name: test_switches[switch.front_door_do_not_disturb-turn_on]
+  StateSnapshot({
+    'attributes': ReadOnlyDict({
+      'attribution': 'Data provided by Skybell.com',
+      'friendly_name': 'Front door Do not disturb',
+    }),
+    'context': <ANY>,
+    'entity_id': 'switch.front_door_do_not_disturb',
+    'last_changed': <ANY>,
+    'last_reported': <ANY>,
+    'last_updated': <ANY>,
+    'state': 'off',
+  })
+# ---
+# name: test_switches[switch.front_door_do_not_disturb-turn_on].1
+  list([
+    tuple(
+      dict({
+        'indoor_chime': False,
+      }),
+    ),
+    dict({
+    }),
+  ])
+# ---
+# name: test_switches[switch.front_door_do_not_ring-turn_on]
+  StateSnapshot({
+    'attributes': ReadOnlyDict({
+      'attribution': 'Data provided by Skybell.com',
+      'friendly_name': 'Front door Do not ring',
+    }),
+    'context': <ANY>,
+    'entity_id': 'switch.front_door_do_not_ring',
+    'last_changed': <ANY>,
+    'last_reported': <ANY>,
+    'last_updated': <ANY>,
+    'state': 'off',
+  })
+# ---
+# name: test_switches[switch.front_door_do_not_ring-turn_on].1
+  list([
+    tuple(
+      dict({
+        'outdoor_chime': False,
+      }),
+    ),
+    dict({
+    }),
+  ])
+# ---
+# name: test_switches[switch.front_door_motion_sensor-turn_off]
+  StateSnapshot({
+    'attributes': ReadOnlyDict({
+      'attribution': 'Data provided by Skybell.com',
+      'friendly_name': 'Front door Motion sensor',
+    }),
+    'context': <ANY>,
+    'entity_id': 'switch.front_door_motion_sensor',
+    'last_changed': <ANY>,
+    'last_reported': <ANY>,
+    'last_updated': <ANY>,
+    'state': 'on',
+  })
+# ---
+# name: test_switches[switch.front_door_motion_sensor-turn_off].1
+  list([
+    tuple(
+      dict({
+        'basic_motion': dict({
+          'motion_record': False,
+        }),
+      }),
+    ),
+    dict({
+    }),
+  ])
+# ---

@@ -1,0 +1,55 @@
+{
+  "error": false,
+  "status": 200,
+  "message": "OK",
+  "data": {
+    "start": 1719460800000,
+    "end": 1719547200000,
+    "count": 2,
+    "rows": [
+      {
+        "event_time": 1719534256863,
+        "account_id": "12345678-1234-1234-1234-123456789012",
+        "device_id": "12345679-1234-1234-1234-123456789012",
+        "device_name": "Front Door",
+        "activity_id": "12345674-1234-1234-1234-123456789012",
+        "event_type": "motion",
+        "date": "06/27/2024",
+        "video_url": "/activity/12345674-1234-1234-1234-123456789012/video",
+        "video_ready": true,
+        "image": "/9j/",
+        "edge_tags": ["cv", "pir"],
+        "ai_ppe": null,
+        "created_at": "2024-06-28T00:24:16.898Z",
+        "video_size": 7632079,
+        "video_ready_time": "2024-06-28T00:31:03.992Z",
+        "events": [
+          "https://skybell-gen5-video.s3.us-east-2.amazonaws.com/12345678-1234-1234-1234-123456789012/12345679-1234-1234-1234-123456789012/videos/12345674-1234-1234-1234-123456789012/12345674-1234-1234-1234-123456789012/12345674-1234-1234-1234-123456789012_12345679-1234-1234-1234-123456789012_95b7df7142df6b6df041cbadc1214dd827d02dcbad6e3f2e1059c32d9d31b1c7_notify_preview.jpeg?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=AKIA1234567890123456%2F20240704%2Fus-east-2%2Fs3%2Faws4_request&X-Amz-Date=20240704T001051Z&X-Amz-Expires=300&X-Amz-Signature=26313b6ee21fbe648042135a844fb81787ad069211c9d116f2a36d193ffe47c7&X-Amz-SignedHeaders=host"
+        ]
+      },
+      {
+        "event_time": 1719488142863,
+        "account_id": "12345678-1234-1234-1234-123456789012",
+        "device_id": "12345679-1234-1234-1234-123456789012",
+        "device_name": "Front Door",
+        "activity_id": "12345675-1234-1234-1234-123456789012",
+        "event_type": "motion",
+        "date": "06/27/2024",
+        "video_url": "/activity/12345675-1234-1234-1234-123456789012/video",
+        "video_ready": true,
+        "image": "/9j/",
+        "edge_tags": ["cv", "pir"],
+        "ai_ppe": null,
+        "created_at": "2024-06-27T11:35:42.909Z",
+        "video_size": 7760711,
+        "video_ready_time": "2024-06-27T11:36:25.336Z",
+        "events": [
+          "https://skybell-gen5-video.s3.us-east-2.amazonaws.com/12345678-1234-1234-1234-123456789012/12345679-1234-1234-1234-123456789012/videos/12345675-1234-1234-1234-123456789012/12345675-1234-1234-1234-123456789012/12345675-1234-1234-1234-123456789012_12345679-1234-1234-1234-123456789012_65ba01dee85811dce0c216e5cbf6b5ae17e8951541c59607a5f61b45f83d69ed_notify_preview.jpeg?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=AKIA1234567890123456%2F20240704%2Fus-east-2%2Fs3%2Faws4_request&X-Amz-Date=20240704T001051Z&X-Amz-Expires=300&X-Amz-Signature=63fbd5ae47fb557f42d2ff21901d59f511f87891717ed5aec4b351d15c6f359f&X-Amz-SignedHeaders=host"
+        ]
+      }
+    ],
+    "offset": 0,
+    "limit": 1000,
+    "imagesIncluded": true
+  }
+}

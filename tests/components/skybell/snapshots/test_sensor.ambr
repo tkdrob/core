@@ -1,0 +1,118 @@
+# serializer version: 1
+# name: test_sensors[sensor.front_door_chime_level]
+  StateSnapshot({
+    'attributes': ReadOnlyDict({
+      'attribution': 'Data provided by Skybell.com',
+      'friendly_name': 'Front door Chime level',
+    }),
+    'context': <ANY>,
+    'entity_id': 'sensor.front_door_chime_level',
+    'last_changed': <ANY>,
+    'last_reported': <ANY>,
+    'last_updated': <ANY>,
+    'state': '1',
+  })
+# ---
+# name: test_sensors[sensor.front_door_last_button_event]
+  StateSnapshot({
+    'attributes': ReadOnlyDict({
+      'attribution': 'Data provided by Skybell.com',
+      'device_class': 'timestamp',
+      'friendly_name': 'Front door Last button event',
+    }),
+    'context': <ANY>,
+    'entity_id': 'sensor.front_door_last_button_event',
+    'last_changed': <ANY>,
+    'last_reported': <ANY>,
+    'last_updated': <ANY>,
+    'state': 'unknown',
+  })
+# ---
+# name: test_sensors[sensor.front_door_last_check_in]
+  StateSnapshot({
+    'attributes': ReadOnlyDict({
+      'attribution': 'Data provided by Skybell.com',
+      'device_class': 'timestamp',
+      'friendly_name': 'Front door Last check in',
+    }),
+    'context': <ANY>,
+    'entity_id': 'sensor.front_door_last_check_in',
+    'last_changed': <ANY>,
+    'last_reported': <ANY>,
+    'last_updated': <ANY>,
+    'state': '2024-02-27T14:30:24+00:00',
+  })
+# ---
+# name: test_sensors[sensor.front_door_last_motion_event]
+  StateSnapshot({
+    'attributes': ReadOnlyDict({
+      'attribution': 'Data provided by Skybell.com',
+      'device_class': 'timestamp',
+      'friendly_name': 'Front door Last motion event',
+    }),
+    'context': <ANY>,
+    'entity_id': 'sensor.front_door_last_motion_event',
+    'last_changed': <ANY>,
+    'last_reported': <ANY>,
+    'last_updated': <ANY>,
+    'state': '2024-06-27T11:35:42+00:00',
+  })
+# ---
+# name: test_sensors[sensor.front_door_motion_threshold]
+  StateSnapshot({
+    'attributes': ReadOnlyDict({
+      'attribution': 'Data provided by Skybell.com',
+      'friendly_name': 'Front door Motion threshold',
+    }),
+    'context': <ANY>,
+    'entity_id': 'sensor.front_door_motion_threshold',
+    'last_changed': <ANY>,
+    'last_reported': <ANY>,
+    'last_updated': <ANY>,
+    'state': '697',
+  })
+# ---
+# name: test_sensors[sensor.front_door_video_profile]
+  StateSnapshot({
+    'attributes': ReadOnlyDict({
+      'attribution': 'Data provided by Skybell.com',
+      'friendly_name': 'Front door Video profile',
+    }),
+    'context': <ANY>,
+    'entity_id': 'sensor.front_door_video_profile',
+    'last_changed': <ANY>,
+    'last_reported': <ANY>,
+    'last_updated': <ANY>,
+    'state': '0',
+  })
+# ---
+# name: test_sensors[sensor.front_door_wi_fi_ssid]
+  StateSnapshot({
+    'attributes': ReadOnlyDict({
+      'attribution': 'Data provided by Skybell.com',
+      'friendly_name': 'Front door Wi-Fi SSID',
+    }),
+    'context': <ANY>,
+    'entity_id': 'sensor.front_door_wi_fi_ssid',
+    'last_changed': <ANY>,
+    'last_reported': <ANY>,
+    'last_updated': <ANY>,
+    'state': 'IoT',
+  })
+# ---
+# name: test_sensors[sensor.front_door_wi_fi_status]
+  StateSnapshot({
+    'attributes': ReadOnlyDict({
+      'attribution': 'Data provided by Skybell.com',
+      'friendly_name': 'Front door Wi-Fi status',
+      'state_class': <SensorStateClass.MEASUREMENT: 'measurement'>,
+      'unit_of_measurement': 'dBm',
+    }),
+    'context': <ANY>,
+    'entity_id': 'sensor.front_door_wi_fi_status',
+    'last_changed': <ANY>,
+    'last_reported': <ANY>,
+    'last_updated': <ANY>,
+    'state': '-53',
+  })
+# ---

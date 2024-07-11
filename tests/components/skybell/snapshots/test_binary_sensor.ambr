@@ -1,0 +1,31 @@
+# serializer version: 1
+# name: test_binary_sensors[binary_sensor.front_door_button]
+  StateSnapshot({
+    'attributes': ReadOnlyDict({
+      'attribution': 'Data provided by Skybell.com',
+      'device_class': 'occupancy',
+      'friendly_name': 'Front door Button',
+    }),
+    'context': <ANY>,
+    'entity_id': 'binary_sensor.front_door_button',
+    'last_changed': <ANY>,
+    'last_reported': <ANY>,
+    'last_updated': <ANY>,
+    'state': 'off',
+  })
+# ---
+# name: test_binary_sensors[binary_sensor.front_door_motion]
+  StateSnapshot({
+    'attributes': ReadOnlyDict({
+      'attribution': 'Data provided by Skybell.com',
+      'device_class': 'motion',
+      'friendly_name': 'Front door Motion',
+    }),
+    'context': <ANY>,
+    'entity_id': 'binary_sensor.front_door_motion',
+    'last_changed': <ANY>,
+    'last_reported': <ANY>,
+    'last_updated': <ANY>,
+    'state': 'off',
+  })
+# ---

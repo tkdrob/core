@@ -1,0 +1,41 @@
+{
+  "error": false,
+  "message": "OK",
+  "data": {
+    "led_color": "#1111FF",
+    "indoor_chime": true,
+    "outdoor_chime": true,
+    "motion_detection": true,
+    "motion_sensitivity": 640,
+    "hmbd_sensitivity": 500,
+    "fd_sensitivity": 500,
+    "fr_sensitivity": 500,
+    "pir_sensitivity": 1000,
+    "image_quality": 1,
+    "speaker_volume": 2,
+    "brightness": 38,
+    "digital_chime": false,
+    "telemetry_freq": 60,
+    "event_duration": 30,
+    "debug_motion_detect": false,
+    "video_rotation": 0,
+    "audio_alarm_enabled": false,
+    "audio_cmd_enabled": false,
+    "video_datetime": true,
+    "motion_zone_config": {
+      "x": 1,
+      "y": 1,
+      "zones": [[{ "ignore": false, "sensitivity": 100 }]]
+    },
+    "button_pressed": true,
+    "outdoor_chime_volume": 2,
+    "motion_chime_volume": 2,
+    "motion_chime": false,
+    "time_zone": "EST5EDT,M3.2.0,M11.1.0",
+    "outdoor_chime_color": "#FF0000",
+    "motion_chime_color": "#FF0000",
+    "aws_region": "",
+    "chime_file_motion": "",
+    "chime_file": ""
+  }
+}

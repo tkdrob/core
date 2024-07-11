@@ -622,6 +622,7 @@ FLOWS = {
         "volumio",
         "volvooncall",
         "vulcan",
+        "wakefern",
         "wallbox",
         "waqi",
         "watttime",

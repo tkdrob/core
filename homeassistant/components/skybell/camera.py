@@ -7,14 +7,13 @@ from haffmpeg.camera import CameraMjpeg
 
 from homeassistant.components.camera import Camera, CameraEntityDescription
 from homeassistant.components.ffmpeg import get_ffmpeg_manager
-from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.aiohttp_client import async_aiohttp_proxy_stream
 from homeassistant.helpers.entity import EntityDescription
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 
-from .const import DOMAIN
-from .coordinator import SkybellDataUpdateCoordinator
+from .api.models import ChangeableSettings
+from .coordinator import SkybellConfigEntry, SkybellDataUpdateCoordinator
 from .entity import SkybellEntity
 
 CAMERA_TYPES: tuple[CameraEntityDescription, ...] = (
@@ -30,12 +29,14 @@ CAMERA_TYPES: tuple[CameraEntityDescription, ...] = (
 
 
 async def async_setup_entry(
-    hass: HomeAssistant, entry: ConfigEntry, async_add_entities: AddEntitiesCallback
+    hass: HomeAssistant,
+    entry: SkybellConfigEntry,
+    async_add_entities: AddEntitiesCallback,
 ) -> None:
     """Set up Skybell camera."""
     entities = []
     for description in CAMERA_TYPES:
-        for coordinator in hass.data[DOMAIN][entry.entry_id]:
+        for coordinator in entry.runtime_data.events:
             if description.key == "avatar":
                 entities.append(SkybellCamera(coordinator, description))
             else:
@@ -55,22 +56,38 @@ class SkybellCamera(SkybellEntity, Camera):
         super().__init__(coordinator, description)
         Camera.__init__(self)
 
-    async def async_camera_image(
+    def camera_image(
         self, width: int | None = None, height: int | None = None
     ) -> bytes | None:
         """Get the latest camera image."""
-        return self._device.images[self.entity_description.key]
+        return self._device.snapshot.preview if self._device.snapshot else None
+
+    async def async_enable_motion_detection(self) -> None:
+        """Enable motion detection in the camera."""
+        await self._device.set_settings(ChangeableSettings(motion_detection=True))
+
+    async def async_disable_motion_detection(self) -> None:
+        """Disable motion detection in camera."""
+        await self._device.set_settings(ChangeableSettings(motion_detection=False))
 
 
 class SkybellActivityCamera(SkybellCamera):
     """A camera implementation for latest Skybell activity."""
+
+    async def async_camera_image(
+        self, width: int | None = None, height: int | None = None
+    ) -> bytes | None:
+        """Get the latest camera image."""
+        if activity := await self._device.fetch_latest_activity():
+            return activity.image
+        return None
 
     async def handle_async_mjpeg_stream(
         self, request: web.Request
     ) -> web.StreamResponse:
         """Generate an HTTP MJPEG stream from the latest recorded activity."""
         stream = CameraMjpeg(get_ffmpeg_manager(self.hass).binary)
-        url = await self.coordinator.device.async_get_activity_video_url()
+        url = await self._device.client.get_activity_video_url()
         await stream.open_camera(url, extra_cmd="-r 210")
 
         try:

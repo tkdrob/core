@@ -817,6 +817,9 @@ google-generativeai==0.6.0
 # homeassistant.components.nest
 google-nest-sdm==4.0.5
 
+# homeassistant.components.wakefern
+google_play_scraper==1.2.4
+
 # homeassistant.components.google_travel_time
 googlemaps==2.5.1
 

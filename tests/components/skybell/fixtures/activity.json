@@ -1,0 +1,51 @@
+{
+  "error": false,
+  "status": 200,
+  "message": "OK",
+  "data": {
+    "start": 1719460800000,
+    "end": 1719547200000,
+    "count": 2,
+    "rows": [
+      {
+        "event_time": 1719534256863,
+        "account_id": "12345678-1234-1234-1234-123456789012",
+        "device_id": "12345679-1234-1234-1234-123456789012",
+        "device_name": "Front Door",
+        "activity_id": "12345674-1234-1234-1234-123456789012",
+        "event_type": "motion",
+        "date": "06/27/2024",
+        "video_url": "/activity/12345674-1234-1234-1234-123456789012/video",
+        "video_ready": true,
+        "image": "/9j/",
+        "edge_tags": ["cv", "pir"],
+        "ai_ppe": null,
+        "created_at": "2024-05-31T13:59:55.898Z",
+        "video_size": 7632079,
+        "video_ready_time": "2024-05-31T14:00:58.992Z",
+        "events": ["test"]
+      },
+      {
+        "event_time": 1719488142863,
+        "account_id": "12345678-1234-1234-1234-123456789012",
+        "device_id": "12345679-1234-1234-1234-123456789012",
+        "device_name": "Front Door",
+        "activity_id": "12345675-1234-1234-1234-123456789012",
+        "event_type": "motion",
+        "date": "06/27/2024",
+        "video_url": "/activity/12345675-1234-1234-1234-123456789012/video",
+        "video_ready": true,
+        "image": "/9j/",
+        "edge_tags": ["cv", "pir"],
+        "ai_ppe": null,
+        "created_at": "2024-06-27T11:35:42.909Z",
+        "video_size": 7760711,
+        "video_ready_time": "2024-06-27T11:36:25.336Z",
+        "events": ["test"]
+      }
+    ],
+    "offset": 0,
+    "limit": 1000,
+    "imagesIncluded": true
+  }
+}

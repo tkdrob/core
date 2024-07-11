@@ -1,0 +1,54 @@
+# serializer version: 1
+# name: test_buttons[button.front_door_play_tone]
+  StateSnapshot({
+    'attributes': ReadOnlyDict({
+      'attribution': 'Data provided by Skybell.com',
+      'device_class': 'identify',
+      'friendly_name': 'Front door Play tone',
+    }),
+    'context': <ANY>,
+    'entity_id': 'button.front_door_play_tone',
+    'last_changed': <ANY>,
+    'last_reported': <ANY>,
+    'last_updated': <ANY>,
+    'state': 'unknown',
+  })
+# ---
+# name: test_buttons[button.front_door_play_tone].1
+  list([
+    tuple(
+      'https://api.skybell.network/api/v5/devices/12345679-1234-1234-1234-123456789012/testtone',
+    ),
+    dict({
+      'json': dict({
+        'file_name': 'user_test.wav',
+      }),
+      'method': <HTTPMethod.POST: 'POST'>,
+    }),
+  ])
+# ---
+# name: test_buttons[button.front_door_reboot]
+  StateSnapshot({
+    'attributes': ReadOnlyDict({
+      'attribution': 'Data provided by Skybell.com',
+      'device_class': 'identify',
+      'friendly_name': 'Front door Play tone',
+    }),
+    'context': <ANY>,
+    'entity_id': 'button.front_door_play_tone',
+    'last_changed': <ANY>,
+    'last_reported': <ANY>,
+    'last_updated': <ANY>,
+    'state': 'unknown',
+  })
+# ---
+# name: test_buttons[button.front_door_reboot].1
+  list([
+    tuple(
+      'https://api.skybell.network/api/v5/devices/12345679-1234-1234-1234-123456789012/reboot',
+    ),
+    dict({
+      'method': <HTTPMethod.POST: 'POST'>,
+    }),
+  ])
+# ---

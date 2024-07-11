@@ -1,0 +1,15 @@
+{
+  "error": false,
+  "message": "OK",
+  "data": {
+    "account_id": "12345678-1234-1234-1234-123456789012",
+    "user_since": "2023-09-23T00:25:24.314Z",
+    "premium": null,
+    "fname": "John",
+    "lname": "Doe",
+    "email": "test@example.com",
+    "eula_accepted": "2023-09-23T00:25:29.632Z",
+    "rsos_eula_accepted": false,
+    "hd_user_id": "hd_user"
+  }
+}
