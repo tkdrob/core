@@ -3,12 +3,12 @@
 from __future__ import annotations
 
 from collections.abc import Callable
-from datetime import datetime
+from datetime import datetime, UTC
 from enum import Enum
 import time
 from typing import TYPE_CHECKING, Any
 
-from .const import BASE_URL, LOGGER, EventType, HTTPMethod, ToneType
+from .const import LOGGER, EventType, HTTPMethod, ToneType
 from .exceptions import SkybellException
 from .models import (
     Activity,
@@ -57,9 +57,9 @@ class SkybellDevice:
         self.activities: tuple[Activity, ...] = ()
         self.snapshot: Snapshot | None = None
 
-    async def _request(self, url: str, **kwargs: Any) -> Any:
+    async def _request(self, path: str, **kwargs: dict[str, Any]) -> Any:
         """Send request with client session."""
-        return await self._client._request(url, **kwargs)  # noqa: SLF001
+        return await self._client._request(path, **kwargs)  # noqa: SLF001
 
     async def async_update(self) -> DeviceInfo:
         """Get the latest device information."""
@@ -71,7 +71,7 @@ class SkybellDevice:
         """Get all events available for the device."""
         days = await self._client.get_activity_summary(self)
         self.activities = await self._client.fetch_latest_activities(
-            start=days[-1].activity_day, end=datetime.now(), device=self
+            start=days[-1].activity_day, end=datetime.now(tz=UTC), device=self
         )
         return self.activities
 
@@ -79,9 +79,7 @@ class SkybellDevice:
     async def get_snapshot(self) -> Snapshot | None:
         """Get a snapshot from a device."""
         try:
-            res = await self._request(
-                f"{BASE_URL}devices/{self.info.device_id}/snapshot"
-            )
+            res = await self._request(f"devices/{self.info.device_id}/snapshot")
         except SkybellException:
             res = None
             LOGGER.warning("Failed to get snapshot")
@@ -91,7 +89,7 @@ class SkybellDevice:
 
     async def _set_setting(self, json: Any) -> Any:
         return await self._request(
-            f"{BASE_URL}devices/{self.info.device_id}/settings",
+            f"devices/{self.info.device_id}/settings",
             json=json,
             method=HTTPMethod.POST,
         )
@@ -107,17 +105,18 @@ class SkybellDevice:
 
     async def set_tone(self, tone: str, tone_type: ToneType | str) -> Settings | None:
         """Set a tone for the type of event to be used."""
+        _type = ToneType(tone_type)
         if tone == "Default tone":
-            if tone_type is ToneType.MOTION:
+            if _type is ToneType.MOTION:
                 data = ChangeableSettings(chime_file_motion="")
-            elif tone_type is ToneType.BUTTON:
+            elif _type is ToneType.BUTTON:
                 data = ChangeableSettings(chime_file="")
             else:
-                raise ValueError(f"Invalid option {tone} for {tone_type}")
+                raise ValueError(f"Invalid option {tone} for {_type}")
             return await self.set_settings(data)
         await self._request(
-            f"{BASE_URL}devices/{self.info.device_id}/tone",
-            json={"tone_type": tone_type, "tone_file": self._client.all_tones[tone]},
+            f"devices/{self.info.device_id}/tone",
+            json={"tone_type": _type, "tone_file": self._client.all_tones[tone]},
             method=HTTPMethod.POST,
         )
         return None
@@ -125,7 +124,7 @@ class SkybellDevice:
     async def play_tone(self) -> dict[str, str]:
         """Play the currently set test ring tone on the device."""
         return await self._request(  # type:ignore[no-any-return]
-            f"{BASE_URL}devices/{self.info.device_id}/testtone",
+            f"devices/{self.info.device_id}/testtone",
             json={"file_name": "user_test.wav"},
             method=HTTPMethod.POST,
         )
@@ -133,20 +132,20 @@ class SkybellDevice:
     async def reboot(self) -> None:
         """Reboot the device."""
         await self._request(
-            f"{BASE_URL}devices/{self.info.device_id}/reboot",
+            f"devices/{self.info.device_id}/reboot",
             method=HTTPMethod.POST,
         )
 
     async def get_signals(self) -> dict[str, Any]:
         """Start video stream."""
-        res = await self._request(f"{BASE_URL}devices/signalling/{self.info.device_id}")
+        res = await self._request(f"devices/signalling/{self.info.device_id}")
         return res["data"]  # type:ignore[no-any-return]
 
-    async def fetch_latest_activities(self, **kwargs: Any) -> tuple[Activity, ...]:
+    async def fetch_latest_activities(self, **kwargs: dict[str, Any]) -> tuple[Activity, ...]:
         """Get the latest activities for this devices based on given criteria."""
         return await self._client.fetch_latest_activities(device=self, **kwargs)
 
-    async def fetch_latest_activity(self, **kwargs: Any) -> Activity | None:
+    async def fetch_latest_activity(self, **kwargs: dict[str, Any]) -> Activity | None:
         """Get the latest activity for this devices."""
         activities = await self._client.fetch_latest_activities(device=self, **kwargs)
         return latest(activities, device=self)
@@ -162,7 +161,7 @@ class SkybellDevice:
     async def share(self, email: str) -> str:
         """Share this device with another account. Returns the invite token."""
         res = await self._request(
-            f"{BASE_URL}devices/{self.info.device_id}/share",
+            f"devices/{self.info.device_id}/share",
             json={"invitedEmail": email},
             method=HTTPMethod.POST,
         )

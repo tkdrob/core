@@ -20,7 +20,7 @@
 # name: test_selects[select.front_door_button_tone-1950s mechanical doorbell].1
   list([
     tuple(
-      'https://api.skybell.network/api/v5/devices/12345679-1234-1234-1234-123456789012/tone',
+      'devices/12345679-1234-1234-1234-123456789012/tone',
     ),
     dict({
       'json': dict({
@@ -54,7 +54,7 @@
 # name: test_selects[select.front_door_image_quality-medium].1
   list([
     tuple(
-      'https://api.skybell.network/api/v5/devices/12345679-1234-1234-1234-123456789012/settings',
+      'devices/12345679-1234-1234-1234-123456789012/settings',
     ),
     dict({
       'json': dict({
@@ -86,7 +86,7 @@
 # name: test_selects[select.front_door_live_volume-high].1
   list([
     tuple(
-      'https://api.skybell.network/api/v5/devices/12345679-1234-1234-1234-123456789012/settings',
+      'devices/12345679-1234-1234-1234-123456789012/settings',
     ),
     dict({
       'json': dict({
@@ -119,7 +119,7 @@
 # name: test_selects[select.front_door_motion_chime_volume-off].1
   list([
     tuple(
-      'https://api.skybell.network/api/v5/devices/12345679-1234-1234-1234-123456789012/settings',
+      'devices/12345679-1234-1234-1234-123456789012/settings',
     ),
     dict({
       'json': dict({
@@ -150,7 +150,7 @@
 # name: test_selects[select.front_door_motion_tone-1950s mechanical doorbell].1
   list([
     tuple(
-      'https://api.skybell.network/api/v5/devices/12345679-1234-1234-1234-123456789012/tone',
+      'devices/12345679-1234-1234-1234-123456789012/tone',
     ),
     dict({
       'json': dict({
@@ -184,7 +184,7 @@
 # name: test_selects[select.front_door_outdoor_chime_volume-high].1
   list([
     tuple(
-      'https://api.skybell.network/api/v5/devices/12345679-1234-1234-1234-123456789012/settings',
+      'devices/12345679-1234-1234-1234-123456789012/settings',
     ),
     dict({
       'json': dict({
@@ -216,7 +216,7 @@
 # name: test_selects[select.front_door_test_tone-1950s mechanical doorbell].1
   list([
     tuple(
-      'https://api.skybell.network/api/v5/devices/12345679-1234-1234-1234-123456789012/tone',
+      'devices/12345679-1234-1234-1234-123456789012/tone',
     ),
     dict({
       'json': dict({

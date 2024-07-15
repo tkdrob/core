@@ -83,7 +83,7 @@ class Client:
 
     async def _request(
         self,
-        url: str,
+        path: str,
         method: HTTPMethod = HTTPMethod.GET,
         retry: bool = True,
         fresh: bool = False,
@@ -93,11 +93,11 @@ class Client:
             await self.authenticate()
 
         _headers = DEFAULT_HEADERS | {hdrs.AUTHORIZATION: self.auth.IdToken}
-        if all([method is HTTPMethod.GET, not fresh, etag := self._rq_etags.get(url)]):
+        if all([method is HTTPMethod.GET, not fresh, etag := self._rq_etags.get(path)]):
             _headers[hdrs.IF_NONE_MATCH] = etag  # type:ignore[assignment]
         res = await self._session.request(
             method=method.value,
-            url=url,
+            url=BASE_URL.joinpath(path),
             headers=_headers,
             timeout=ClientTimeout(10),
             **kwargs,
@@ -105,17 +105,17 @@ class Client:
         LOGGER.debug(res)
         LOGGER.debug(kwargs)
         if res.status == 599 and retry:
-            return await self._request(url, method, False, fresh, **kwargs)
+            return await self._request(path, method, False, fresh, **kwargs)
         try:
             res.raise_for_status()
         except ClientResponseError as ex:
             raise SkybellException(ex) from ex
         if (
             method is HTTPMethod.GET
-            and "video" not in url
+            and "video" not in path
             and (etag := res.headers.get(hdrs.ETAG))
         ):
-            self._rq_etags[url] = etag
+            self._rq_etags[path] = etag
         if res.content_type == JSON:
             res_json = await res.json()
             LOGGER.debug(res_json)
@@ -192,23 +192,23 @@ class Client:
 
     async def get_user(self) -> User:
         """Get information on the signed in user."""
-        if res := await self._request(f"{BASE_URL}user"):
+        if res := await self._request("user"):
             self._user = User(**res["data"])
         return self.user
 
     async def get_status(self) -> dict[str, Any]:
         """Get the status of the API."""
-        return await self._request(f"{BASE_URL}status", fresh=True)  # type:ignore[no-any-return]
+        return await self._request("status", fresh=True)  # type:ignore[no-any-return]
 
     async def get_shares(self) -> tuple[Share, ...]:
         """Get all access sharing details."""
-        if res := await self._request(f"{BASE_URL}shares"):
+        if res := await self._request("shares"):
             self.shares = tuple(Share(**i) for i in res["data"])
         return self.shares
 
     async def get_devices(self) -> dict[str, DeviceInfo]:
         """Get information on devices available to the signed in user."""
-        if res := await self._request(f"{BASE_URL}devices"):
+        if res := await self._request("devices"):
             devices = [DeviceInfo(**i) for i in res["data"]["rows"]]
             self._shared_devices_info = {d.device_id: d for d in devices}
         return self._shared_devices_info
@@ -216,7 +216,7 @@ class Client:
     async def get_device_info(self, info: DeviceInfo) -> DeviceInfo:
         """Get the latest device info with telemetry."""
         _id = info.device_id
-        if res := await self._request(f"{BASE_URL}devices/{_id}"):
+        if res := await self._request(f"devices/{_id}"):
             # device access permissions are not currently included in normal API call
             r_only = self._shared_devices_info[_id].shared_read_only
             return DeviceInfo(**res["data"], shared_read_only=r_only)
@@ -224,19 +224,19 @@ class Client:
 
     async def get_rules(self) -> dict[str, Any]:
         """Get rules used by the device to detect moton."""
-        res = await self._request(f"{BASE_URL}rules", fresh=True)
+        res = await self._request("rules", fresh=True)
         return res["data"]  # type:ignore[no-any-return]
 
     async def set_rules(self, rules: list[MotionRule]) -> tuple[MotionRule, ...]:
         """Set motion rules."""
         json = {"rules": [rule.json() for rule in rules]}
-        res = await self._request(f"{BASE_URL}rules", json=json, method=HTTPMethod.POST)
+        res = await self._request("rules", json=json, method=HTTPMethod.POST)
         return tuple(MotionRule(**i) for i in res["data"]["rules"])
 
     async def delete_rules(self) -> None:
         """Delete motion rules."""
         json = {"all": True}
-        await self._request(f"{BASE_URL}rules", json=json, method=HTTPMethod.DELETE)
+        await self._request("rules", json=json, method=HTTPMethod.DELETE)
 
     async def get_activity_summary(
         self, device: SkybellDevice | None = None
@@ -245,14 +245,13 @@ class Client:
         params = {}
         if device:
             params["device"] = device.info.device_id
-        res = await self._request(f"{BASE_URL}activity/summary", params=params)
-        if res:
+        if res := await self._request("activity/summary", params=params):
             self.activitySummary = tuple(ActivitySummary(**i) for i in res["data"])
         return self.activitySummary
 
     async def get_activity_details(self, activity_id: str) -> ActivityDetails:
         """Get more detailed information on an activity."""
-        res = await self._request(f"{BASE_URL}activity/{activity_id}")
+        res = await self._request(f"activity/{activity_id}")
         return ActivityDetails(**res["data"])
 
     async def get_activity(
@@ -279,7 +278,7 @@ class Client:
             params["end"] = int(end.timestamp())
         if device:
             params["device"] = device.info.device_id
-        if res := await self._request(f"{BASE_URL}activity", params=params):
+        if res := await self._request("activity", params=params):
             return tuple(Activity(**i) for i in res["data"]["rows"])
         return ()
 
@@ -291,21 +290,21 @@ class Client:
             activity = act.activity_id
         elif isinstance(activity, Activity):
             activity = activity.activity_id
-        res = await self._request(f"{BASE_URL}activity/{activity}/video")
+        res = await self._request(f"activity/{activity}/video")
         return res["data"]["download_url"]  # type:ignore[no-any-return]
 
     async def delete_activity(self, activity: Activity) -> None:
         """Download an activity."""
         await self._request(
-            f"{BASE_URL}activity/{activity.activity_id}", method=HTTPMethod.DELETE
+            f"activity/{activity.activity_id}", method=HTTPMethod.DELETE
         )
 
     async def get_triggers(self) -> list:
         """Get triggers."""
-        return (await self._request(f"{BASE_URL}triggers"))["data"]  # type:ignore[no-any-return]
+        return (await self._request("triggers"))["data"]  # type:ignore[no-any-return]
 
     async def fetch_latest_activities(
-        self, start: date | None = None, end: date | None = None, **kwargs: Any
+        self, start: date | None = None, end: date | None = None, **kwargs: dict[str, Any]
     ) -> tuple[Activity, ...]:
         """Get activities with previews from given datetime range. Get all events if no range given."""
         end_dt = end if end else date.today()
@@ -329,22 +328,20 @@ class Client:
 
     async def redeem_invite(self, invite: str) -> None:
         """Redeem an invite token."""
-        await self._request(f"{BASE_URL}shares/{invite}/redeem")
+        await self._request(f"shares/{invite}/redeem")
 
     async def remove_share(self, share_id: str) -> None:
         """Remove another's access to a device."""
-        await self._request(f"{BASE_URL}shares/{share_id}", method=HTTPMethod.DELETE)
+        await self._request(f"shares/{share_id}", method=HTTPMethod.DELETE)
 
     async def set_readonly_permission(self, share_id: str, read: bool) -> None:
         """Set share permission with given id. Set read as False to give write permission."""
         json = {"readOnly": read}
-        await self._request(
-            f"{BASE_URL}shares/{share_id}", json=json, method=HTTPMethod.PUT
-        )
+        await self._request(f"shares/{share_id}", json=json, method=HTTPMethod.PUT)
 
     async def add_device(self) -> dict[str, Any]:
         """Add a device. This is currently only meant to be done with the mobile app."""
-        res = await self._request(f"{BASE_URL}devices/provision")
+        res = await self._request("devices/provision")
         return res["data"]  # type:ignore[no-any-return]
 
     def latest_activity(
@@ -355,7 +352,7 @@ class Client:
 
     async def get_tones(self) -> tuple[Tone, ...]:
         """Get available tones."""
-        res = await self._request(f"{BASE_URL}tones")
+        res = await self._request("tones")
         return tuple(Tone(**i) for i in res["data"])
 
     async def download_tone(self, tone: Tone) -> bytes:

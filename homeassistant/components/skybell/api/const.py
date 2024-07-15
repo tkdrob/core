@@ -2,6 +2,7 @@
 
 from enum import IntEnum, StrEnum
 from logging import Logger, getLogger
+from yarl import URL
 
 from aiohttp.hdrs import ACCEPT, ACCEPT_ENCODING, CONNECTION, KEEP_ALIVE
 
@@ -9,7 +10,7 @@ CLOCK_LEEWAY = -20
 
 JSON = "application/json"
 LOGGER: Logger = getLogger(__package__)
-BASE_URL = "https://api.skybell.network/api/v5/"
+BASE_URL = URL("https://api.skybell.network/api/v5/")
 
 
 APP_VER = "1.222.2"

@@ -17,7 +17,7 @@
 # name: test_buttons[button.front_door_play_tone].1
   list([
     tuple(
-      'https://api.skybell.network/api/v5/devices/12345679-1234-1234-1234-123456789012/testtone',
+      'devices/12345679-1234-1234-1234-123456789012/testtone',
     ),
     dict({
       'json': dict({
@@ -45,7 +45,7 @@
 # name: test_buttons[button.front_door_reboot].1
   list([
     tuple(
-      'https://api.skybell.network/api/v5/devices/12345679-1234-1234-1234-123456789012/reboot',
+      'devices/12345679-1234-1234-1234-123456789012/reboot',
     ),
     dict({
       'method': <HTTPMethod.POST: 'POST'>,
