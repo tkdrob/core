@@ -256,7 +256,7 @@ class Settings(Base):
     outdoor_chime_volume: Volume  # TODO
     outdoor_chime: bool
     pir_sensitivity: int = 0
-    speaker_volume: LiveVolume  # TODO
+    speaker_volume: LiveVolume | None = None
     telemetry_freq: int
     time_zone: str
     using_rules: bool = False
@@ -366,16 +366,17 @@ class DeviceTelemetry(Base):
     """Device telemetry details."""
 
     boot_time: datetime | None = None
-    gateway: IPv4Address
+    gateway: IPv4Address | None = None
     ip_address_public: IPv4Address | None = None
-    ip_address: IPv4Address
-    ip_subnet: IPv4Network
+    ip_address: IPv4Address | None = None
+    ip_subnet: IPv4Network | None = None
+    last_seen: datetime | None = None
     link_quality: str | None = None  # 49/70
     network_frequency: float | None = None
     signal_level: int  # dB
-    timestamp: datetime
+    timestamp: datetime | None = None
     upload_stats: str | None = None
-    uptime: int
+    uptime: int | None = None
     wifi_bit_rate: str | None = None
     wifi_noise: str | None = None
 
@@ -501,12 +502,20 @@ class ActivitySummary(Base):
     event_count: int
 
 
+class AIPPE(Base):
+    """Artificial intelligence detected persons."""
+
+    PersonsIndeterminate: tuple[int, ...]
+    PersonsWithRequiredEquipment: tuple[int, ...]
+    PersonsWithoutRequiredEquipment: tuple[int, ...]
+
+
 class Activity(Base):
     """Information on an activity."""
 
     account_id: str
     activity_id: str
-    ai_ppe: None
+    ai_ppe: AIPPE | None
     created_at: datetime
     date: date
     device_id: str

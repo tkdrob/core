@@ -55,7 +55,8 @@ SELECT_TYPES: tuple[SkybellSelectEntityDescription, ...] = (
     SkybellSelectEntityDescription(
         key="live_volume",
         translation_key="live_volume",
-        current_option_fn=lambda d: d.info.settings.speaker_volume.name,
+        available_fn=lambda d: d.info.settings.speaker_volume is not None,
+        current_option_fn=lambda d: cast(IntEnum, d.info.settings.speaker_volume).name,
         entity_category=EntityCategory.CONFIG,
         options_fn=lambda _: [i.name for i in LiveVolume],
         select_fn=lambda d, o: d.set_settings(
