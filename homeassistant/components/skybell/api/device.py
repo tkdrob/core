@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 from collections.abc import Callable
-from datetime import datetime, UTC
+from datetime import UTC, datetime
 from enum import Enum
 import time
 from typing import TYPE_CHECKING, Any
@@ -57,7 +57,7 @@ class SkybellDevice:
         self.activities: tuple[Activity, ...] = ()
         self.snapshot: Snapshot | None = None
 
-    async def _request(self, path: str, **kwargs: dict[str, Any]) -> Any:
+    async def _request(self, path: str, **kwargs: Any) -> Any:
         """Send request with client session."""
         return await self._client._request(path, **kwargs)  # noqa: SLF001
 
@@ -141,11 +141,11 @@ class SkybellDevice:
         res = await self._request(f"devices/signalling/{self.info.device_id}")
         return res["data"]  # type:ignore[no-any-return]
 
-    async def fetch_latest_activities(self, **kwargs: dict[str, Any]) -> tuple[Activity, ...]:
+    async def fetch_latest_activities(self, **kwargs: Any) -> tuple[Activity, ...]:
         """Get the latest activities for this devices based on given criteria."""
         return await self._client.fetch_latest_activities(device=self, **kwargs)
 
-    async def fetch_latest_activity(self, **kwargs: dict[str, Any]) -> Activity | None:
+    async def fetch_latest_activity(self, **kwargs: Any) -> Activity | None:
         """Get the latest activity for this devices."""
         activities = await self._client.fetch_latest_activities(device=self, **kwargs)
         return latest(activities, device=self)

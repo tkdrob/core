@@ -52,7 +52,10 @@ SWITCH_TYPES: tuple[SkybellSwitchEntityDescription, ...] = (
         turn_off_fn=ChangeableMotionSettings(
             basic_motion=BasicMotion(motion_record=False)
         ),
-        is_on_fn=lambda d: d.info.settings.basic_motion.motion_record,
+        is_on_fn=lambda d: d.info.settings.basic_motion is not None
+        and d.info.settings.basic_motion.motion_record,
+        available_fn=lambda d: not d.info.shared_read_only
+        and d.info.settings.basic_motion is not None,
         entity_registry_enabled_default=False,
     ),
 )

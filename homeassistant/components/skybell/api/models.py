@@ -122,6 +122,8 @@ class Base(BaseModel):
         check_fields=False,
     )
     def _parse_color(cls, value: str | tuple) -> tuple[int, int, int]:
+        if not value:
+            return 0, 0, 0
         if isinstance(value, tuple):
             return value
         r, g, b = (int(value.lstrip("#")[i : i + 2], 16) for i in (0, 2, 4))
@@ -221,45 +223,45 @@ class Settings(Base):
     """Settings details."""
 
     account_id: str
-    audio_alarm_enabled: bool
-    audio_cmd_enabled: bool
-    aws_region: str
-    basic_motion: BasicMotion
+    audio_alarm_enabled: bool = False
+    audio_cmd_enabled: bool = False
+    aws_region: str | None = None
+    basic_motion: BasicMotion | None = None
     brightness: int
-    button_pressed: bool
+    button_pressed: bool = False
     chime_file_motion: str
     chime_file: str
-    debug_motion_detect: bool
+    debug_motion_detect: bool = False
     device_id: str
-    device_lat: float
-    device_lon: float
+    device_lat: float | None = None
+    device_lon: float | None = None
     device_name: str
-    digital_chime: bool
-    event_duration: int
-    fd_sensitivity: int
-    force_turn: bool
-    fr_sensitivity: int
-    hmbd_sensitivity: int
-    image_quality: ImageQuality
-    indoor_chime: bool
-    led_color_brightness: int
+    digital_chime: bool = False
+    event_duration: int = 0
+    fd_sensitivity: int = 0
+    force_turn: bool = False
+    fr_sensitivity: int = 0
+    hmbd_sensitivity: int = 0
+    image_quality: ImageQuality | None = None
+    indoor_chime: bool = False
+    led_color_brightness: int = 0
     led_color: tuple[int, int, int]
     motion_chime_color: tuple[int, int, int]
-    motion_chime_volume: Volume
+    motion_chime_volume: Volume  # TODO
     motion_chime: bool
-    motion_detection: bool
-    motion_sensitivity: int
-    motion_zone_config: MotionZoneConfig
+    motion_detection: bool = False
+    motion_sensitivity: int = 0
+    motion_zone_config: MotionZoneConfig | None = None
     outdoor_chime_color: tuple[int, int, int]
-    outdoor_chime_volume: Volume
+    outdoor_chime_volume: Volume  # TODO
     outdoor_chime: bool
-    pir_sensitivity: int
-    speaker_volume: LiveVolume
+    pir_sensitivity: int = 0
+    speaker_volume: LiveVolume  # TODO
     telemetry_freq: int
     time_zone: str
-    using_rules: bool
-    video_datetime: bool
-    video_rotation: int
+    using_rules: bool = False
+    video_datetime: bool = False
+    video_rotation: int = 0
 
     @root_validator(pre=True)
     def _volume(cls, values: dict[str, Any]) -> dict[str, Any]:
@@ -325,7 +327,7 @@ class ChangeableSettings(BaseModelSettings):
 class DeviceSettings(Base):
     """Device settings."""
 
-    ESSID: str
+    ESSID: str | None = None
     firmware_major_release: int
     firmware_minor_release: int
     firmware_patch: int
@@ -333,9 +335,9 @@ class DeviceSettings(Base):
     hardware_version: str
     MAC_address: str
     model_rev: str
-    OTA_signature: None
-    OTA_type: None
-    OTA_version: None
+    OTA_signature: None = None
+    OTA_type: None = None
+    OTA_version: None = None
     serial_number: str
 
 
@@ -343,7 +345,7 @@ class ToneSetting(Base):
     """Tone setting details."""
 
     file: str = "Default tone"
-    last_updated: datetime = datetime.now()
+    last_updated: datetime = datetime.now(tz=UTC)
 
 
 class Tones(Base):
@@ -363,19 +365,19 @@ class Tones(Base):
 class DeviceTelemetry(Base):
     """Device telemetry details."""
 
-    boot_time: datetime
+    boot_time: datetime | None = None
     gateway: IPv4Address
-    ip_address_public: IPv4Address
+    ip_address_public: IPv4Address | None = None
     ip_address: IPv4Address
     ip_subnet: IPv4Network
-    link_quality: str  # 49/70
-    network_frequency: float
+    link_quality: str | None = None  # 49/70
+    network_frequency: float | None = None
     signal_level: int  # dB
     timestamp: datetime
-    upload_stats: str
+    upload_stats: str | None = None
     uptime: int
-    wifi_bit_rate: str
-    wifi_noise: str
+    wifi_bit_rate: str | None = None
+    wifi_noise: str | None = None
 
 
 class DeviceInfo(Base, frozen=False):

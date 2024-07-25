@@ -304,7 +304,7 @@ class Client:
         return (await self._request("triggers"))["data"]  # type:ignore[no-any-return]
 
     async def fetch_latest_activities(
-        self, start: date | None = None, end: date | None = None, **kwargs: dict[str, Any]
+        self, start: date | None = None, end: date | None = None, **kwargs: Any
     ) -> tuple[Activity, ...]:
         """Get activities with previews from given datetime range. Get all events if no range given."""
         end_dt = end if end else date.today()

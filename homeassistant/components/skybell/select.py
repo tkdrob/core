@@ -4,7 +4,8 @@ from __future__ import annotations
 
 from collections.abc import Awaitable, Callable
 from dataclasses import dataclass
-from typing import Any
+from enum import IntEnum
+from typing import Any, cast
 
 from homeassistant.components.select import SelectEntity, SelectEntityDescription
 from homeassistant.const import EntityCategory
@@ -24,6 +25,7 @@ from .entity import SkybellEntity
 class SkybellSelectEntityDescription(SelectEntityDescription):
     """Describes a Skybell select entity."""
 
+    available_fn: Callable[[SkybellDevice], bool] = lambda _: True
     current_option_fn: Callable[[SkybellDevice], str] | None = None
     entity_registry_enabled_default = False
     options_fn: Callable[[Client], list[str]]
@@ -42,7 +44,8 @@ SELECT_TYPES: tuple[SkybellSelectEntityDescription, ...] = (
     SkybellSelectEntityDescription(
         key="image_quality",
         translation_key="image_quality",
-        current_option_fn=lambda d: d.info.settings.image_quality.name,
+        available_fn=lambda d: d.info.settings.image_quality is not None,
+        current_option_fn=lambda d: cast(IntEnum, d.info.settings.image_quality).name,
         entity_category=EntityCategory.CONFIG,
         options_fn=lambda _: [i.name for i in ImageQuality],
         select_fn=lambda d, o: d.set_settings(
@@ -130,6 +133,11 @@ class SkybellSelect(SkybellEntity, SelectEntity, RestoreEntity):
             else:
                 self._attr_current_option = None
         await super().async_added_to_hass()
+
+    @property
+    def available(self) -> bool:
+        """Return True if entity is available."""
+        return super().available and self.entity_description.available_fn(self._device)
 
     @property
     def current_option(self) -> str | None:
