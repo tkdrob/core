@@ -25,7 +25,7 @@
     dict({
       'json': dict({
         'tone_file': '1950s_mechanical_doorbell.wav',
-        'tone_type': 'button',
+        'tone_type': <ToneType.BUTTON: 'button'>,
       }),
       'method': <HTTPMethod.POST: 'POST'>,
     }),
@@ -155,7 +155,7 @@
     dict({
       'json': dict({
         'tone_file': '1950s_mechanical_doorbell.wav',
-        'tone_type': 'motion',
+        'tone_type': <ToneType.MOTION: 'motion'>,
       }),
       'method': <HTTPMethod.POST: 'POST'>,
     }),
@@ -221,7 +221,7 @@
     dict({
       'json': dict({
         'tone_file': '1950s_mechanical_doorbell.wav',
-        'tone_type': 'test',
+        'tone_type': <ToneType.TEST: 'test'>,
       }),
       'method': <HTTPMethod.POST: 'POST'>,
     }),

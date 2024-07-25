@@ -69,10 +69,10 @@ class SkybellDevice:
 
     async def async_get_events(self) -> tuple[Activity, ...]:
         """Get all events available for the device."""
-        days = await self._client.get_activity_summary(self)
-        self.activities = await self._client.fetch_latest_activities(
-            start=days[-1].activity_day, end=datetime.now(tz=UTC), device=self
-        )
+        if days := await self._client.get_activity_summary(self):
+            self.activities = await self._client.fetch_latest_activities(
+                start=days[-1].activity_day, end=datetime.now(tz=UTC), device=self
+            )
         return self.activities
 
     @limit

@@ -69,6 +69,7 @@ class EventType(StrEnum):
     DEMAND = "lstream"
     MOTION = "motion"
     NONE = ""
+    RECORD = "record"
     SOUND = "sound"
 
 
