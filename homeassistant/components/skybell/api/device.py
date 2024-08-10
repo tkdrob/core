@@ -6,13 +6,13 @@ from collections.abc import Callable
 from datetime import UTC, datetime
 from enum import Enum
 import time
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING, Any, Unpack
 
 from .const import LOGGER, EventType, HTTPMethod, ToneType
 from .exceptions import SkybellException
 from .models import (
     Activity,
-    ChangeableMotionSettings,
+    ActivityOptions,
     ChangeableSettings,
     DeviceInfo,
     Settings,
@@ -94,11 +94,10 @@ class SkybellDevice:
             method=HTTPMethod.POST,
         )
 
-    async def set_settings(
-        self, options: ChangeableSettings | ChangeableMotionSettings
-    ) -> Settings:
-        """Change settings on the device using the pydantic models."""
-        res = await self._set_setting(options.dict(exclude_unset=True))
+    async def set_settings(self, **kwargs: Any) -> Settings:
+        """Change settings on the device using the ChangeableSettings model."""
+        settings = ChangeableSettings(**kwargs)
+        res = await self._set_setting(settings.dict(exclude_unset=True))
         data = self.info.settings.dict() | res["data"]
         self.info.settings = Settings(**data)  # type:ignore[misc]
         return self.info.settings
@@ -108,12 +107,10 @@ class SkybellDevice:
         _type = ToneType(tone_type)
         if tone == "Default tone":
             if _type is ToneType.MOTION:
-                data = ChangeableSettings(chime_file_motion="")
-            elif _type is ToneType.BUTTON:
-                data = ChangeableSettings(chime_file="")
-            else:
-                raise ValueError(f"Invalid option {tone} for {_type}")
-            return await self.set_settings(data)
+                return await self.set_settings(chime_file_motion="")
+            if _type is ToneType.BUTTON:
+                return await self.set_settings(chime_file="")
+            raise ValueError(f"Invalid option {tone} for {_type}")
         await self._request(
             f"devices/{self.info.device_id}/tone",
             json={"tone_type": _type, "tone_file": self._client.all_tones[tone]},
@@ -141,11 +138,15 @@ class SkybellDevice:
         res = await self._request(f"devices/signalling/{self.info.device_id}")
         return res["data"]  # type:ignore[no-any-return]
 
-    async def fetch_latest_activities(self, **kwargs: Any) -> tuple[Activity, ...]:
+    async def fetch_latest_activities(
+        self, **kwargs: Unpack[ActivityOptions]
+    ) -> tuple[Activity, ...]:
         """Get the latest activities for this devices based on given criteria."""
         return await self._client.fetch_latest_activities(device=self, **kwargs)
 
-    async def fetch_latest_activity(self, **kwargs: Any) -> Activity | None:
+    async def fetch_latest_activity(
+        self, **kwargs: Unpack[ActivityOptions]
+    ) -> Activity | None:
         """Get the latest activity for this devices."""
         activities = await self._client.fetch_latest_activities(device=self, **kwargs)
         return latest(activities, device=self)

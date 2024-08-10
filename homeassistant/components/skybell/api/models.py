@@ -7,7 +7,7 @@ from datetime import UTC, date, datetime
 from ipaddress import IPv4Address, IPv4Network
 from logging import DEBUG
 import struct
-from typing import Any
+from typing import TYPE_CHECKING, Any, NotRequired, TypedDict
 
 import ciso8601
 from orjson import dumps as orjson_dumps, loads
@@ -31,6 +31,9 @@ except ImportError:
     )
 
 from .const import LOGGER, REPO_URL, EventType, ImageQuality, LiveVolume, Volume
+
+if TYPE_CHECKING:
+    from .device import SkybellDevice
 
 DT_CONVERTIBLES = (
     "boot_time",
@@ -132,38 +135,6 @@ class Base(BaseModel):
     @validator("MAC_address", pre=True, check_fields=False)
     def _format_mac(cls, value: str) -> str:
         return value.lower()
-
-
-class BaseModelSettings(BaseModel):
-    """Base model for changeable settings classes."""
-
-    @root_validator(pre=True)
-    def _color(cls, values: dict[str, Any]) -> dict[str, Any]:
-        for attr in (
-            "led_color_brightness",
-            "outdoor_chime_color_brightness",
-            "motion_chime_color_brightness",
-        ):
-            if brightness := values.pop(attr, None):
-                color_setting = attr[:-11]
-                if color := values.get(color_setting):
-                    color = tuple(round(c * brightness / max(color)) for c in color)
-                    values[color_setting] = color
-                else:  # pylint:disable-next=c-extension-no-member
-                    raise error_wrappers.ValidationError(
-                        [f"{color_setting} is required when giving {attr}"], type(cls)
-                    )
-        return values
-
-    @validator(
-        "led_color",
-        "outdoor_chime_color",
-        "motion_chime_color",
-        pre=True,
-        check_fields=False,
-    )
-    def _parse_color(cls, value: tuple[int, int, int]) -> str:
-        return "#{:02X}{:02X}{:02X}".format(*value)
 
 
 class Auth(Base):
@@ -272,11 +243,12 @@ class Settings(Base):
         return values
 
 
-class ChangeableSettings(BaseModelSettings):
+class ChangeableSettings(BaseModel):
     """Changeable settings details."""
 
     audio_alarm_enabled: bool | None = None
     audio_cmd_enabled: bool | None = None
+    basic_motion: BasicMotion | None = None
     button_pressed: bool | None = None
     chime_file_motion: str | None = None
     chime_file: str | None = None
@@ -307,6 +279,7 @@ class ChangeableSettings(BaseModelSettings):
     speaker_volume: Volume | None = None
     telemetry_freq: int | None = None
     time_zone: str | None = None
+    using_rules: bool | None = None
     video_datetime: bool | None = None
     video_rotation: int | None = None
 
@@ -322,6 +295,34 @@ class ChangeableSettings(BaseModelSettings):
             else:
                 values[setting] = True
         return values
+
+    @root_validator(pre=True)
+    def _color(cls, values: dict[str, Any]) -> dict[str, Any]:
+        for attr in (
+            "led_color_brightness",
+            "outdoor_chime_color_brightness",
+            "motion_chime_color_brightness",
+        ):
+            if brightness := values.pop(attr, None):
+                color_setting = attr[:-11]
+                if color := values.get(color_setting):
+                    color = tuple(round(c * brightness / max(color)) for c in color)
+                    values[color_setting] = color
+                else:  # pylint:disable-next=c-extension-no-member
+                    raise error_wrappers.ValidationError(
+                        [f"{color_setting} is required when giving {attr}"], type(cls)
+                    )
+        return values
+
+    @validator(
+        "led_color",
+        "outdoor_chime_color",
+        "motion_chime_color",
+        pre=True,
+        check_fields=False,
+    )
+    def _parse_color(cls, value: tuple[int, int, int]) -> str:
+        return "#{:02X}{:02X}{:02X}".format(*value)
 
 
 class DeviceSettings(Base):
@@ -474,16 +475,6 @@ class MotionSettings(Base):
     using_rules: bool
 
 
-class ChangeableMotionSettings(Base):
-    """Motion settings."""
-
-    basic_motion: BasicMotion | None = None
-    motion_detection: bool | None = None
-    motion_sensitivity: int | None = None
-    pir_sensitivity: int | None = None
-    using_rules: bool | None = None
-
-
 class Tone(Base):
     """Tone available for playback."""
 
@@ -597,3 +588,15 @@ class Share(Base):
     shared_user_device_settings: SharedDeviceSettings
     sharing_account_id: str
     updated_at: datetime
+
+
+class ActivityOptions(TypedDict):
+    """Typed dictionary for activity queries."""
+
+    device: NotRequired[SkybellDevice]
+    end: NotRequired[date]
+    limit: NotRequired[int]
+    nopreviews: NotRequired[bool]
+    offset: NotRequired[int]
+    start: NotRequired[date]
+    type: NotRequired[EventType]

@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from collections.abc import Callable
+from collections.abc import Awaitable, Callable
 import dataclasses
 from typing import Any
 
@@ -17,7 +17,6 @@ from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 
 from .api.device import SkybellDevice
-from .api.models import ChangeableSettings
 from .coordinator import SkybellConfigEntry
 from .entity import SkybellEntity
 
@@ -30,7 +29,7 @@ class SkybellLightEntityDescription(LightEntityDescription):
     is_on_fn: Callable[[SkybellDevice], bool]
     rgb_color_fn: Callable[[SkybellDevice], tuple[int, int, int]]
     translation_key: str
-    turn_off_fn: ChangeableSettings
+    turn_off_fn: Callable[[SkybellDevice], Awaitable]
 
 
 LIGHT_TYPE = SkybellLightEntityDescription(
@@ -39,7 +38,7 @@ LIGHT_TYPE = SkybellLightEntityDescription(
     brightness_fn=lambda d: int(d.info.settings.led_color_brightness / 150 * 255),
     is_on_fn=lambda d: any(c for c in d.info.settings.led_color),
     rgb_color_fn=lambda d: d.info.settings.led_color,
-    turn_off_fn=ChangeableSettings(led_color=(0, 0, 0)),
+    turn_off_fn=lambda d: d.set_settings(led_color=(0, 0, 0)),
 )
 
 
@@ -77,12 +76,12 @@ class SkybellLight(SkybellEntity, LightEntity):
         if not kwargs:
             data[key] = (255, 255, 255)
 
-        await self._device.set_settings(ChangeableSettings(**data))
+        await self._device.set_settings(**data)
         self.coordinator.async_set_updated_data(None)
 
     async def async_turn_off(self, **kwargs: Any) -> None:
         """Turn off the light."""
-        await self._device.set_settings(self.entity_description.turn_off_fn)
+        await self.entity_description.turn_off_fn(self._device)
         self.coordinator.async_set_updated_data(None)
 
     @property

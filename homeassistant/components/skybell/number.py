@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from collections.abc import Callable
+from collections.abc import Awaitable, Callable
 from dataclasses import dataclass
 
 from homeassistant.components.number import (
@@ -14,7 +14,7 @@ from homeassistant.const import PERCENTAGE, EntityCategory
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 
-from .api.device import ChangeableSettings
+from .api.device import SkybellDevice
 from .api.models import Settings
 from .coordinator import SkybellConfigEntry
 from .entity import SkybellEntity
@@ -31,7 +31,7 @@ class SkybellNumberEntityDescription(NumberEntityDescription):
     native_unit_of_measurement = PERCENTAGE
     mode = NumberMode.SLIDER
     value_fn: Callable[[Settings], float]
-    set_value_fn: Callable[[int], ChangeableSettings]
+    set_value_fn: Callable[[SkybellDevice, int], Awaitable]
 
 
 NUMBER_TYPES: tuple[SkybellNumberEntityDescription, ...] = (
@@ -39,13 +39,13 @@ NUMBER_TYPES: tuple[SkybellNumberEntityDescription, ...] = (
         key="motion_sensitivity",
         translation_key="motion_sensitivity",
         value_fn=lambda s: s.motion_sensitivity / 10,
-        set_value_fn=lambda i: ChangeableSettings(motion_sensitivity=i * 10),
+        set_value_fn=lambda d, i: d.set_settings(motion_sensitivity=i * 10),
     ),
     SkybellNumberEntityDescription(
         key="pir_sensitivity",
         translation_key="pir_sensitivity",
         value_fn=lambda s: s.pir_sensitivity / 10,
-        set_value_fn=lambda i: ChangeableSettings(pir_sensitivity=i * 10),
+        set_value_fn=lambda d, i: d.set_settings(pir_sensitivity=i * 10),
     ),
 )
 
@@ -76,7 +76,5 @@ class SkybellNumber(SkybellEntity, NumberEntity):
 
     async def async_set_native_value(self, value: float) -> None:
         """Set new value."""
-        await self._device.set_settings(
-            self.entity_description.set_value_fn(int(value))
-        )
+        await self.entity_description.set_value_fn(self._device, int(value))
         self.coordinator.async_set_updated_data(None)

@@ -16,7 +16,6 @@ from homeassistant.helpers.restore_state import RestoreEntity
 from .api import Client
 from .api.const import ImageQuality, LiveVolume, Volume
 from .api.device import SkybellDevice
-from .api.models import ChangeableSettings
 from .coordinator import SkybellConfigEntry
 from .entity import SkybellEntity
 
@@ -48,9 +47,7 @@ SELECT_TYPES: tuple[SkybellSelectEntityDescription, ...] = (
         current_option_fn=lambda d: cast(IntEnum, d.info.settings.image_quality).name,
         entity_category=EntityCategory.CONFIG,
         options_fn=lambda _: [i.name for i in ImageQuality],
-        select_fn=lambda d, o: d.set_settings(
-            ChangeableSettings(image_quality=ImageQuality[o])
-        ),
+        select_fn=lambda d, o: d.set_settings(image_quality=ImageQuality[o]),
     ),
     SkybellSelectEntityDescription(
         key="live_volume",
@@ -59,9 +56,7 @@ SELECT_TYPES: tuple[SkybellSelectEntityDescription, ...] = (
         current_option_fn=lambda d: cast(IntEnum, d.info.settings.speaker_volume).name,
         entity_category=EntityCategory.CONFIG,
         options_fn=lambda _: [i.name for i in LiveVolume],
-        select_fn=lambda d, o: d.set_settings(
-            ChangeableSettings(speaker_volume=Volume[o])
-        ),
+        select_fn=lambda d, o: d.set_settings(speaker_volume=Volume[o]),
     ),
     SkybellSelectEntityDescription(
         key="motion_chime_volume",
@@ -69,9 +64,7 @@ SELECT_TYPES: tuple[SkybellSelectEntityDescription, ...] = (
         current_option_fn=lambda d: d.info.settings.motion_chime_volume.name,
         entity_category=EntityCategory.CONFIG,
         options_fn=lambda _: [i.name for i in Volume],
-        select_fn=lambda d, o: d.set_settings(
-            ChangeableSettings(motion_chime_volume=Volume[o])
-        ),
+        select_fn=lambda d, o: d.set_settings(motion_chime_volume=Volume[o]),
     ),
     SkybellSelectEntityDescription(
         key="motion_tone",
@@ -87,9 +80,7 @@ SELECT_TYPES: tuple[SkybellSelectEntityDescription, ...] = (
         current_option_fn=lambda d: d.info.settings.outdoor_chime_volume.name,
         entity_category=EntityCategory.CONFIG,
         options_fn=lambda _: [i.name for i in Volume],
-        select_fn=lambda d, o: d.set_settings(
-            ChangeableSettings(outdoor_chime_volume=Volume[o])
-        ),
+        select_fn=lambda d, o: d.set_settings(outdoor_chime_volume=Volume[o]),
     ),
     SkybellSelectEntityDescription(
         key="test_tone",

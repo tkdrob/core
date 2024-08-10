@@ -12,7 +12,6 @@ from homeassistant.helpers.aiohttp_client import async_aiohttp_proxy_stream
 from homeassistant.helpers.entity import EntityDescription
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 
-from .api.models import ChangeableSettings
 from .coordinator import SkybellConfigEntry, SkybellDataUpdateCoordinator
 from .entity import SkybellEntity
 
@@ -64,11 +63,11 @@ class SkybellCamera(SkybellEntity, Camera):
 
     async def async_enable_motion_detection(self) -> None:
         """Enable motion detection in the camera."""
-        await self._device.set_settings(ChangeableSettings(motion_detection=True))
+        await self._device.set_settings(motion_detection=True)
 
     async def async_disable_motion_detection(self) -> None:
         """Disable motion detection in camera."""
-        await self._device.set_settings(ChangeableSettings(motion_detection=False))
+        await self._device.set_settings(motion_detection=False)
 
 
 class SkybellActivityCamera(SkybellCamera):

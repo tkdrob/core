@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from collections.abc import Callable
+from collections.abc import Awaitable, Callable
 import dataclasses
 from typing import Any
 
@@ -11,7 +11,7 @@ from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 
 from .api.device import SkybellDevice
-from .api.models import BasicMotion, ChangeableMotionSettings, ChangeableSettings
+from .api.models import BasicMotion
 from .coordinator import SkybellConfigEntry
 from .entity import SkybellEntity
 
@@ -23,8 +23,8 @@ class SkybellSwitchEntityDescription(SwitchEntityDescription):
     available_fn: Callable[[SkybellDevice], bool] = (
         lambda d: not d.info.shared_read_only
     )
-    turn_on_fn: ChangeableSettings | ChangeableMotionSettings
-    turn_off_fn: ChangeableSettings | ChangeableMotionSettings
+    turn_on_fn: Callable[[SkybellDevice], Awaitable]
+    turn_off_fn: Callable[[SkybellDevice], Awaitable]
     is_on_fn: Callable[[SkybellDevice], bool]
 
 
@@ -32,24 +32,24 @@ SWITCH_TYPES: tuple[SkybellSwitchEntityDescription, ...] = (
     SkybellSwitchEntityDescription(
         key="do_not_disturb",
         translation_key="do_not_disturb",
-        turn_on_fn=ChangeableSettings(indoor_chime=False),
-        turn_off_fn=ChangeableSettings(indoor_chime=True),
+        turn_on_fn=lambda d: d.set_settings(indoor_chime=False),
+        turn_off_fn=lambda d: d.set_settings(indoor_chime=True),
         is_on_fn=lambda d: not d.info.settings.indoor_chime,
     ),
     SkybellSwitchEntityDescription(
         key="do_not_ring",
         translation_key="do_not_ring",
-        turn_on_fn=ChangeableSettings(outdoor_chime=False),
-        turn_off_fn=ChangeableSettings(outdoor_chime=True),
+        turn_on_fn=lambda d: d.set_settings(outdoor_chime=False),
+        turn_off_fn=lambda d: d.set_settings(outdoor_chime=True),
         is_on_fn=lambda d: not d.info.settings.outdoor_chime,
     ),
     SkybellSwitchEntityDescription(
         key="motion_sensor",
         translation_key="motion_sensor",
-        turn_on_fn=ChangeableMotionSettings(
+        turn_on_fn=lambda d: d.set_settings(
             basic_motion=BasicMotion(motion_record=True)
         ),
-        turn_off_fn=ChangeableMotionSettings(
+        turn_off_fn=lambda d: d.set_settings(
             basic_motion=BasicMotion(motion_record=False)
         ),
         is_on_fn=lambda d: d.info.settings.basic_motion is not None
@@ -81,14 +81,12 @@ class SkybellSwitch(SkybellEntity, SwitchEntity):
 
     async def async_turn_on(self, **kwargs: Any) -> None:
         """Turn on the switch."""
-        option = self.entity_description.turn_on_fn
-        await self._device.set_settings(option)
+        await self.entity_description.turn_on_fn(self._device)
         self.coordinator.async_set_updated_data(None)
 
     async def async_turn_off(self, **kwargs: Any) -> None:
         """Turn off the switch."""
-        option = self.entity_description.turn_off_fn
-        await self._device.set_settings(option)
+        await self.entity_description.turn_off_fn(self._device)
         self.coordinator.async_set_updated_data(None)
 
     @property
